@@ -478,8 +478,8 @@ export default function WeekPage() {
                                         <p className="font-black text-foreground text-lg uppercase italic truncate">{ev.title}</p>
                                       </div>
                                       <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1 italic">
-                                        {format(parseISO(ev.start_date), "d MMM", { locale: fr })} —{" "}
-                                        {format(parseISO(ev.end_date), "d MMM yyyy", { locale: fr })}
+                                        {format(parseISO(ev.start_date), "d MMM", { locale: getDateLocale() })} —{" "}
+                                        {format(parseISO(ev.end_date), "d MMM yyyy", { locale: getDateLocale() })}
                                       </p>
                                     </div>
                                     <div className="flex items-center gap-2">
