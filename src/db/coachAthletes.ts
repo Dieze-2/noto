@@ -120,6 +120,8 @@ export async function removeAthlete(relationId: string) {
     .delete()
     .eq("id", relationId);
   if (error) throw error;
+  // Sync athlete count with Stripe
+  syncAthleteQuantity().catch(() => {});
 }
 
 /** Get athlete profile info (email) by user id */
