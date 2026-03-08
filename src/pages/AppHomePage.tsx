@@ -19,7 +19,7 @@ import {
 } from "@/db/workouts";
 import { listCatalogExercises, CatalogExercise } from "@/db/catalog";
 import { getEventsOverlappingRange, EventRow } from "@/db/events";
-
+import CoachSessionCard from "@/components/CoachSessionCard";
 
 const MAX_DOTS = 4;
 const METRICS_DEBOUNCE_MS = 600;
@@ -468,6 +468,25 @@ export default function AppHomePage() {
           onChange={(v) => updateMetric("weight", v)}
           onBlur={() => flushMetricsForDate(dateISO).catch(() => {})}
           colorClass="text-metric-weight" inputMode="decimal" />
+      </div>
+
+      {/* ── Coach-assigned sessions ── */}
+      <div className="mb-10">
+        <CoachSessionCard
+          loggedExerciseNames={masters.map((m) => m.exercise_name)}
+          onLogExercise={(name, sets, reps, rest, workType) => {
+            // Parse reps from the program format (e.g. "10" or "8-12")
+            const repsNum = reps.match(/\d+/)?.[0] ?? "";
+            setMasterForm({
+              exercise_name: name,
+              load_type: "KG",
+              weight: "",
+              reps: repsNum,
+            });
+            setShowSuggestions(false);
+            setMasterOpen(true);
+          }}
+        />
       </div>
 
       {/* ── Workout section ── */}

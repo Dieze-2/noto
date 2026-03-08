@@ -381,5 +381,11 @@
     "generatedOn": "Generated on",
     "export": "Export PDF",
     "downloaded": "PDF downloaded!"
+  },
+  "coachSession": {
+    "title": "Coach sessions",
+    "exercisesDone": "done",
+    "log": "Log",
+    "rest": "Rest"
   }
 }

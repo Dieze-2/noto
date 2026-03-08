@@ -416,5 +416,11 @@
     "generatedOn": "Généré le",
     "export": "Exporter PDF",
     "downloaded": "PDF téléchargé !"
+  },
+  "coachSession": {
+    "title": "Séances du coach",
+    "exercisesDone": "fait(s)",
+    "log": "Logger",
+    "rest": "Repos"
   }
 }
