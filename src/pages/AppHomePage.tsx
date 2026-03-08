@@ -495,7 +495,7 @@ export default function AppHomePage() {
       {/* Add Master */}
       <Drawer open={masterOpen} onClose={() => setMasterOpen(false)} title={t("today.addExercise")}>
         <div className="glass rounded-[2rem] p-6 space-y-4">
-          <input placeholder="Exercice..."
+          <input placeholder={t("today.exercise")}
             className="w-full glass rounded-xl px-4 py-3 font-bold uppercase italic outline-none text-foreground focus:ring-1 focus:ring-primary"
             value={masterForm.exercise_name}
             onChange={(e) => { setMasterForm({ ...masterForm, exercise_name: e.target.value }); setShowSuggestions(true); }} />
