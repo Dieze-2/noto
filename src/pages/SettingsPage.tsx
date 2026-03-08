@@ -394,6 +394,38 @@ export default function SettingsPage() {
           </button>
         </div>
 
+        {/* ── LANGUAGE ── */}
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={() => {
+              const langs = ["fr", "en", "es"] as const;
+              const idx = langs.indexOf(i18n.language as any);
+              const next = langs[(idx + 1) % langs.length];
+              i18n.changeLanguage(next);
+              localStorage.setItem("lang", next);
+            }}
+            className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left"
+          >
+            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary">
+              <Globe size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.language")}</p>
+              <p className="text-[10px] text-muted-foreground font-bold">
+                {i18n.language === "fr" ? t("settings.langFr") : i18n.language === "en" ? t("settings.langEn") : t("settings.langEs")}
+              </p>
+            </div>
+            <div className="flex gap-1">
+              {(["fr", "en", "es"] as const).map((l) => (
+                <span key={l} className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${i18n.language === l ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  {l}
+                </span>
+              ))}
+            </div>
+          </button>
+        </div>
+
         {/* ── DÉCONNEXION ── */}
         <button
           onClick={handleLogout}
@@ -401,16 +433,16 @@ export default function SettingsPage() {
           className="w-full flex items-center justify-center gap-2 py-4 rounded-3xl bg-destructive/10 text-destructive text-sm font-black uppercase tracking-wider hover:bg-destructive/20 transition-colors disabled:opacity-50"
         >
           <LogOut size={18} />
-          {loggingOut ? "Déconnexion…" : "Se déconnecter"}
+          {loggingOut ? t("settings.loggingOut") : t("settings.logout")}
         </button>
       </motion.div>
 
       {/* ═══ DRAWER OBJECTIFS ═══ */}
-      <SettingsDrawer open={goalsOpen} onClose={() => setGoalsOpen(false)} title="Objectifs">
+      <SettingsDrawer open={goalsOpen} onClose={() => setGoalsOpen(false)} title={t("settings.goals")}>
         <div className="space-y-4">
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Weight size={12} className="text-metric-weight" /> Poids cible (kg)
+              <Weight size={12} className="text-metric-weight" /> {t("settings.targetWeight")}
             </label>
             <input
               type="number" step="0.1" placeholder="Ex: 75.0"
@@ -420,7 +452,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Footprints size={12} className="text-metric-steps" /> Pas quotidiens
+              <Footprints size={12} className="text-metric-steps" /> {t("settings.targetSteps")}
             </label>
             <input
               type="number" step="100" placeholder="Ex: 10000"
@@ -430,7 +462,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Flame size={12} className="text-metric-kcal" /> Calories quotidiennes
+              <Flame size={12} className="text-metric-kcal" /> {t("settings.targetKcal")}
             </label>
             <input
               type="number" step="50" placeholder="Ex: 2200"
@@ -444,30 +476,30 @@ export default function SettingsPage() {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <Check size={16} />
-            {savingGoals ? "Sauvegarde…" : "Enregistrer"}
+            {savingGoals ? t("settings.saving") : t("settings.register")}
           </button>
         </div>
       </SettingsDrawer>
 
       {/* ═══ DRAWER MOT DE PASSE ═══ */}
-      <SettingsDrawer open={passwordOpen} onClose={() => setPasswordOpen(false)} title="Mot de passe">
+      <SettingsDrawer open={passwordOpen} onClose={() => setPasswordOpen(false)} title={t("settings.password")}>
         <div className="space-y-4">
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Lock size={12} /> Nouveau mot de passe
+              <Lock size={12} /> {t("settings.newPassword")}
             </label>
             <input
-              type="password" placeholder="6 caractères minimum"
+              type="password" placeholder={t("settings.minChars")}
               value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
               className="w-full glass rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
             />
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Check size={12} /> Confirmer
+              <Check size={12} /> {t("settings.confirm")}
             </label>
             <input
-              type="password" placeholder="Confirmer le mot de passe"
+              type="password" placeholder={t("settings.confirmPlaceholder")}
               value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full glass rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
             />
@@ -478,18 +510,17 @@ export default function SettingsPage() {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <Check size={16} />
-            {changingPw ? "Modification…" : "Changer le mot de passe"}
+            {changingPw ? t("settings.changingPassword") : t("settings.changePassword")}
           </button>
         </div>
       </SettingsDrawer>
 
       {/* ═══ DRAWER DONNÉES ═══ */}
-      <SettingsDrawer open={dataOpen} onClose={() => setDataOpen(false)} title="Données">
+      <SettingsDrawer open={dataOpen} onClose={() => setDataOpen(false)} title={t("settings.data")}>
         <div className="space-y-5">
-          {/* Métriques */}
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              Métriques quotidiennes
+              {t("settings.dailyMetrics")}
             </p>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -497,37 +528,36 @@ export default function SettingsPage() {
                 className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 text-primary text-xs font-black uppercase tracking-wider hover:bg-primary/20 transition-colors"
               >
                 <Download size={16} />
-                Exporter
+                {t("settings.export")}
               </button>
               <button
                 onClick={() => { handleImport(); setDataOpen(false); }}
                 className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-muted text-muted-foreground text-xs font-black uppercase tracking-wider hover:text-foreground transition-colors"
               >
                 <Upload size={16} />
-                Importer
+                {t("settings.import")}
               </button>
             </div>
             <p className="text-[9px] text-muted-foreground mt-1">
-              CSV : date, weight_g, steps, kcal, note
+              {t("settings.csvFormat")}
             </p>
           </div>
 
           <div className="h-px bg-border" />
 
-          {/* Séances */}
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              Séances d'entraînement
+              {t("settings.workouts")}
             </p>
             <button
               onClick={() => { exportWorkoutsCSV(); setDataOpen(false); }}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 text-primary text-xs font-black uppercase tracking-wider hover:bg-primary/20 transition-colors"
             >
               <Download size={16} />
-              Exporter les séances
+              {t("settings.exportWorkouts")}
             </button>
             <p className="text-[9px] text-muted-foreground mt-1">
-              CSV : date, exercise_name, load_type, load_g, reps
+              {t("settings.csvWorkoutFormat")}
             </p>
           </div>
         </div>
