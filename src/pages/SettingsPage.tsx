@@ -358,8 +358,8 @@ export default function SettingsPage() {
           />
           <SettingRow
             icon={Lock}
-            label="Mot de passe"
-            sublabel="Changer le mot de passe"
+            label={t("settings.password")}
+            sublabel={t("settings.changePassword")}
             onClick={() => setPasswordOpen(true)}
             iconColor="text-metric-weight"
           />
