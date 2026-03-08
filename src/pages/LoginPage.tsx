@@ -19,6 +19,16 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/#/reset-password`,
+      });
+      if (error) setError(error.message);
+      else setError(t("login.resetEmailSent"));
+      setLoading(false);
+      return;
+    }
+
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
