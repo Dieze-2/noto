@@ -513,6 +513,29 @@ export default function CoachAthleteViewPage() {
 
         {activeTab === "overview" ? (
           <>
+            {/* ── Coach Alerts ── */}
+            {alerts.length > 0 && (
+              <div className="space-y-2">
+                {alerts.map((alert, i) => {
+                  const Icon = alert.icon;
+                  return (
+                    <motion.div
+                      key={alert.type}
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className={`flex items-center gap-3 p-3 rounded-2xl border ${alert.bgColor}`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${alert.color} bg-background/50`}>
+                        <Icon size={16} />
+                      </div>
+                      <p className="text-xs font-bold text-foreground flex-1">{alert.message}</p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Summary cards */}
             <div className="grid grid-cols-2 gap-3">
               <GlassCard className="p-4 rounded-2xl space-y-1">
