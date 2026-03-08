@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.customer-portal]
 verify_jwt = false
+
+[functions.expire-trials]
+verify_jwt = false
