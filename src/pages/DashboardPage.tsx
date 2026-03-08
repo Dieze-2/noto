@@ -116,6 +116,13 @@ function buildExerciseOpts(height: number): uPlot.Options {
         fill: "hsla(156,100%,50%,0.08)",
         points: { size: 4, fill: "hsl(156,100%,50%)" },
       },
+      {
+        label: "Charge (kg)",
+        stroke: "hsl(36,100%,55%)",
+        width: 1.5,
+        dash: [6, 4],
+        points: { size: 3, fill: "hsl(36,100%,55%)" },
+      },
     ],
   };
 }
@@ -204,9 +211,9 @@ export default function DashboardPage() {
     return [xs, ys];
   }, [weightData]);
 
-  /* Build exercise chart data — e1RM */
+  /* Build exercise chart data — e1RM + charge brute */
   const exChartData = useMemo<uPlot.AlignedData>(() => {
-    if (!exData.length) return [[], []];
+    if (!exData.length) return [[], [], []];
 
     const xs = exData.map((d: any) => toUnix(d.workout_date));
     const e1rms = exData.map((d: any) => {
@@ -218,8 +225,15 @@ export default function DashboardPage() {
       if (totalLoad <= 0) return 0;
       return totalLoad * (1 + (d.reps ?? 0) / 30);
     });
+    const charges = exData.map((d: any) => {
+      const load = (d.load_g ?? 0) / 1000;
+      const sortedWeights = allWeightData.filter((w) => w.date <= d.workout_date && w.weight_g != null);
+      const closestWeight = sortedWeights.length > 0 ? sortedWeights[sortedWeights.length - 1] : null;
+      const bw = closestWeight ? (closestWeight.weight_g ?? 0) / 1000 : 0;
+      return d.load_type === "PDC" || d.load_type === "PDC_PLUS" ? load + bw : load;
+    });
 
-    return [xs, e1rms];
+    return [xs, e1rms, charges];
   }, [exData, allWeightData]);
 
   /* Chart options (memoized to avoid re-creates) */
