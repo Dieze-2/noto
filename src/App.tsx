@@ -16,6 +16,7 @@ import CoachDashboardPage from "@/pages/CoachDashboardPage";
 import CoachAthleteViewPage from "@/pages/CoachAthleteViewPage";
 import ProgramPage from "@/pages/ProgramPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import PricingPage from "@/pages/PricingPage";
 import NotFound from "@/pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -48,6 +49,7 @@ function ProtectedRoutes() {
           <Route path="/coach" element={<CoachDashboardPage />} />
           <Route path="/coach/athlete/:athleteId" element={<CoachAthleteViewPage />} />
           <Route path="/program" element={<ProgramPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AppShell>

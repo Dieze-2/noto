@@ -253,6 +253,49 @@
     "usage": "{{count}} / {{max}} athletes",
     "limitReached": "Athlete limit reached",
     "upgradeHint": "Upgrade your plan to invite more athletes.",
-    "remainingSlots": "{{count}} slot(s) remaining"
+    "remainingSlots": "{{count}} slot(s) remaining",
+    "upgrade": "Upgrade"
+  },
+  "pricing": {
+    "title": "Our Plans",
+    "subtitle": "Choose the plan that fits your coaching activity.",
+    "back": "Back",
+    "popular": "Popular",
+    "comingSoon": "Coming soon",
+    "note": "All plans include unlimited access to all features. Only the number of athletes varies.",
+    "classic": {
+      "name": "Classic",
+      "tagline": "Get started",
+      "extra": "",
+      "features": [
+        "Up to 20 athletes",
+        "Full coach dashboard",
+        "Custom programs",
+        "Metrics tracking",
+        "Email support"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "tagline": "For experienced coaches",
+      "extra": "+ €{{price}}/month per athlete beyond 20",
+      "features": [
+        "Up to 50 athletes",
+        "Everything in Classic",
+        "Early access to new features",
+        "Priority support"
+      ]
+    },
+    "club": {
+      "name": "Club",
+      "tagline": "For organizations",
+      "extra": "+ €{{price}}/month per athlete beyond 50",
+      "features": [
+        "Unlimited athletes",
+        "Everything in Pro",
+        "Dedicated support",
+        "Custom billing"
+      ]
+    }
   }
 }
