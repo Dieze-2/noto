@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { subMonths, format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -7,6 +7,8 @@ import uPlot from "uplot";
 
 import GlassCard from "@/components/GlassCard";
 import UPlotChart from "@/components/UPlotChart";
+import ExercisePickerSheet from "@/components/ExercisePickerSheet";
+import ChartFullscreen, { ChartExpandButton } from "@/components/ChartFullscreen";
 import { getDailyMetricsRange, getFirstWeightDate, DailyMetrics } from "@/db/dailyMetrics";
 import {
   listTrackedExercises,
