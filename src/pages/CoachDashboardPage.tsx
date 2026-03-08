@@ -306,8 +306,8 @@ export default function CoachDashboardPage() {
                       onClick={() => navigate(`/coach/athlete/${a.athlete_id}`)}
                       className="flex-1 flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left"
                     >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isInactive ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary"}`}>
-                        {isInactive ? <Moon size={14} /> : <Eye size={14} />}
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isInactive ? "bg-[hsl(36,100%,55%)]/15 text-[hsl(36,100%,55%)]" : "bg-primary/10 text-primary"}`}>
+                        {isInactive ? <Moon size={14} className="text-[hsl(36,100%,55%)]" /> : <Eye size={14} />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <span className="text-sm font-bold text-foreground truncate block">
