@@ -16,7 +16,7 @@ interface PDFWorkout {
 
 interface PDFSession {
   name: string;
-  exercises: { exercise_name: string; sets: number; reps: string; rest: string; work_type: string; note: string | null }[];
+  exercises: { exercise_name: string; sets: number | string; reps: string; rest: string; work_type: string; note: string | null }[];
 }
 
 interface PDFPersonalRecord {
