@@ -258,16 +258,29 @@ export default function DashboardPage() {
     const reps = exData.map((d: any) => d.reps ?? 0);
     const maxLoad = Math.max(...loads);
     const maxReps = Math.max(...reps);
-    const nonZeroLoads = loads.filter((l: number) => l > 0);
-    const firstLoad = nonZeroLoads.length > 0 ? nonZeroLoads[0] : 0;
-    const lastLoad = nonZeroLoads.length > 0 ? nonZeroLoads[nonZeroLoads.length - 1] : 0;
-    const progression = firstLoad > 0 ? ((lastLoad - firstLoad) / firstLoad) * 100 : null;
-    // Reps progression fallback for PDC exercises
+    const isPDC = maxLoad === 0;
+
+    // Compute total loads (charge + bodyweight for PDC/PDC_PLUS)
+    const totalLoads = exData.map((d: any) => {
+      const load = (d.load_g ?? 0) / 1000;
+      const sortedWeights = allWeightData.filter((w) => w.date <= d.workout_date && w.weight_g != null);
+      const closestWeight = sortedWeights.length > 0 ? sortedWeights[sortedWeights.length - 1] : null;
+      const bw = closestWeight ? (closestWeight.weight_g ?? 0) / 1000 : 0;
+      return d.load_type === "PDC" || d.load_type === "PDC_PLUS" ? load + bw : load;
+    });
+
+    const maxTotal = Math.max(...totalLoads);
+    const firstTotal = totalLoads[0];
+    const lastTotal = totalLoads[totalLoads.length - 1];
+    const progression = firstTotal > 0 ? ((lastTotal - firstTotal) / firstTotal) * 100 : null;
+
+    // Reps progression fallback for pure PDC with no weight data
     const firstReps = reps[0];
     const lastReps = reps[reps.length - 1];
     const repsProg = firstReps > 0 ? ((lastReps - firstReps) / firstReps) * 100 : null;
-    return { maxLoad, maxReps, lastLoad, progression, repsProg, sessions: exData.length, isPDC: maxLoad === 0 };
-  }, [exData]);
+
+    return { maxLoad, maxTotal, maxReps, lastLoad: loads[loads.length - 1], progression, repsProg, sessions: exData.length, isPDC };
+  }, [exData, allWeightData]);
 
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
@@ -412,10 +425,10 @@ export default function DashboardPage() {
             <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="bg-muted rounded-xl p-3 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                  {exStats.isPDC ? "Reps max" : "Charge max"}
+                  {exStats.isPDC ? "Reps max" : "Total max"}
                 </p>
                 <p className="text-lg font-black text-foreground">
-                  {exStats.isPDC ? exStats.maxReps : exStats.maxLoad}
+                  {exStats.isPDC ? exStats.maxReps : exStats.maxTotal.toFixed(1)}
                   <span className="text-xs text-muted-foreground ml-0.5">{exStats.isPDC ? "reps" : "kg"}</span>
                 </p>
               </div>
