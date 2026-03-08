@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { subMonths, format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -7,6 +7,8 @@ import uPlot from "uplot";
 
 import GlassCard from "@/components/GlassCard";
 import UPlotChart from "@/components/UPlotChart";
+import ExercisePickerSheet from "@/components/ExercisePickerSheet";
+import ChartFullscreen, { ChartExpandButton } from "@/components/ChartFullscreen";
 import { getDailyMetricsRange, getFirstWeightDate, DailyMetrics } from "@/db/dailyMetrics";
 import {
   listTrackedExercises,
@@ -151,6 +153,9 @@ export default function DashboardPage() {
   const [showTotal, setShowTotal] = useState(false);
   const [loadingEx, setLoadingEx] = useState(true);
 
+  /* Fullscreen state */
+  const [fullscreenChart, setFullscreenChart] = useState<"weight" | "exercise" | null>(null);
+
   /* Load exercise list */
   useEffect(() => {
     listTrackedExercises().then((list) => {
@@ -249,6 +254,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2">
               <Weight size={18} className="text-[hsl(var(--metric-weight))]" />
               <h2 className="text-noto-label text-foreground">Poids</h2>
+              <ChartExpandButton onClick={() => setFullscreenChart("weight")} />
             </div>
             <div className="flex gap-1">
               {RANGE_LABELS.map(({ key, label }) => (
@@ -305,6 +311,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2">
               <Dumbbell size={18} className="text-primary" />
               <h2 className="text-noto-label text-foreground">Exercice</h2>
+              <ChartExpandButton onClick={() => setFullscreenChart("exercise")} />
             </div>
             <div className="flex gap-1">
               {RANGE_LABELS.map(({ key, label }) => (
@@ -323,22 +330,14 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Exercise selector */}
+          {/* Exercise selector — bottom sheet */}
           {exercises.length > 0 && (
-            <div className="mb-3 flex flex-wrap gap-2">
-              {exercises.map((ex) => (
-                <button
-                  key={ex}
-                  onClick={() => setSelectedExercise(ex)}
-                  className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                    selectedExercise === ex
-                      ? "bg-primary/20 text-primary border border-primary/30"
-                      : "bg-muted text-muted-foreground hover:text-foreground border border-transparent"
-                  }`}
-                >
-                  {ex}
-                </button>
-              ))}
+            <div className="mb-3">
+              <ExercisePickerSheet
+                exercises={exercises}
+                selected={selectedExercise}
+                onSelect={setSelectedExercise}
+              />
             </div>
           )}
 
@@ -382,6 +381,21 @@ export default function DashboardPage() {
             <UPlotChart options={exOpts} data={exChartData} />
           )}
         </GlassCard>
+        {/* Fullscreen overlays */}
+        <ChartFullscreen
+          open={fullscreenChart === "weight"}
+          onClose={() => setFullscreenChart(null)}
+          title="Poids"
+          options={weightOpts}
+          data={weightChartData}
+        />
+        <ChartFullscreen
+          open={fullscreenChart === "exercise"}
+          onClose={() => setFullscreenChart(null)}
+          title={selectedExercise || "Exercice"}
+          options={exOpts}
+          data={exChartData}
+        />
       </motion.div>
     </div>
   );
