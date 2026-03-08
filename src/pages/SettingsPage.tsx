@@ -381,8 +381,8 @@ export default function SettingsPage() {
               {dark ? <Moon size={18} /> : <Sun size={18} />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-black uppercase tracking-wider text-foreground">Thème</p>
-              <p className="text-[10px] text-muted-foreground font-bold">{dark ? "Mode sombre" : "Mode clair"}</p>
+              <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.theme")}</p>
+              <p className="text-[10px] text-muted-foreground font-bold">{dark ? t("settings.darkMode") : t("settings.lightMode")}</p>
             </div>
             <div className={`w-12 h-7 rounded-full p-1 transition-colors ${dark ? "bg-primary" : "bg-muted-foreground/30"}`}>
               <motion.div
