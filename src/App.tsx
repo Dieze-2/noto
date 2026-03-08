@@ -49,6 +49,7 @@ function ProtectedRoutes() {
           <Route path="/coach" element={<CoachDashboardPage />} />
           <Route path="/coach/athlete/:athleteId" element={<CoachAthleteViewPage />} />
           <Route path="/program" element={<ProgramPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AppShell>
