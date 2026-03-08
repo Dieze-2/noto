@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useRef, ReactNode } fro
 import { getUserRoles, AppRole } from "@/db/roles";
 import { useAuth } from "@/auth/AuthProvider";
 import { checkStripeSubscription, STRIPE_PLANS, CoachPlan } from "@/db/coachSubscriptions";
+import { supabase } from "@/lib/supabaseClient";
 
 interface StripeSubscriptionInfo {
   subscribed: boolean;
