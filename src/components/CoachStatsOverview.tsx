@@ -99,9 +99,6 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       : 0;
 
     // --- Global e1RM progressions per exercise ---
-
-    // Per exercise across all athletes
-    const exerciseProgressions: { name: string; pct: number }[] = [];
     const perAthleteExercises = new Map<string, Map<string, any[]>>();
 
     allWorkouts.forEach((w) => {
@@ -112,12 +109,14 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       exes.get(w.exercise_name)!.push(w);
     });
 
+    // Compute per-athlete average progression
+    const athleteProgressionMap = new Map<string, number[]>();
+
     // Aggregate progression per exercise across all athletes
     const globalExProgression = new Map<string, number[]>();
-    perAthleteExercises.forEach((exes) => {
+    perAthleteExercises.forEach((exes, athleteId) => {
       exes.forEach((entries, exName) => {
         if (entries.length < 2) return;
-        // Find first and last entries with usable data
         const first = entries[0];
         const last = entries[entries.length - 1];
         const firstLoad = (first.load_g ?? 0) / 1000;
@@ -126,12 +125,10 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
         let pct: number | null = null;
 
         if (firstLoad > 0 && lastLoad > 0) {
-          // Both have load: use e1RM
           const firstE1RM = computeE1RM(firstLoad, first.reps);
           const lastE1RM = computeE1RM(lastLoad, last.reps);
           if (firstE1RM > 0) pct = ((lastE1RM - firstE1RM) / firstE1RM) * 100;
         } else if (lastLoad > 0 && firstLoad <= 0) {
-          // Started bodyweight, now has load — find first entry with load
           const firstWithLoad = entries.find((e: any) => (e.load_g ?? 0) > 0);
           const lastWithLoad = [...entries].reverse().find((e: any) => (e.load_g ?? 0) > 0);
           if (firstWithLoad && lastWithLoad && firstWithLoad !== lastWithLoad) {
@@ -140,22 +137,24 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
             if (fE1RM > 0) pct = ((lE1RM - fE1RM) / fE1RM) * 100;
           }
         } else {
-          // Pure bodyweight: use reps as proxy
           if (first.reps > 0) pct = ((last.reps - first.reps) / first.reps) * 100;
         }
 
         if (pct !== null) {
           if (!globalExProgression.has(exName)) globalExProgression.set(exName, []);
           globalExProgression.get(exName)!.push(pct);
+
+          if (!athleteProgressionMap.has(athleteId)) athleteProgressionMap.set(athleteId, []);
+          athleteProgressionMap.get(athleteId)!.push(pct);
         }
       });
     });
 
+    const exerciseProgressions: { name: string; pct: number }[] = [];
     globalExProgression.forEach((values, name) => {
       const avg = values.reduce((a, b) => a + b, 0) / values.length;
       exerciseProgressions.push({ name, pct: avg });
     });
-
     exerciseProgressions.sort((a, b) => b.pct - a.pct);
 
     // Overall avg progression
@@ -164,10 +163,18 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       ? allProgressions.reduce((a, b) => a + b, 0) / allProgressions.length
       : null;
 
-    // Best & worst exercise
-    const bestExercise = exerciseProgressions.length > 0 ? exerciseProgressions[0] : null;
-    const worstExercise = exerciseProgressions.length > 0
-      ? exerciseProgressions[exerciseProgressions.length - 1]
+    // Best & worst ATHLETE
+    const athleteAvgProgressions: { id: string; name: string; pct: number }[] = [];
+    athleteProgressionMap.forEach((values, id) => {
+      const avg = values.reduce((a, b) => a + b, 0) / values.length;
+      const profile = profiles[id];
+      athleteAvgProgressions.push({ id, name: displayName(profile, id.slice(0, 8)), pct: avg });
+    });
+    athleteAvgProgressions.sort((a, b) => b.pct - a.pct);
+
+    const bestAthlete = athleteAvgProgressions.length > 0 ? athleteAvgProgressions[0] : null;
+    const worstAthlete = athleteAvgProgressions.length > 0
+      ? athleteAvgProgressions[athleteAvgProgressions.length - 1]
       : null;
 
     return {
@@ -177,8 +184,8 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       avgFrequency,
       avgProgression,
       consistencyRate,
-      bestExercise,
-      worstExercise,
+      bestAthlete,
+      worstAthlete,
       topExercises: exerciseProgressions.slice(0, 5),
     };
   }, [recentWorkouts, allWorkouts, acceptedAthletes.length]);
