@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/GlassCard";
 import { motion } from "framer-motion";
+import logo from "@/assets/logo.png";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
