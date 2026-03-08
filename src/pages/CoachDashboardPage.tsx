@@ -137,9 +137,12 @@ export default function CoachDashboardPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-        <h1 className="text-noto-title text-3xl text-primary text-center mb-6">
-          {t("coach.title")}
-        </h1>
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <h1 className="text-noto-title text-3xl text-primary text-center">
+            {t("coach.title")}
+          </h1>
+          <CoachNotificationBell />
+        </div>
 
         {/* ── Subscription banner ── */}
         <GlassCard className="p-4 rounded-2xl">
