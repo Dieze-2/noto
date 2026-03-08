@@ -29,10 +29,7 @@ export default function CatalogPage() {
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center gap-2 mb-6">
-          <BookOpen size={22} className="text-primary" />
-          <h1 className="text-noto-title text-3xl text-primary">Catalogue</h1>
-        </div>
+        <h1 className="text-noto-title text-3xl text-primary text-center mb-6">Catalogue</h1>
 
         {/* Search */}
         <div className="flex items-center gap-2 bg-muted rounded-2xl px-4 py-3 mb-6 border border-border">
