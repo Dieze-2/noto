@@ -113,6 +113,42 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
 
+  /* Goals state */
+  const [targetWeight, setTargetWeight] = useState("");
+  const [targetSteps, setTargetSteps] = useState("");
+  const [targetKcal, setTargetKcal] = useState("");
+  const [savingGoals, setSavingGoals] = useState(false);
+  const [goalsLoaded, setGoalsLoaded] = useState(false);
+
+  useEffect(() => {
+    getUserGoals()
+      .then((g) => {
+        if (g) {
+          setTargetWeight(g.target_weight_g ? (g.target_weight_g / 1000).toString() : "");
+          setTargetSteps(g.target_steps?.toString() ?? "");
+          setTargetKcal(g.target_kcal?.toString() ?? "");
+        }
+        setGoalsLoaded(true);
+      })
+      .catch(() => setGoalsLoaded(true));
+  }, []);
+
+  const handleSaveGoals = async () => {
+    setSavingGoals(true);
+    try {
+      await saveUserGoals({
+        target_weight_g: targetWeight ? Math.round(parseFloat(targetWeight) * 1000) : null,
+        target_steps: targetSteps ? parseInt(targetSteps) : null,
+        target_kcal: targetKcal ? parseInt(targetKcal) : null,
+      });
+      toast.success("Objectifs sauvegardés !");
+    } catch (e: any) {
+      toast.error("Erreur : " + e.message);
+    } finally {
+      setSavingGoals(false);
+    }
+  };
+
   const handleLogout = async () => {
     setLoggingOut(true);
     await supabase.auth.signOut();
