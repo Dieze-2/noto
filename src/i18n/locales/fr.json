@@ -198,7 +198,11 @@
     "backToExercises": "Retour aux exercices",
     "searchExercise": "Rechercher un exercice…",
     "exercisesTracked": "exercices suivis",
-    "detailedHistory": "Historique détaillé"
+    "detailedHistory": "Historique détaillé",
+    "completionTitle": "Complétion des données",
+    "last30days": "30 derniers jours",
+    "trainingConsistency": "Assiduité entraînement",
+    "weeksActive": "sem. actives"
   },
   "coachStats": {
     "title": "Statistiques",
