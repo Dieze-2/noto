@@ -214,11 +214,11 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
         return {
           name,
           sessions: dates.length,
-          maxVolume,
-          lastVolume: lastVol,
+          maxVolume: maxE1RM,
+          lastVolume: lastE1RM,
           lastDate: entries[entries.length - 1].workout_date,
           trend,
-          sparkData: volumes.slice(-12),
+          sparkData: e1rms.slice(-12),
           isPDC,
         };
       })
