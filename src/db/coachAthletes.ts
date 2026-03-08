@@ -71,6 +71,15 @@ export async function rejectInvitation(invitationId: string) {
   if (error) throw error;
 }
 
+/** Coach: remove an athlete (delete the coach_athletes row) */
+export async function removeAthlete(relationId: string) {
+  const { error } = await supabase
+    .from("coach_athletes")
+    .delete()
+    .eq("id", relationId);
+  if (error) throw error;
+}
+
 /** Get athlete profile info (email) by user id */
 export async function getAthleteEmail(userId: string): Promise<string | null> {
   // We can't query auth.users from client, so we rely on invite_email

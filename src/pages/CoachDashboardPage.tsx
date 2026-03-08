@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, UserPlus, Mail, ChevronRight, Eye,
-  Loader2, Send, X, User, Crown, AlertTriangle,
+  Loader2, Send, X, User, Crown, AlertTriangle, Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -12,7 +12,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import GlassCard from "@/components/GlassCard";
 import { useRoles } from "@/auth/RoleProvider";
 import {
-  getCoachAthletes, inviteAthlete, CoachAthlete,
+  getCoachAthletes, inviteAthlete, removeAthlete, CoachAthlete,
 } from "@/db/coachAthletes";
 import { getProfiles, displayName, Profile } from "@/db/profiles";
 import {
@@ -40,6 +40,10 @@ export default function CoachDashboardPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [sending, setSending] = useState(false);
+
+  /* remove confirm */
+  const [removeTarget, setRemoveTarget] = useState<CoachAthlete | null>(null);
+  const [removing, setRemoving] = useState(false);
 
   const refresh = async () => {
     setLoadingData(true);
@@ -88,6 +92,21 @@ export default function CoachDashboardPage() {
       toast.error(e.message);
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    if (!removeTarget) return;
+    setRemoving(true);
+    try {
+      await removeAthlete(removeTarget.id);
+      toast.success(t("coach.athleteRemoved"));
+      setRemoveTarget(null);
+      refresh();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setRemoving(false);
     }
   };
 
@@ -251,19 +270,27 @@ export default function CoachDashboardPage() {
                 const profile = a.athlete_id ? profiles[a.athlete_id] : null;
                 const name = displayName(profile, a.invite_email ?? a.athlete_id ?? undefined);
                 return (
-                  <button
-                    key={a.id}
-                    onClick={() => navigate(`/coach/athlete/${a.athlete_id}`)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                      <Eye size={14} />
-                    </div>
-                    <span className="text-sm font-bold text-foreground flex-1 truncate">
-                      {name}
-                    </span>
-                    <ChevronRight size={14} className="text-muted-foreground/40" />
-                  </button>
+                  <div key={a.id} className="flex items-center gap-2">
+                    <button
+                      onClick={() => navigate(`/coach/athlete/${a.athlete_id}`)}
+                      className="flex-1 flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                        <Eye size={14} />
+                      </div>
+                      <span className="text-sm font-bold text-foreground flex-1 truncate">
+                        {name}
+                      </span>
+                      <ChevronRight size={14} className="text-muted-foreground/40" />
+                    </button>
+                    <button
+                      onClick={() => setRemoveTarget(a)}
+                      className="shrink-0 p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      title={t("coach.removeAthlete")}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 );
               })}
             </div>
@@ -281,6 +308,13 @@ export default function CoachDashboardPage() {
                   <span className="text-[10px] font-bold uppercase text-warning bg-warning/10 px-2 py-0.5 rounded-full">
                     {t("coach.pending")}
                   </span>
+                  <button
+                    onClick={() => setRemoveTarget(a)}
+                    className="shrink-0 p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    title={t("coach.cancelInvite")}
+                  >
+                    <X size={12} />
+                  </button>
                 </div>
               ))}
             </div>
@@ -340,6 +374,54 @@ export default function CoachDashboardPage() {
                       {sending ? t("coach.sending") : t("coach.sendInvite")}
                     </button>
                   </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ═══ Remove confirmation dialog ═══ */}
+      <AnimatePresence>
+        {removeTarget && (
+          <>
+            <motion.button
+              type="button" aria-label="Close" onClick={() => setRemoveTarget(null)}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-background/70 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-[70] flex items-center justify-center px-4"
+            >
+              <div className="w-full max-w-sm rounded-3xl border border-border glass shadow-xl p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive">
+                    <AlertTriangle size={18} />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+                    {removeTarget.status === "pending" ? t("coach.cancelInviteTitle") : t("coach.removeAthleteTitle")}
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground font-bold">
+                  {removeTarget.status === "pending"
+                    ? t("coach.cancelInviteConfirm", { email: removeTarget.invite_email })
+                    : t("coach.removeAthleteConfirm", { name: displayName(removeTarget.athlete_id ? profiles[removeTarget.athlete_id] : null, removeTarget.invite_email ?? undefined) })}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setRemoveTarget(null)}
+                    className="flex-1 py-2.5 rounded-xl bg-muted text-foreground text-xs font-black uppercase tracking-wider hover:bg-muted/80 transition-colors"
+                  >
+                    {t("week.cancelLbl")}
+                  </button>
+                  <button
+                    onClick={handleRemove}
+                    disabled={removing}
+                    className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {removing ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t("coach.confirmRemove")}
+                  </button>
                 </div>
               </div>
             </motion.div>
