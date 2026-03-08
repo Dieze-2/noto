@@ -41,6 +41,10 @@ export default function CoachDashboardPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [sending, setSending] = useState(false);
 
+  /* remove confirm */
+  const [removeTarget, setRemoveTarget] = useState<CoachAthlete | null>(null);
+  const [removing, setRemoving] = useState(false);
+
   const refresh = async () => {
     setLoadingData(true);
     const [a, inviteCheck] = await Promise.all([
