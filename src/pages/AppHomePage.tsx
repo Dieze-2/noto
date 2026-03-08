@@ -418,10 +418,10 @@ export default function AppHomePage() {
           </button>
           <div className="text-center">
             <h1 className="text-noto-title text-3xl text-primary">
-              {format(currentDate, "EEEE d", { locale: fr })}
+              {format(currentDate, "EEEE d", { locale: getDateLocale() })}
             </h1>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">
-              {format(currentDate, "MMMM yyyy", { locale: fr })}
+              {format(currentDate, "MMMM yyyy", { locale: getDateLocale() })}
             </p>
             {/* Event dots */}
             {dayEvents.length > 0 && (
