@@ -353,7 +353,7 @@ export default function WeekPage() {
       <div className="mt-8">
         <button type="button" onClick={openNoteDrawer}
           className="w-full py-4 glass rounded-2xl font-black uppercase italic text-xs tracking-widest text-muted-foreground hover:text-foreground transition-colors">
-          NOTE
+          {t("week.note")}
         </button>
       </div>
 
