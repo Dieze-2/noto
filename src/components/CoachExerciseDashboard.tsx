@@ -218,7 +218,11 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
     const isPDC = loads.every((l) => l === 0);
     const first = loads[0];
     const last = loads[loads.length - 1];
-    const trend = first > 0 ? ((last - first) / first) * 100 : null;
+    const firstReps = reps[0];
+    const lastReps = reps[reps.length - 1];
+    const trend = isPDC
+      ? (firstReps > 0 ? ((lastReps - firstReps) / firstReps) * 100 : null)
+      : (first > 0 ? ((last - first) / first) * 100 : null);
     const dates = [...new Set(detailData.map((d) => d.workout_date))];
     return { maxLoad, maxReps, isPDC, trend, sessions: dates.length, lastLoad: last, avgReps: Math.round(reps.reduce((a, b) => a + b, 0) / reps.length) };
   }, [detailData]);
