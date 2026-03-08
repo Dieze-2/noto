@@ -58,6 +58,8 @@
     "progression": "Progression",
     "sessions": "Séances",
     "record": "Record",
+    "volumeMax": "Vol. max",
+    "volumeExplanation": "La progression est calculée sur le volume : charge totale × répétitions. Pour les exercices au poids du corps, la charge totale inclut votre poids.",
     "range3M": "3 mois",
     "range6M": "6 mois",
     "rangeAll": "Tout",

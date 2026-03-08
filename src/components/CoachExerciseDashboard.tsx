@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { format, subMonths, parseISO } from "date-fns";
 import { getDateLocale } from "@/i18n/dateLocale";
 import { useTranslation } from "react-i18next";
 import {
   Dumbbell, TrendingUp, TrendingDown, Minus,
-  ArrowLeft, Search,
+  ArrowLeft, Search, Info,
 } from "lucide-react";
 import uPlot from "uplot";
 
@@ -14,6 +14,7 @@ import UPlotChart from "@/components/UPlotChart";
 import ChartFullscreen, { ChartExpandButton } from "@/components/ChartFullscreen";
 import { supabase } from "@/lib/supabaseClient";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 /* ── Types ── */
 type RangeKey = "3M" | "6M" | "ALL";
@@ -26,16 +27,20 @@ interface ExerciseEntry {
   reps: number;
 }
 
+interface WeightEntry {
+  date: string;
+  weight_g: number;
+}
+
 interface ExerciseSummary {
   name: string;
   sessions: number;
-  maxLoad: number; // kg
-  lastLoad: number; // kg
+  maxVolume: number;
+  lastVolume: number;
   lastDate: string;
-  trend: number; // % progression first→last
-  sparkData: number[]; // last N load values for mini sparkline
+  trend: number; // % volume progression first→last
+  sparkData: number[]; // last N volume values
   isPDC: boolean;
-  maxReps: number;
 }
 
 interface Props {
@@ -52,6 +57,21 @@ function getRangeFrom(key: RangeKey, firstDate: string | null): string {
   if (key === "3M") return format(subMonths(now, 3), "yyyy-MM-dd");
   if (key === "6M") return format(subMonths(now, 6), "yyyy-MM-dd");
   return firstDate ?? format(subMonths(now, 12), "yyyy-MM-dd");
+}
+
+/** Get the closest bodyweight (kg) on or before a given date */
+function getBodyweightForDate(weights: WeightEntry[], date: string): number {
+  const before = weights.filter((w) => w.date <= date);
+  if (before.length === 0) return 0;
+  return before[before.length - 1].weight_g / 1000;
+}
+
+/** Compute volume for a single entry: totalLoad × reps */
+function computeVolume(entry: ExerciseEntry, weights: WeightEntry[]): number {
+  const load = (entry.load_g ?? 0) / 1000;
+  const isPDC = entry.load_type === "PDC" || entry.load_type === "PDC_PLUS";
+  const totalLoad = isPDC ? load + getBodyweightForDate(weights, entry.workout_date) : load;
+  return totalLoad * entry.reps;
 }
 
 function buildExOpts(height: number): uPlot.Options {
@@ -74,14 +94,14 @@ function buildExOpts(height: number): uPlot.Options {
         grid: { stroke: "hsla(220,6%,22%,0.4)", width: 1 },
         ticks: { stroke: "transparent" },
         font: "11px Inter",
-        values: (_u: uPlot, vals: number[]) => vals.map((v) => v.toFixed(1)),
+        values: (_u: uPlot, vals: number[]) => vals.map((v) => v.toFixed(0)),
         size: 48,
       },
     ],
     series: [
       {},
       {
-        label: "Charge (kg)",
+        label: "Volume (kg)",
         stroke: "hsl(156,100%,50%)",
         width: 2,
         fill: "hsla(156,100%,50%,0.08)",
@@ -91,7 +111,7 @@ function buildExOpts(height: number): uPlot.Options {
   };
 }
 
-/* ── Mini sparkline with canvas ── */
+/* ── Mini sparkline ── */
 function Sparkline({ data, color = "hsl(156,100%,50%)", width = 60, height = 28 }: { data: number[]; color?: string; width?: number; height?: number }) {
   if (data.length < 2) return <div style={{ width, height }} />;
   const min = Math.min(...data);
@@ -116,9 +136,27 @@ function Sparkline({ data, color = "hsl(156,100%,50%)", width = 60, height = 28 
   );
 }
 
+/* ── Volume info tooltip ── */
+function VolumeInfoTooltip() {
+  const { t } = useTranslation();
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Info size={12} className="text-muted-foreground cursor-help" />
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-[240px] text-xs">
+          {t("dashboard.volumeExplanation")}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
 export default function CoachExerciseDashboard({ athleteId }: Props) {
   const { t } = useTranslation();
   const [allData, setAllData] = useState<ExerciseEntry[]>([]);
+  const [weightData, setWeightData] = useState<WeightEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
@@ -131,16 +169,25 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
     { key: "ALL", label: t("dashboard.rangeAll") },
   ];
 
-  // Load all exercise data for this athlete
+  // Load all exercise data + weight data for this athlete
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
-        .from("v_workout_exercises_flat")
-        .select("workout_date, exercise_name, load_type, load_g, reps")
-        .eq("user_id", athleteId)
-        .order("workout_date", { ascending: true });
+      const [exRes, weightRes] = await Promise.all([
+        supabase
+          .from("v_workout_exercises_flat")
+          .select("workout_date, exercise_name, load_type, load_g, reps")
+          .eq("user_id", athleteId)
+          .order("workout_date", { ascending: true }),
+        supabase
+          .from("daily_metrics")
+          .select("date, weight_g")
+          .eq("user_id", athleteId)
+          .not("weight_g", "is", null)
+          .order("date", { ascending: true }),
+      ]);
 
-      if (!error && data) setAllData(data as ExerciseEntry[]);
+      if (!exRes.error && exRes.data) setAllData(exRes.data as ExerciseEntry[]);
+      if (!weightRes.error && weightRes.data) setWeightData(weightRes.data as WeightEntry[]);
       setLoading(false);
     })();
   }, [athleteId]);
@@ -155,36 +202,27 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
 
     return Array.from(map.entries())
       .map(([name, entries]) => {
-        const loads = entries.map((e) => (e.load_g ?? 0) / 1000);
-        const reps = entries.map((e) => e.reps);
-        const maxLoad = Math.max(...loads);
-        const maxReps = Math.max(...reps);
-        const isPDC = loads.every((l) => l === 0);
-        const lastLoad = loads[loads.length - 1];
-        const firstLoad = loads[0];
-        // Use reps progression for PDC, load progression otherwise
-        const firstReps = reps[0];
-        const lastReps = reps[reps.length - 1];
-        const trend = isPDC
-          ? (firstReps > 0 ? ((lastReps - firstReps) / firstReps) * 100 : 0)
-          : (firstLoad > 0 ? ((lastLoad - firstLoad) / firstLoad) * 100 : 0);
-        // Get unique session dates
+        const volumes = entries.map((e) => computeVolume(e, weightData));
+        const maxVolume = Math.max(...volumes);
+        const isPDC = entries.some((e) => e.load_type === "PDC" || e.load_type === "PDC_PLUS");
+        const firstVol = volumes[0];
+        const lastVol = volumes[volumes.length - 1];
+        const trend = firstVol > 0 ? ((lastVol - firstVol) / firstVol) * 100 : 0;
         const dates = [...new Set(entries.map((e) => e.workout_date))];
 
         return {
           name,
           sessions: dates.length,
-          maxLoad,
-          lastLoad,
+          maxVolume,
+          lastVolume: lastVol,
           lastDate: entries[entries.length - 1].workout_date,
           trend,
-          sparkData: loads.slice(-12),
+          sparkData: volumes.slice(-12),
           isPDC,
-          maxReps,
         };
       })
       .sort((a, b) => b.sessions - a.sessions);
-  }, [allData]);
+  }, [allData, weightData]);
 
   // Filter
   const filtered = summaries.filter((s) =>
@@ -200,36 +238,25 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
     return entries.filter((e) => e.workout_date >= from);
   }, [allData, selectedExercise, detailRange]);
 
-  const detailIsPDC = useMemo(() => detailData.every((d) => (d.load_g ?? 0) === 0), [detailData]);
-
   const detailChartData = useMemo<uPlot.AlignedData>(() => {
     if (detailData.length < 2) return [[], []];
     const xs = detailData.map((d) => toUnix(d.workout_date));
-    const ys = detailIsPDC
-      ? detailData.map((d) => d.reps)
-      : detailData.map((d) => (d.load_g ?? 0) / 1000);
+    const ys = detailData.map((d) => computeVolume(d, weightData));
     return [xs, ys];
-  }, [detailData, detailIsPDC]);
+  }, [detailData, weightData]);
 
   const detailOpts = useMemo(() => buildExOpts(220), []);
 
   const detailStats = useMemo(() => {
     if (detailData.length < 1) return null;
-    const loads = detailData.map((d) => (d.load_g ?? 0) / 1000);
-    const reps = detailData.map((d) => d.reps);
-    const maxLoad = Math.max(...loads);
-    const maxReps = Math.max(...reps);
-    const isPDC = loads.every((l) => l === 0);
-    const first = loads[0];
-    const last = loads[loads.length - 1];
-    const firstReps = reps[0];
-    const lastReps = reps[reps.length - 1];
-    const trend = isPDC
-      ? (firstReps > 0 ? ((lastReps - firstReps) / firstReps) * 100 : null)
-      : (first > 0 ? ((last - first) / first) * 100 : null);
+    const volumes = detailData.map((d) => computeVolume(d, weightData));
+    const maxVolume = Math.max(...volumes);
+    const first = volumes[0];
+    const last = volumes[volumes.length - 1];
+    const trend = first > 0 ? ((last - first) / first) * 100 : null;
     const dates = [...new Set(detailData.map((d) => d.workout_date))];
-    return { maxLoad, maxReps, isPDC, trend, sessions: dates.length, lastLoad: last, avgReps: Math.round(reps.reduce((a, b) => a + b, 0) / reps.length) };
-  }, [detailData]);
+    return { maxVolume, trend, sessions: dates.length, lastVolume: last };
+  }, [detailData, weightData]);
 
   if (loading) {
     return (
@@ -307,15 +334,18 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
             <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="bg-muted rounded-xl p-3 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                  {detailStats.isPDC ? t("dashboard.repsMax") : t("dashboard.record")}
+                  {t("dashboard.volumeMax")}
                 </p>
                 <p className="text-lg font-black text-foreground">
-                  {detailStats.isPDC ? detailStats.maxReps : detailStats.maxLoad.toFixed(1)}
-                  <span className="text-xs text-muted-foreground ml-0.5">{detailStats.isPDC ? "reps" : "kg"}</span>
+                  {detailStats.maxVolume.toFixed(0)}
+                  <span className="text-xs text-muted-foreground ml-0.5">kg</span>
                 </p>
               </div>
               <div className="bg-muted rounded-xl p-3 text-center">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">{t("dashboard.progression")}</p>
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{t("dashboard.progression")}</p>
+                  <VolumeInfoTooltip />
+                </div>
                 {(() => {
                   const prog = detailStats.trend;
                   if (prog === null) return <p className="text-lg font-black text-muted-foreground">—</p>;
@@ -340,17 +370,21 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
                 {t("coach.detailedHistory")}
               </h3>
               <div className="max-h-60 overflow-y-auto space-y-1">
-                {[...detailData].reverse().map((d, i) => (
-                  <div key={i} className="flex items-center gap-3 py-1.5 border-b border-border/20 last:border-0">
-                    <span className="text-[10px] font-black text-muted-foreground w-14">
-                      {format(parseISO(d.workout_date), "dd/MM")}
-                    </span>
-                    <span className="text-xs font-bold text-foreground flex-1">
-                      {d.load_type === "PDC" ? "PDC" : d.load_type === "PDC_PLUS" ? `PDC+${(d.load_g ?? 0) / 1000}` : `${(d.load_g ?? 0) / 1000} kg`}
-                    </span>
-                    <span className="text-xs font-black text-primary">{d.reps} reps</span>
-                  </div>
-                ))}
+                {[...detailData].reverse().map((d, i) => {
+                  const vol = computeVolume(d, weightData);
+                  return (
+                    <div key={i} className="flex items-center gap-3 py-1.5 border-b border-border/20 last:border-0">
+                      <span className="text-[10px] font-black text-muted-foreground w-14">
+                        {format(parseISO(d.workout_date), "dd/MM")}
+                      </span>
+                      <span className="text-xs font-bold text-foreground flex-1">
+                        {d.load_type === "PDC" ? "PDC" : d.load_type === "PDC_PLUS" ? `PDC+${(d.load_g ?? 0) / 1000}` : `${(d.load_g ?? 0) / 1000} kg`}
+                        {" × "}{d.reps} reps
+                      </span>
+                      <span className="text-xs font-black text-primary">{vol.toFixed(0)} kg</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -382,9 +416,12 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
       </div>
 
       {/* Summary header */}
-      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-        {filtered.length} {t("coach.exercisesTracked")}
-      </p>
+      <div className="flex items-center gap-2">
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+          {filtered.length} {t("coach.exercisesTracked")}
+        </p>
+        <VolumeInfoTooltip />
+      </div>
 
       {/* Exercise cards */}
       <div className="space-y-2">
@@ -405,20 +442,18 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] text-muted-foreground font-bold">
-                      {ex.isPDC
-                        ? `${ex.maxReps} reps max`
-                        : `${ex.maxLoad.toFixed(1)} kg max`}
+                      {ex.maxVolume.toFixed(0)} kg vol. max
                     </span>
                     <span className="text-[10px] text-muted-foreground">
                       {ex.sessions} {t("dashboard.sessions").toLowerCase()}
                     </span>
-                    {ex.trend !== 0 && !ex.isPDC && (
+                    {ex.trend !== 0 && (
                       <span className={`flex items-center gap-0.5 text-[10px] font-black ${ex.trend > 0 ? "text-primary" : "text-destructive"}`}>
                         {ex.trend > 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                         {ex.trend > 0 ? "+" : ""}{ex.trend.toFixed(0)}%
                       </span>
                     )}
-                    {ex.trend === 0 && !ex.isPDC && (
+                    {ex.trend === 0 && (
                       <Minus size={10} className="text-muted-foreground" />
                     )}
                   </div>

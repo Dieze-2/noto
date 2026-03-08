@@ -58,6 +58,8 @@
     "progression": "Progression",
     "sessions": "Sessions",
     "record": "Record",
+    "volumeMax": "Max vol.",
+    "volumeExplanation": "Progression is based on volume: total load × reps. For bodyweight exercises, total load includes your bodyweight.",
     "range3M": "3 months",
     "range6M": "6 months",
     "rangeAll": "All",
