@@ -306,5 +306,12 @@
         "Facturation personnalisée"
       ]
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Aucune notification",
+    "markAllRead": "Tout marquer lu",
+    "accepted": "{{email}} a accepté votre invitation",
+    "rejected": "{{email}} a refusé votre invitation"
   }
 }
