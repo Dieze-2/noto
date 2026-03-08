@@ -412,6 +412,7 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
+        </GlassCard>
         {/* Fullscreen overlays */}
         <ChartFullscreen
           open={fullscreenChart === "weight"}
