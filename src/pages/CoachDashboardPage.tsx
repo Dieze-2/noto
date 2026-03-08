@@ -62,14 +62,30 @@ export default function CoachDashboardPage() {
     setMaxAllowed(inviteCheck.maxAllowed);
     setCurrentPlan(inviteCheck.plan);
 
-    // Fetch profiles for accepted athletes
+    // Fetch profiles + last workout dates for accepted athletes
     const athleteIds = a
       .filter((x) => x.status === "accepted" && x.athlete_id)
       .map((x) => x.athlete_id!);
-    const profileList = await getProfiles(athleteIds);
+    const [profileList, workoutsRes] = await Promise.all([
+      getProfiles(athleteIds),
+      athleteIds.length > 0
+        ? supabase
+            .from("workouts")
+            .select("user_id, date")
+            .in("user_id", athleteIds)
+            .order("date", { ascending: false })
+        : Promise.resolve({ data: [] }),
+    ]);
     const map: Record<string, Profile> = {};
     profileList.forEach((p) => { map[p.id] = p; });
     setProfiles(map);
+
+    // Build last workout map
+    const lwMap: Record<string, string> = {};
+    (workoutsRes.data ?? []).forEach((w: any) => {
+      if (!lwMap[w.user_id]) lwMap[w.user_id] = w.date;
+    });
+    setLastWorkouts(lwMap);
 
     setLoadingData(false);
   };
