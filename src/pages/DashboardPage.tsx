@@ -80,28 +80,7 @@ function buildWeightOpts(height: number): uPlot.Options {
   };
 }
 
-function buildExerciseOpts(height: number, showTotal: boolean): uPlot.Options {
-  const series: uPlot.Series[] = [
-    {},
-    {
-      label: "Charge (kg)",
-      stroke: "hsl(156,100%,50%)",
-      width: 2,
-      fill: "hsla(156,100%,50%,0.08)",
-      points: { size: 4, fill: "hsl(156,100%,50%)" },
-    },
-  ];
-
-  if (showTotal) {
-    series.push({
-      label: "Total (kg)",
-      stroke: "hsl(36,100%,55%)",
-      width: 2,
-      dash: [6, 4],
-      points: { size: 3, fill: "hsl(36,100%,55%)" },
-    });
-  }
-
+function buildExerciseOpts(height: number): uPlot.Options {
   return {
     width: 300,
     height,
@@ -128,7 +107,16 @@ function buildExerciseOpts(height: number, showTotal: boolean): uPlot.Options {
         size: 48,
       },
     ],
-    series,
+    series: [
+      {},
+      {
+        label: "e1RM (kg)",
+        stroke: "hsl(156,100%,50%)",
+        width: 2,
+        fill: "hsla(156,100%,50%,0.08)",
+        points: { size: 4, fill: "hsl(156,100%,50%)" },
+      },
+    ],
   };
 }
 
@@ -152,7 +140,7 @@ export default function DashboardPage() {
   const [exRange, setExRange] = useState<RangeKey>("3M");
   const [exData, setExData] = useState<any[]>([]);
   const [firstExDate, setFirstExDate] = useState<string | null>(null);
-  const [showTotal, setShowTotal] = useState(false);
+  const [_showTotal, _setShowTotal] = useState(false); // kept for compatibility
   const [loadingEx, setLoadingEx] = useState(true);
 
   /* All weight data for Total calculation (independent of weight chart range) */
@@ -216,32 +204,27 @@ export default function DashboardPage() {
     return [xs, ys];
   }, [weightData]);
 
-  /* Build exercise chart data */
+  /* Build exercise chart data — e1RM */
   const exChartData = useMemo<uPlot.AlignedData>(() => {
     if (!exData.length) return [[], []];
 
     const xs = exData.map((d: any) => toUnix(d.workout_date));
-    const loads = exData.map((d: any) => (d.load_g ?? 0) / 1000);
+    const e1rms = exData.map((d: any) => {
+      const load = (d.load_g ?? 0) / 1000;
+      const sortedWeights = allWeightData.filter((w) => w.date <= d.workout_date && w.weight_g != null);
+      const closestWeight = sortedWeights.length > 0 ? sortedWeights[sortedWeights.length - 1] : null;
+      const bw = closestWeight ? (closestWeight.weight_g ?? 0) / 1000 : 0;
+      const totalLoad = d.load_type === "PDC" || d.load_type === "PDC_PLUS" ? load + bw : load;
+      if (totalLoad <= 0) return 0;
+      return totalLoad * (1 + (d.reps ?? 0) / 30);
+    });
 
-    if (showTotal) {
-      // Find last known weight for each date
-      const totalLoads = exData.map((d: any) => {
-        const load = (d.load_g ?? 0) / 1000;
-        // Find closest weight measurement BEFORE or on this date (search backwards)
-        const sortedWeights = allWeightData.filter((w) => w.date <= d.workout_date && w.weight_g != null);
-        const closestWeight = sortedWeights.length > 0 ? sortedWeights[sortedWeights.length - 1] : null;
-        const lastWeight = closestWeight ? (closestWeight.weight_g ?? 0) / 1000 : 0;
-        return d.load_type === "PDC" || d.load_type === "PDC_PLUS" ? load + lastWeight : load;
-      });
-      return [xs, loads, totalLoads];
-    }
-
-    return [xs, loads];
-  }, [exData, showTotal, allWeightData]);
+    return [xs, e1rms];
+  }, [exData, allWeightData]);
 
   /* Chart options (memoized to avoid re-creates) */
   const weightOpts = useMemo(() => buildWeightOpts(220), []);
-  const exOpts = useMemo(() => buildExerciseOpts(220, showTotal), [showTotal]);
+  const exOpts = useMemo(() => buildExerciseOpts(220), []);
 
   /* Stats */
   const weightStats = useMemo(() => {
@@ -378,31 +361,7 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Toggle total (charge + poids du corps) */}
-          {selectedExercise && (
-            <div className="mb-3 flex items-center gap-2">
-              <button
-                onClick={() => setShowTotal(false)}
-                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                  !showTotal
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {t("dashboard.charge")}
-              </button>
-              <button
-                onClick={() => setShowTotal(true)}
-                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                  showTotal
-                    ? "bg-[hsl(var(--metric-kcal))] text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {t("dashboard.total")}
-              </button>
-            </div>
-          )}
+
 
           {loadingEx && exercises.length === 0 ? (
             <Skeleton className="h-[220px] w-full rounded-2xl" />
