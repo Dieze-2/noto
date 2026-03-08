@@ -317,9 +317,9 @@ export default function SettingsPage() {
   /* Goals summary */
   const goalsSummary = [
     targetWeight && `${targetWeight} kg`,
-    targetSteps && `${parseInt(targetSteps).toLocaleString()} pas`,
-    targetKcal && `${parseInt(targetKcal).toLocaleString()} kcal`,
-  ].filter(Boolean).join(" · ") || "Non définis";
+    targetSteps && `${parseInt(targetSteps).toLocaleString()} ${t("settings.steps")}`,
+    targetKcal && `${parseInt(targetKcal).toLocaleString()} ${t("settings.kcal")}`,
+  ].filter(Boolean).join(" · ") || t("settings.goalsNotSet");
 
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
