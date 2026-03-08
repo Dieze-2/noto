@@ -19,11 +19,11 @@ export const STRIPE_PLANS = {
   },
   pro: {
     product_id: "prod_U6z7kGgni4DyDT",
-    price_id: "price_1T8l9O1n7Oqx2mJLA1siBNWF",
+    price_id: "price_1T8lR71n7Oqx2mJLmQTD5rve",
   },
   club: {
     product_id: "prod_U6z7wSSDyqdiL6",
-    price_id: "price_1T8l9h1n7Oqx2mJLInYmNSQ7",
+    price_id: "price_1T8lPI1n7Oqx2mJLXgmMli3V",
   },
 } as const;
 

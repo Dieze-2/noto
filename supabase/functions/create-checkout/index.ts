@@ -10,8 +10,8 @@ const corsHeaders = {
 
 const PLAN_PRICES: Record<string, string> = {
   classic: "price_1T8kt61n7Oqx2mJLHUgS2FMa",
-  pro: "price_1T8l9O1n7Oqx2mJLA1siBNWF",
-  club: "price_1T8l9h1n7Oqx2mJLInYmNSQ7",
+  pro: "price_1T8lR71n7Oqx2mJLmQTD5rve",
+  club: "price_1T8lPI1n7Oqx2mJLXgmMli3V",
 };
 
 serve(async (req) => {
