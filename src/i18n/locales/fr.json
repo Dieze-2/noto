@@ -287,6 +287,10 @@
     "cancellationRequested": "Demande d'annulation envoyée. Un administrateur va l'examiner.",
     "cancelledSuccess": "Abonnement annulé. Votre rôle coach a été retiré.",
     "stripeComingSoon": "Le paiement Stripe sera bientôt disponible.",
+    "trialTitle": "Essai gratuit 30 jours",
+    "trialDesc": "Découvrez l'espace coaching gratuitement pendant 30 jours. Sans engagement, sans carte bancaire.",
+    "requestTrial": "Demander un essai gratuit",
+    "trialRequested": "Demande d'essai envoyée ! Un administrateur va l'examiner.",
     "comingSoon": "Bientôt disponible",
     "note": "Tous les forfaits incluent un accès illimité à toutes les fonctionnalités. Seul le nombre d'athlètes varie.",
     "classic": {
