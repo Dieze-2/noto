@@ -326,30 +326,36 @@ export default function SettingsPage() {
             onClick={() => setPasswordOpen(true)}
             iconColor="text-metric-weight"
           />
-        </div>
+          <SettingRow
+            icon={Database}
+            label="Données"
+            sublabel="Importer ou exporter en CSV"
+            onClick={() => setDataOpen(true)}
+            iconColor="text-metric-kcal"
+          />
 
-        {/* ── IMPORT / EXPORT ── */}
-        <SettingsSection icon={Download} title="Données">
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={exportDailyMetricsCSV}
-              className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 text-primary text-xs font-black uppercase tracking-wider hover:bg-primary/20 transition-colors"
-            >
-              <Download size={16} />
-              Exporter
-            </button>
-            <button
-              onClick={handleImport}
-              className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-muted text-muted-foreground text-xs font-black uppercase tracking-wider hover:text-foreground transition-colors"
-            >
-              <Upload size={16} />
-              Importer
-            </button>
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-2">
-            Format CSV : date, weight_g, steps, kcal, note
-          </p>
-        </SettingsSection>
+          {/* Theme toggle — inline, no drawer */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left"
+          >
+            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary">
+              {dark ? <Moon size={18} /> : <Sun size={18} />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-black uppercase tracking-wider text-foreground">Thème</p>
+              <p className="text-[10px] text-muted-foreground font-bold">{dark ? "Mode sombre" : "Mode clair"}</p>
+            </div>
+            <div className={`w-12 h-7 rounded-full p-1 transition-colors ${dark ? "bg-primary" : "bg-muted-foreground/30"}`}>
+              <motion.div
+                className="w-5 h-5 rounded-full bg-primary-foreground shadow"
+                animate={{ x: dark ? 20 : 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              />
+            </div>
+          </button>
+        </div>
 
         {/* ── DÉCONNEXION ── */}
         <button
