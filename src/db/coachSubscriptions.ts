@@ -11,25 +11,58 @@ export interface CoachSubscription {
   updated_at: string;
 }
 
-/** Cancel the current coach's subscription */
-export async function cancelCoachSubscription(): Promise<void> {
+/** Request cancellation (sets pending_cancellation flag) */
+export async function requestCancellation(): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  // Remove subscription
+  const { error } = await supabase
+    .from("coach_subscriptions")
+    .update({ pending_cancellation: true })
+    .eq("coach_id", user.id);
+  if (error) throw error;
+}
+
+/** Admin: approve cancellation — role stays until end of current month, then removed */
+export async function approveCancellation(coachId: string): Promise<void> {
+  const endOfMonth = new Date();
+  endOfMonth.setMonth(endOfMonth.getMonth() + 1, 0); // last day of current month
+  endOfMonth.setHours(23, 59, 59, 999);
+
+  const { error } = await supabase
+    .from("coach_subscriptions")
+    .update({
+      pending_cancellation: false,
+      cancel_at: endOfMonth.toISOString(),
+    })
+    .eq("coach_id", coachId);
+  if (error) throw error;
+}
+
+/** Cancel the coach subscription immediately (used internally after cancel_at date) */
+export async function cancelCoachSubscription(coachId: string): Promise<void> {
   const { error } = await supabase
     .from("coach_subscriptions")
     .delete()
-    .eq("coach_id", user.id);
+    .eq("coach_id", coachId);
   if (error) throw error;
 
-  // Remove coach role
   const { error: roleError } = await supabase
     .from("user_roles")
     .delete()
-    .eq("user_id", user.id)
+    .eq("user_id", coachId)
     .eq("role", "coach");
   if (roleError) console.error("removeCoachRole:", roleError);
+}
+
+/** Get pending cancellation requests (admin) */
+export async function getPendingCancellations(): Promise<{ coach_id: string; plan: CoachPlan }[]> {
+  const { data, error } = await supabase
+    .from("coach_subscriptions")
+    .select("coach_id, plan")
+    .eq("pending_cancellation", true);
+  if (error) { console.error("getPendingCancellations:", error); return []; }
+  return data ?? [];
 }
 
 /** Admin: grant a 30-day coach trial to a user */
