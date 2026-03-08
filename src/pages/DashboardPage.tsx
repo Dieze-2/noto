@@ -133,6 +133,12 @@ function buildExerciseOpts(height: number, showTotal: boolean): uPlot.Options {
 
 /* ── Main Component ── */
 export default function DashboardPage() {
+  const { t } = useTranslation();
+  const RANGE_LABELS: { key: RangeKey; label: string }[] = [
+    { key: "3M", label: t("dashboard.range3M") },
+    { key: "6M", label: t("dashboard.range6M") },
+    { key: "ALL", label: t("dashboard.rangeAll") },
+  ];
   /* Weight state */
   const [weightRange, setWeightRange] = useState<RangeKey>("3M");
   const [weightData, setWeightData] = useState<DailyMetrics[]>([]);
