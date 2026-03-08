@@ -93,8 +93,8 @@ async function importDailyMetricsCSV(file: File) {
     };
   });
   const { error } = await supabase.from("daily_metrics").upsert(rows, { onConflict: "user_id,date" });
-  if (error) { toast.error("Erreur d'import : " + error.message); return; }
-  toast.success(`${rows.length} lignes importées !`);
+  if (error) { toast.error(i18n.t("settings.importError") + " : " + error.message); return; }
+  toast.success(i18n.t("settings.importSuccess", { count: rows.length }));
 }
 
 /* ── Drawer wrapper ── */
