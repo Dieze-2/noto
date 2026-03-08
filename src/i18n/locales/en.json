@@ -284,6 +284,7 @@
     "currentPlan": "Current plan",
     "changePlan": "Change plan",
     "cancelSubscription": "Cancel my subscription",
+    "cancellationRequested": "Cancellation request sent. An admin will review it.",
     "cancelledSuccess": "Subscription cancelled. Your coach role has been removed.",
     "stripeComingSoon": "Stripe payment coming soon.",
     "comingSoon": "Coming soon",
@@ -330,7 +331,8 @@
     "accepted": "{{email}} accepted your invitation",
     "rejected": "{{email}} declined your invitation",
     "coachRequest": "{{email}} wants to become a coach",
-    "subscriptionCancelled": "{{email}} cancelled their coach subscription"
+    "cancellationRequest": "{{email}} wants to cancel their subscription",
+    "cancellationApproved": "Your cancellation has been approved. Coach access active until end of month."
   },
   "admin": {
     "title": "Administration",
@@ -342,6 +344,11 @@
     "reject": "Reject",
     "approved": "Request approved! Coach role granted.",
     "rejected": "Request rejected.",
+    "cancellationRequests": "Cancellation requests",
+    "cancellationDesc": "Wants to cancel subscription",
+    "approveCancellation": "Approve",
+    "cancellationApproved": "Cancellation approved. Coach access active until end of month.",
+    "planLabel": "Plan {{plan}}",
     "grantTrial": "Coach trial (30 days)",
     "grantTrialDesc": "Grant free coach access for 30 days to a user.",
     "trialEmailPlaceholder": "User email…",

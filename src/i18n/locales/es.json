@@ -273,6 +273,7 @@
     "currentPlan": "Plan actual",
     "changePlan": "Cambiar de plan",
     "cancelSubscription": "Cancelar mi suscripción",
+    "cancellationRequested": "Solicitud de cancelación enviada. Un administrador la revisará.",
     "cancelledSuccess": "Suscripción cancelada. Tu rol de coach ha sido retirado.",
     "stripeComingSoon": "El pago con Stripe estará disponible pronto.",
     "comingSoon": "Próximamente",
@@ -319,7 +320,8 @@
     "accepted": "{{email}} aceptó tu invitación",
     "rejected": "{{email}} rechazó tu invitación",
     "coachRequest": "{{email}} quiere convertirse en coach",
-    "subscriptionCancelled": "{{email}} canceló su suscripción de coach"
+    "cancellationRequest": "{{email}} quiere cancelar su suscripción",
+    "cancellationApproved": "Tu cancelación ha sido aprobada. Acceso coach activo hasta fin de mes."
   },
   "admin": {
     "title": "Administración",
@@ -331,6 +333,11 @@
     "reject": "Rechazar",
     "approved": "¡Solicitud aprobada! Rol de coach asignado.",
     "rejected": "Solicitud rechazada.",
+    "cancellationRequests": "Solicitudes de cancelación",
+    "cancellationDesc": "Quiere cancelar su suscripción",
+    "approveCancellation": "Aprobar",
+    "cancellationApproved": "Cancelación aprobada. Acceso coach activo hasta fin de mes.",
+    "planLabel": "Plan {{plan}}",
     "grantTrial": "Prueba coach (30 días)",
     "grantTrialDesc": "Dar acceso coach gratuito por 30 días a un usuario.",
     "trialEmailPlaceholder": "Email del usuario…",
