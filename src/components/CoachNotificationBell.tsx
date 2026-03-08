@@ -116,7 +116,9 @@ export default function CoachNotificationBell() {
                             ? "bg-primary/10 text-primary"
                             : n.type === "coach_request"
                             ? "bg-warning/10 text-warning"
-                            : n.type === "subscription_cancelled"
+                            : n.type === "cancellation_request"
+                            ? "bg-destructive/10 text-destructive"
+                            : n.type === "cancellation_approved"
                             ? "bg-warning/10 text-warning"
                             : "bg-destructive/10 text-destructive"
                         }`}
@@ -125,7 +127,7 @@ export default function CoachNotificationBell() {
                           <UserCheck size={14} />
                         ) : n.type === "coach_request" ? (
                           <Crown size={14} />
-                        ) : n.type === "subscription_cancelled" ? (
+                        ) : n.type === "cancellation_request" || n.type === "cancellation_approved" ? (
                           <X size={14} />
                         ) : (
                           <UserX size={14} />
