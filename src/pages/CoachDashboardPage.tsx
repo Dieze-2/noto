@@ -304,9 +304,9 @@ export default function CoachDashboardPage() {
                   <div className="px-5 pb-6 space-y-4">
                     {/* Remaining slots info */}
                     <div className="text-[10px] font-bold text-muted-foreground text-center">
-                      {t("subscription.remainingSlots", {
-                        count: String(maxAllowed === Infinity ? "∞" : maxAllowed - athleteCount),
-                      } as any)}
+                      {String(t("subscription.remainingSlots", {
+                        count: maxAllowed === Infinity ? "∞" : String(maxAllowed - athleteCount),
+                      }))}
                     </div>
                     <div>
                       <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
