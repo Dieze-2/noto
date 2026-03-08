@@ -352,8 +352,8 @@ export default function SettingsPage() {
         <div className="space-y-3">
           <SettingRow
             icon={Target}
-            label="Objectifs"
-            sublabel={goalsLoaded ? goalsSummary : "Chargement…"}
+            label={t("settings.goals")}
+            sublabel={goalsLoaded ? goalsSummary : t("settings.loading")}
             onClick={() => setGoalsOpen(true)}
           />
           <SettingRow
