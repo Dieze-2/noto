@@ -283,6 +283,8 @@
     "alreadyCoach": "Déjà coach",
     "currentPlan": "Forfait actuel",
     "changePlan": "Changer de forfait",
+    "cancelSubscription": "Annuler mon abonnement",
+    "cancelledSuccess": "Abonnement annulé. Votre rôle coach a été retiré.",
     "stripeComingSoon": "Le paiement Stripe sera bientôt disponible.",
     "comingSoon": "Bientôt disponible",
     "note": "Tous les forfaits incluent un accès illimité à toutes les fonctionnalités. Seul le nombre d'athlètes varie.",
@@ -327,7 +329,8 @@
     "markAllRead": "Tout marquer lu",
     "accepted": "{{email}} a accepté votre invitation",
     "rejected": "{{email}} a refusé votre invitation",
-    "coachRequest": "{{email}} souhaite devenir coach"
+    "coachRequest": "{{email}} souhaite devenir coach",
+    "subscriptionCancelled": "{{email}} a annulé son abonnement coach"
   },
   "admin": {
     "title": "Administration",
@@ -338,6 +341,12 @@
     "approve": "Approuver",
     "reject": "Refuser",
     "approved": "Demande approuvée ! Le rôle coach a été attribué.",
-    "rejected": "Demande refusée."
+    "rejected": "Demande refusée.",
+    "grantTrial": "Essai coach (30 jours)",
+    "grantTrialDesc": "Attribuer un accès coach gratuit pendant 30 jours à un utilisateur.",
+    "trialEmailPlaceholder": "Email de l'utilisateur…",
+    "startTrial": "Démarrer",
+    "trialGranted": "Essai coach de 30 jours accordé !",
+    "userNotFound": "Utilisateur introuvable avec cet email."
   }
 }

@@ -116,6 +116,8 @@ export default function CoachNotificationBell() {
                             ? "bg-primary/10 text-primary"
                             : n.type === "coach_request"
                             ? "bg-warning/10 text-warning"
+                            : n.type === "subscription_cancelled"
+                            ? "bg-warning/10 text-warning"
                             : "bg-destructive/10 text-destructive"
                         }`}
                       >
@@ -123,6 +125,8 @@ export default function CoachNotificationBell() {
                           <UserCheck size={14} />
                         ) : n.type === "coach_request" ? (
                           <Crown size={14} />
+                        ) : n.type === "subscription_cancelled" ? (
+                          <X size={14} />
                         ) : (
                           <UserX size={14} />
                         )}
@@ -133,6 +137,8 @@ export default function CoachNotificationBell() {
                             ? t("notifications.accepted", { email: n.athlete_email ?? "?" })
                             : n.type === "coach_request"
                             ? t("notifications.coachRequest", { email: n.athlete_email ?? "?" })
+                            : n.type === "subscription_cancelled"
+                            ? t("notifications.subscriptionCancelled", { email: n.athlete_email ?? "?" })
                             : t("notifications.rejected", { email: n.athlete_email ?? "?" })}
                         </p>
                         <p className="text-[10px] text-muted-foreground font-bold mt-0.5">

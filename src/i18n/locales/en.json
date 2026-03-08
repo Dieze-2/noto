@@ -283,6 +283,8 @@
     "alreadyCoach": "Already a coach",
     "currentPlan": "Current plan",
     "changePlan": "Change plan",
+    "cancelSubscription": "Cancel my subscription",
+    "cancelledSuccess": "Subscription cancelled. Your coach role has been removed.",
     "stripeComingSoon": "Stripe payment coming soon.",
     "comingSoon": "Coming soon",
     "note": "All plans include unlimited access to all features. Only the number of athletes varies.",
@@ -327,7 +329,8 @@
     "markAllRead": "Mark all read",
     "accepted": "{{email}} accepted your invitation",
     "rejected": "{{email}} declined your invitation",
-    "coachRequest": "{{email}} wants to become a coach"
+    "coachRequest": "{{email}} wants to become a coach",
+    "subscriptionCancelled": "{{email}} cancelled their coach subscription"
   },
   "admin": {
     "title": "Administration",
@@ -338,6 +341,12 @@
     "approve": "Approve",
     "reject": "Reject",
     "approved": "Request approved! Coach role granted.",
-    "rejected": "Request rejected."
+    "rejected": "Request rejected.",
+    "grantTrial": "Coach trial (30 days)",
+    "grantTrialDesc": "Grant free coach access for 30 days to a user.",
+    "trialEmailPlaceholder": "User email…",
+    "startTrial": "Start",
+    "trialGranted": "30-day coach trial granted!",
+    "userNotFound": "No user found with this email."
   }
 }

@@ -6,8 +6,52 @@ export interface CoachSubscription {
   id: string;
   coach_id: string;
   plan: CoachPlan;
+  trial_end: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/** Cancel the current coach's subscription */
+export async function cancelCoachSubscription(): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  // Remove subscription
+  const { error } = await supabase
+    .from("coach_subscriptions")
+    .delete()
+    .eq("coach_id", user.id);
+  if (error) throw error;
+
+  // Remove coach role
+  const { error: roleError } = await supabase
+    .from("user_roles")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("role", "coach");
+  if (roleError) console.error("removeCoachRole:", roleError);
+}
+
+/** Admin: grant a 30-day coach trial to a user */
+export async function grantCoachTrial(userId: string): Promise<void> {
+  const trialEnd = new Date();
+  trialEnd.setDate(trialEnd.getDate() + 30);
+
+  // Add coach role
+  const { error: roleError } = await supabase
+    .from("user_roles")
+    .insert({ user_id: userId, role: "coach" });
+  if (roleError && !roleError.message.includes("duplicate")) throw roleError;
+
+  // Create or update subscription with trial
+  const { error } = await supabase
+    .from("coach_subscriptions")
+    .upsert({
+      coach_id: userId,
+      plan: "classic",
+      trial_end: trialEnd.toISOString(),
+    }, { onConflict: "coach_id" });
+  if (error) throw error;
 }
 
 /** Plan limits and pricing */

@@ -10,7 +10,7 @@ import { createNotification } from "@/db/notifications";
 import { supabase } from "@/lib/supabaseClient";
 import { getProfile, displayName } from "@/db/profiles";
 import { useRoles } from "@/auth/RoleProvider";
-import { getCoachSubscription, CoachPlan } from "@/db/coachSubscriptions";
+import { getCoachSubscription, cancelCoachSubscription, CoachPlan } from "@/db/coachSubscriptions";
 
 const plans = [
   {
@@ -57,6 +57,42 @@ export default function PricingPage() {
   const handleChangePlan = (planKey: string) => {
     // TODO: redirect to Stripe checkout/portal for plan change
     toast.info(t("pricing.stripeComingSoon"));
+  };
+
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleCancel = async () => {
+    setCancelling(true);
+    try {
+      // Notify admins before cancelling
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const profile = await getProfile(user.id);
+        const name = profile ? displayName(profile) : user.email ?? "";
+        const { data: adminRoles } = await supabase
+          .from("user_roles")
+          .select("user_id")
+          .eq("role", "admin");
+        if (adminRoles) {
+          for (const ar of adminRoles) {
+            await createNotification({
+              coach_id: ar.user_id,
+              type: "subscription_cancelled",
+              athlete_email: name,
+              athlete_id: user.id,
+            });
+          }
+        }
+      }
+
+      await cancelCoachSubscription();
+      toast.success(t("pricing.cancelledSuccess"));
+      navigate("/settings");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setCancelling(false);
+    }
   };
 
   const handleSubscribe = async (planKey: string) => {
@@ -228,6 +264,20 @@ export default function PricingPage() {
             );
           })}
         </div>
+
+        {/* Cancel subscription */}
+        {isCoach && (
+          <div className="text-center">
+            <button
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="text-xs font-bold text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50 flex items-center gap-1.5 mx-auto"
+            >
+              {cancelling && <Loader2 size={12} className="animate-spin" />}
+              {t("pricing.cancelSubscription")}
+            </button>
+          </div>
+        )}
 
         {/* Footer note */}
         <p className="text-center text-[10px] text-muted-foreground font-bold">
