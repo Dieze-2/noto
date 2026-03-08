@@ -359,8 +359,8 @@ export default function CoachAthleteViewPage() {
       result.push({
         type: "inactive",
         icon: Moon,
-        color: "text-warning",
-        bgColor: "border-warning/30 bg-warning/5",
+        color: "text-[hsl(36,100%,55%)]",
+        bgColor: "border-[hsl(36,100%,55%)]/30 bg-[hsl(36,100%,55%)]/10",
         message: daysSince != null
           ? t("coach.alertInactive", { days: daysSince })
           : t("coach.alertNoWorkout"),
