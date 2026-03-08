@@ -114,11 +114,15 @@ export default function CoachNotificationBell() {
                         className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                           n.type === "invitation_accepted"
                             ? "bg-primary/10 text-primary"
+                            : n.type === "coach_request"
+                            ? "bg-warning/10 text-warning"
                             : "bg-destructive/10 text-destructive"
                         }`}
                       >
                         {n.type === "invitation_accepted" ? (
                           <UserCheck size={14} />
+                        ) : n.type === "coach_request" ? (
+                          <Crown size={14} />
                         ) : (
                           <UserX size={14} />
                         )}
@@ -127,6 +131,8 @@ export default function CoachNotificationBell() {
                         <p className="text-xs font-bold text-foreground">
                           {n.type === "invitation_accepted"
                             ? t("notifications.accepted", { email: n.athlete_email ?? "?" })
+                            : n.type === "coach_request"
+                            ? t("notifications.coachRequest", { email: n.athlete_email ?? "?" })
                             : t("notifications.rejected", { email: n.athlete_email ?? "?" })}
                         </p>
                         <p className="text-[10px] text-muted-foreground font-bold mt-0.5">
