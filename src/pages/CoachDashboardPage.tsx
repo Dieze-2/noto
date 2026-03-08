@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, UserPlus, Mail, ChevronRight, Eye,
-  Loader2, Send, X,
+  Loader2, Send, X, User,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/auth/AuthProvider";
 
 import GlassCard from "@/components/GlassCard";
 import { useRoles } from "@/auth/RoleProvider";
