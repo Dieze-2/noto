@@ -456,7 +456,7 @@ export default function WeekPage() {
                         className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-colors ${
                           canCreate ? "bg-primary text-primary-foreground" : "glass text-muted-foreground border border-border"
                         }`}>
-                        Ajouter au calendrier
+                        {t("week.addToCalendar")}
                       </button>
                     </GlassCard>
 
