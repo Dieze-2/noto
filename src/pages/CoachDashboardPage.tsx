@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, UserPlus, Mail, ChevronRight, Eye,
-  Loader2, Send, X, User,
+  Loader2, Send, X, User, Crown, AlertTriangle,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -15,6 +15,10 @@ import {
   getCoachAthletes, inviteAthlete, CoachAthlete,
 } from "@/db/coachAthletes";
 import { getProfiles, displayName, Profile } from "@/db/profiles";
+import {
+  canInviteAthlete, PLAN_CONFIG, CoachPlan,
+  getCoachSubscription,
+} from "@/db/coachSubscriptions";
 
 export default function CoachDashboardPage() {
   const { t } = useTranslation();
@@ -26,6 +30,12 @@ export default function CoachDashboardPage() {
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [loadingData, setLoadingData] = useState(true);
 
+  /* subscription state */
+  const [currentPlan, setCurrentPlan] = useState<CoachPlan | null>(null);
+  const [athleteCount, setAthleteCount] = useState(0);
+  const [maxAllowed, setMaxAllowed] = useState(20);
+  const [canInvite, setCanInvite] = useState(true);
+
   /* invite drawer */
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -33,8 +43,15 @@ export default function CoachDashboardPage() {
 
   const refresh = async () => {
     setLoadingData(true);
-    const a = await getCoachAthletes();
+    const [a, inviteCheck] = await Promise.all([
+      getCoachAthletes(),
+      canInviteAthlete(),
+    ]);
     setAthletes(a);
+    setCanInvite(inviteCheck.allowed);
+    setAthleteCount(inviteCheck.currentCount);
+    setMaxAllowed(inviteCheck.maxAllowed);
+    setCurrentPlan(inviteCheck.plan);
 
     // Fetch profiles for accepted athletes
     const athleteIds = a
@@ -54,6 +71,14 @@ export default function CoachDashboardPage() {
     if (!inviteEmail.trim()) return;
     setSending(true);
     try {
+      // Re-check limit before inviting
+      const check = await canInviteAthlete();
+      if (!check.allowed) {
+        toast.error(t("subscription.limitReached"));
+        setCanInvite(false);
+        setSending(false);
+        return;
+      }
       await inviteAthlete(inviteEmail.trim());
       toast.success(t("coach.inviteSent"));
       setInviteEmail("");
@@ -86,6 +111,8 @@ export default function CoachDashboardPage() {
 
   const accepted = athletes.filter((a) => a.status === "accepted");
   const pending = athletes.filter((a) => a.status === "pending");
+  const planConfig = currentPlan ? PLAN_CONFIG[currentPlan] : PLAN_CONFIG.classic;
+  const usagePercent = maxAllowed === Infinity ? 0 : Math.round((athleteCount / maxAllowed) * 100);
 
   return (
     <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
@@ -94,10 +121,75 @@ export default function CoachDashboardPage() {
           {t("coach.title")}
         </h1>
 
+        {/* ── Subscription banner ── */}
+        <GlassCard className="p-4 rounded-2xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+              <Crown size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-foreground">
+                  {t("subscription.plan")} {planConfig.label}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                  {planConfig.priceLabel}
+                </span>
+              </div>
+              <p className="text-[10px] text-muted-foreground font-bold mt-0.5">
+                {t("subscription.usage", {
+                  count: athleteCount,
+                  max: maxAllowed === Infinity ? "∞" : maxAllowed,
+                })}
+              </p>
+            </div>
+          </div>
+          {/* Progress bar */}
+          {maxAllowed !== Infinity && (
+            <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  usagePercent >= 90 ? "bg-destructive" : usagePercent >= 70 ? "bg-warning" : "bg-primary"
+                }`}
+                style={{ width: `${Math.min(usagePercent, 100)}%` }}
+              />
+            </div>
+          )}
+        </GlassCard>
+
+        {/* ── Upgrade banner (when limit reached) ── */}
+        {!canInvite && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 p-4 rounded-2xl border border-destructive/30 bg-destructive/5"
+          >
+            <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive shrink-0">
+              <AlertTriangle size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-black uppercase tracking-wider text-foreground">
+                {t("subscription.limitReached")}
+              </p>
+              <p className="text-[10px] text-muted-foreground font-bold">
+                {t("subscription.upgradeHint")}
+              </p>
+            </div>
+          </motion.div>
+        )}
+
         {/* ── Invite button ── */}
         <button
-          onClick={() => setInviteOpen(true)}
-          className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left"
+          onClick={() => {
+            if (!canInvite) {
+              toast.error(t("subscription.limitReached"));
+              return;
+            }
+            setInviteOpen(true);
+          }}
+          className={`w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left ${
+            !canInvite ? "opacity-50" : ""
+          }`}
         >
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
             <UserPlus size={18} />
@@ -210,6 +302,12 @@ export default function CoachDashboardPage() {
                     </button>
                   </div>
                   <div className="px-5 pb-6 space-y-4">
+                    {/* Remaining slots info */}
+                    <div className="text-[10px] font-bold text-muted-foreground text-center">
+                      {t("subscription.remainingSlots", {
+                        count: maxAllowed === Infinity ? "∞" : maxAllowed - athleteCount,
+                      })}
+                    </div>
                     <div>
                       <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
                         <Mail size={12} /> {t("coach.athleteEmail")}

@@ -246,5 +246,12 @@
     "from": "De la part de",
     "accepted": "Invitation acceptée !",
     "rejected": "Invitation refusée"
+  },
+  "subscription": {
+    "plan": "Forfait",
+    "usage": "{{count}} / {{max}} athlètes",
+    "limitReached": "Limite d'athlètes atteinte",
+    "upgradeHint": "Passez au forfait supérieur pour inviter plus d'athlètes.",
+    "remainingSlots": "{{count}} place(s) restante(s)"
   }
 }

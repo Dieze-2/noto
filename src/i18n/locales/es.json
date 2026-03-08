@@ -235,5 +235,12 @@
     "from": "De parte de",
     "accepted": "¡Invitación aceptada!",
     "rejected": "Invitación rechazada"
+  },
+  "subscription": {
+    "plan": "Plan",
+    "usage": "{{count}} / {{max}} atletas",
+    "limitReached": "Límite de atletas alcanzado",
+    "upgradeHint": "Actualiza tu plan para invitar más atletas.",
+    "remainingSlots": "{{count}} plaza(s) disponible(s)"
   }
 }
