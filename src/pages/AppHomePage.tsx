@@ -18,7 +18,7 @@ import {
 } from "@/db/workouts";
 import { listCatalogExercises, CatalogExercise } from "@/db/catalog";
 import { getEventsOverlappingRange, EventRow } from "@/db/events";
-import logo from "@/assets/logo.png";
+
 
 const MAX_DOTS = 4;
 const METRICS_DEBOUNCE_MS = 600;
@@ -400,11 +400,7 @@ export default function AppHomePage() {
   /* ═══ RENDER ═══ */
   return (
     <div className="max-w-xl mx-auto px-4 pt-8 pb-32">
-      {/* ── Header with logo ── */}
       <header className="flex flex-col items-center mb-8">
-        <div className="w-24 h-24 relative rounded-full border border-border overflow-hidden mb-6 shadow-2xl bg-background">
-          <img src={logo} alt="NOTO" className="w-full h-full object-contain p-3" />
-        </div>
 
         {/* ── Date navigation ── */}
         <motion.div

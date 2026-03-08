@@ -10,6 +10,7 @@ import { format } from "date-fns";
 
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/auth/AuthProvider";
+import logo from "@/assets/logo.png";
 import { supabase } from "@/lib/supabaseClient";
 import { getDailyMetricsRange } from "@/db/dailyMetrics";
 import { getUserGoals, saveUserGoals } from "@/db/goals";
@@ -328,7 +329,8 @@ export default function SettingsPage() {
 
         {/* ── PROFIL ── */}
         <SettingsSection icon={User} title="Profil">
-          <div className="space-y-3">
+          <div className="relative space-y-3">
+            <img src={logo} alt="NOTO" className="absolute top-0 right-0 w-10 h-10 object-contain opacity-60" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email</span>
               <span className="text-sm font-bold text-foreground truncate ml-4">{user?.email ?? "—"}</span>
