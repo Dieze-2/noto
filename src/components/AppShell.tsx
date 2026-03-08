@@ -11,6 +11,7 @@ interface NavItem {
   key: string;
   icon: React.ElementType;
   coachOnly?: boolean;
+  adminOnly?: boolean;
 }
 
 const NAV_ICONS: NavItem[] = [
