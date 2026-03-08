@@ -157,7 +157,13 @@
     "totalSessions": "total sessions",
     "noTrainingData": "No training recorded",
     "exercisesCount": "exos",
-    "newProgram": "Create a program"
+    "newProgram": "Create a program",
+    "view_day": "Day",
+    "view_week": "Week",
+    "view_month": "Month",
+    "weeklyView": "Weekly view",
+    "monthlyView": "Monthly view",
+    "period": "Period"
   },
   "program": {
     "title": "Programs",

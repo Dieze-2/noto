@@ -157,7 +157,13 @@
     "totalSessions": "séances au total",
     "noTrainingData": "Aucun entraînement enregistré",
     "exercisesCount": "exos",
-    "newProgram": "Créer un programme"
+    "newProgram": "Créer un programme",
+    "view_day": "Jour",
+    "view_week": "Semaine",
+    "view_month": "Mois",
+    "weeklyView": "Vue hebdomadaire",
+    "monthlyView": "Vue mensuelle",
+    "period": "Période"
   },
   "program": {
     "title": "Programmes",

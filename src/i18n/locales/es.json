@@ -157,7 +157,13 @@
     "totalSessions": "sesiones totales",
     "noTrainingData": "Sin entrenamientos registrados",
     "exercisesCount": "ejer.",
-    "newProgram": "Crear un programa"
+    "newProgram": "Crear un programa",
+    "view_day": "Día",
+    "view_week": "Semana",
+    "view_month": "Mes",
+    "weeklyView": "Vista semanal",
+    "monthlyView": "Vista mensual",
+    "period": "Período"
   },
   "program": {
     "title": "Programas",

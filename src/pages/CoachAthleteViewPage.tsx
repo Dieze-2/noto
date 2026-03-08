@@ -8,12 +8,13 @@ import {
   Calendar,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 
 import GlassCard from "@/components/GlassCard";
 import { supabase } from "@/lib/supabaseClient";
 import { getProfile, displayName, Profile } from "@/db/profiles";
-import { getCoachPrograms, Program } from "@/db/programs";
+import { getCoachPrograms, Program, createSession } from "@/db/programs";
 import ProgramEditor from "@/components/ProgramEditor";
 import { createProgram, deleteProgram } from "@/db/programs";
 import { toast } from "sonner";
@@ -31,6 +32,140 @@ interface WorkoutDay {
 }
 
 type Tab = "overview" | "training" | "programs";
+type MetricsView = "day" | "week" | "month";
+
+interface WeeklyRow {
+  label: string;
+  startDate: string;
+  days: DailyMetric[];
+  avgWeight: number | null;
+  avgSteps: number | null;
+  avgKcal: number | null;
+  sessionsCount: number;
+  weightVariation: number | null; // % vs previous week
+}
+
+interface MonthlyRow {
+  label: string;
+  days: DailyMetric[];
+  avgWeight: number | null;
+  avgSteps: number | null;
+  avgKcal: number | null;
+  sessionsCount: number;
+  weightVariation: number | null;
+}
+
+function computeWeeklyRows(metrics: DailyMetric[], workouts: WorkoutDay[]): WeeklyRow[] {
+  if (metrics.length === 0) return [];
+
+  // Sort ascending for processing
+  const sorted = [...metrics].sort((a, b) => a.date.localeCompare(b.date));
+  const firstDate = parseISO(sorted[0].date);
+  const lastDate = parseISO(sorted[sorted.length - 1].date);
+
+  const workoutDates = new Set(workouts.map(w => w.date));
+  const rows: WeeklyRow[] = [];
+  let weekStart = startOfWeek(firstDate, { weekStartsOn: 1 });
+
+  while (isBefore(weekStart, endOfWeek(lastDate, { weekStartsOn: 1 }))) {
+    const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+    const from = format(weekStart, "yyyy-MM-dd");
+    const to = format(weekEnd, "yyyy-MM-dd");
+    const days = sorted.filter(m => m.date >= from && m.date <= to);
+
+    if (days.length > 0) {
+      const weights = days.filter(d => d.weight_g != null).map(d => d.weight_g! / 1000);
+      const steps = days.filter(d => d.steps != null).map(d => d.steps!);
+      const kcals = days.filter(d => d.kcal != null).map(d => d.kcal!);
+      const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+
+      // Count sessions this week
+      let sessCount = 0;
+      let d = new Date(weekStart);
+      while (d <= weekEnd) {
+        if (workoutDates.has(format(d, "yyyy-MM-dd"))) sessCount++;
+        d.setDate(d.getDate() + 1);
+      }
+
+      rows.push({
+        label: `${format(weekStart, "dd/MM")} – ${format(weekEnd, "dd/MM")}`,
+        startDate: from,
+        days,
+        avgWeight: avg(weights),
+        avgSteps: avg(steps),
+        avgKcal: avg(kcals),
+        sessionsCount: sessCount,
+        weightVariation: null,
+      });
+    }
+
+    weekStart = addWeeks(weekStart, 1);
+  }
+
+  // Calculate weight variation between consecutive weeks
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i].avgWeight != null && rows[i - 1].avgWeight != null) {
+      rows[i].weightVariation =
+        ((rows[i].avgWeight! - rows[i - 1].avgWeight!) / rows[i - 1].avgWeight!) * 100;
+    }
+  }
+
+  return rows.reverse(); // Most recent first
+}
+
+function computeMonthlyRows(metrics: DailyMetric[], workouts: WorkoutDay[]): MonthlyRow[] {
+  if (metrics.length === 0) return [];
+
+  const sorted = [...metrics].sort((a, b) => a.date.localeCompare(b.date));
+  const firstDate = parseISO(sorted[0].date);
+  const lastDate = parseISO(sorted[sorted.length - 1].date);
+
+  const workoutDates = new Set(workouts.map(w => w.date));
+  const rows: MonthlyRow[] = [];
+  let monthStart = startOfMonth(firstDate);
+
+  while (isBefore(monthStart, endOfMonth(lastDate))) {
+    const monthEnd = endOfMonth(monthStart);
+    const from = format(monthStart, "yyyy-MM-dd");
+    const to = format(monthEnd, "yyyy-MM-dd");
+    const days = sorted.filter(m => m.date >= from && m.date <= to);
+
+    if (days.length > 0) {
+      const weights = days.filter(d => d.weight_g != null).map(d => d.weight_g! / 1000);
+      const steps = days.filter(d => d.steps != null).map(d => d.steps!);
+      const kcals = days.filter(d => d.kcal != null).map(d => d.kcal!);
+      const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+
+      let sessCount = 0;
+      let d = new Date(monthStart);
+      while (d <= monthEnd) {
+        if (workoutDates.has(format(d, "yyyy-MM-dd"))) sessCount++;
+        d.setDate(d.getDate() + 1);
+      }
+
+      rows.push({
+        label: format(monthStart, "MMMM yyyy", { locale: fr }),
+        days,
+        avgWeight: avg(weights),
+        avgSteps: avg(steps),
+        avgKcal: avg(kcals),
+        sessionsCount: sessCount,
+        weightVariation: null,
+      });
+    }
+
+    monthStart = addMonths(monthStart, 1);
+  }
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i].avgWeight != null && rows[i - 1].avgWeight != null) {
+      rows[i].weightVariation =
+        ((rows[i].avgWeight! - rows[i - 1].avgWeight!) / rows[i - 1].avgWeight!) * 100;
+    }
+  }
+
+  return rows.reverse();
+}
 
 export default function CoachAthleteViewPage() {
   const { athleteId } = useParams<{ athleteId: string }>();
@@ -43,6 +178,7 @@ export default function CoachAthleteViewPage() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [metricsView, setMetricsView] = useState<MetricsView>("week");
   const [metricsExpanded, setMetricsExpanded] = useState(false);
 
   /* program editor */
@@ -60,7 +196,6 @@ export default function CoachAthleteViewPage() {
     setProfile(prof);
     setPrograms(allPrograms.filter((p) => p.athlete_id === athleteId));
 
-    // Get ALL metrics (no date filter)
     const { data: metricsData } = await supabase
       .from("daily_metrics")
       .select("date, weight_g, steps, kcal")
@@ -68,7 +203,6 @@ export default function CoachAthleteViewPage() {
       .order("date", { ascending: false });
     setMetrics(metricsData ?? []);
 
-    // Get workout history with exercises via the flat view
     const { data: flatExercises } = await supabase
       .from("v_workout_exercises_flat")
       .select("workout_date, exercise_name, load_type, load_g, reps")
@@ -109,7 +243,6 @@ export default function CoachAthleteViewPage() {
       return arr[0] - arr[arr.length - 1];
     };
 
-    // Count workouts in last 30 days
     const thirtyDaysAgo = format(new Date(Date.now() - 30 * 86400000), "yyyy-MM-dd");
     const recentWorkouts = workoutHistory.filter((w) => w.date >= thirtyDaysAgo);
 
@@ -123,6 +256,9 @@ export default function CoachAthleteViewPage() {
     };
   }, [metrics, workoutHistory]);
 
+  const weeklyRows = useMemo(() => computeWeeklyRows(metrics, workoutHistory), [metrics, workoutHistory]);
+  const monthlyRows = useMemo(() => computeMonthlyRows(metrics, workoutHistory), [metrics, workoutHistory]);
+
   const athleteName = displayName(profile);
 
   const handleCreateProgram = async () => {
@@ -131,6 +267,8 @@ export default function CoachAthleteViewPage() {
     try {
       const title = `${t("program.newProgram")} - ${format(new Date(), "dd/MM/yyyy")}`;
       const p = await createProgram(athleteId, title);
+      // Auto-create Session 1
+      await createSession(p.id, `${t("program.session")} 1`, 0);
       await refresh();
       setEditingProgram(p);
     } catch (e: any) {
@@ -196,7 +334,18 @@ export default function CoachAthleteViewPage() {
     return `${(lg ?? 0) / 1000}`;
   }
 
-  const visibleMetrics = metricsExpanded ? metrics : metrics.slice(0, 10);
+  function VariationBadge({ value }: { value: number | null }) {
+    if (value == null) return <span className="text-muted-foreground">—</span>;
+    const positive = value > 0;
+    const color = positive ? "text-destructive" : value < 0 ? "text-primary" : "text-muted-foreground";
+    return (
+      <span className={`text-xs font-black ${color}`}>
+        {positive ? "+" : ""}{value.toFixed(2)}%
+      </span>
+    );
+  }
+
+  const visibleMetrics = metricsExpanded ? metrics : metrics.slice(0, 14);
 
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
@@ -301,59 +450,208 @@ export default function CoachAthleteViewPage() {
               </GlassCard>
             </div>
 
-            {/* ── Metrics history ── */}
-            <GlassCard className="p-5 rounded-3xl">
-              <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">
-                {t("coach.metricsHistory")} ({metrics.length})
-              </h3>
-              {metrics.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p>
-              ) : (
-                <>
-                  <div className="space-y-1">
-                    {visibleMetrics.map((m) => (
-                      <div key={m.date} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground w-16">
-                          {format(new Date(m.date), "dd/MM")}
-                        </span>
-                        <div className="flex items-center gap-4 flex-1">
-                          {m.weight_g != null && (
-                            <div className="flex items-center gap-1 text-xs font-bold text-foreground">
-                              <Weight size={10} className="text-metric-weight" />
-                              {(m.weight_g / 1000).toFixed(1)}
-                            </div>
-                          )}
-                          {m.steps != null && (
-                            <div className="flex items-center gap-1 text-xs font-bold text-foreground">
-                              <Footprints size={10} className="text-metric-steps" />
-                              {m.steps.toLocaleString()}
-                            </div>
-                          )}
-                          {m.kcal != null && (
-                            <div className="flex items-center gap-1 text-xs font-bold text-foreground">
-                              <Flame size={10} className="text-metric-kcal" />
-                              {m.kcal.toLocaleString()}
-                            </div>
-                          )}
+            {/* ── Metrics view toggle ── */}
+            <div className="flex glass rounded-xl p-1">
+              {(["day", "week", "month"] as MetricsView[]).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => { setMetricsView(v); setMetricsExpanded(false); }}
+                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors ${
+                    metricsView === v
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t(`coach.view_${v}`)}
+                </button>
+              ))}
+            </div>
+
+            {/* ── Day view ── */}
+            {metricsView === "day" && (
+              <GlassCard className="p-5 rounded-3xl">
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">
+                  {t("coach.metricsHistory")} ({metrics.length})
+                </h3>
+                {metrics.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p>
+                ) : (
+                  <>
+                    <div className="space-y-1">
+                      {visibleMetrics.map((m) => (
+                        <div key={m.date} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground w-16">
+                            {format(new Date(m.date), "dd/MM")}
+                          </span>
+                          <div className="flex items-center gap-4 flex-1">
+                            {m.weight_g != null && (
+                              <div className="flex items-center gap-1 text-xs font-bold text-foreground">
+                                <Weight size={10} className="text-metric-weight" />
+                                {(m.weight_g / 1000).toFixed(1)}
+                              </div>
+                            )}
+                            {m.steps != null && (
+                              <div className="flex items-center gap-1 text-xs font-bold text-foreground">
+                                <Footprints size={10} className="text-metric-steps" />
+                                {m.steps.toLocaleString()}
+                              </div>
+                            )}
+                            {m.kcal != null && (
+                              <div className="flex items-center gap-1 text-xs font-bold text-foreground">
+                                <Flame size={10} className="text-metric-kcal" />
+                                {m.kcal.toLocaleString()}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    {metrics.length > 14 && (
+                      <button
+                        onClick={() => setMetricsExpanded(!metricsExpanded)}
+                        className="w-full flex items-center justify-center gap-1 mt-3 text-[10px] font-black uppercase tracking-widest text-primary"
+                      >
+                        {metricsExpanded ? (
+                          <><ChevronUp size={12} /> {t("coach.showLess")}</>
+                        ) : (
+                          <><ChevronDown size={12} /> {t("coach.showAll")} ({metrics.length})</>
+                        )}
+                      </button>
+                    )}
+                  </>
+                )}
+              </GlassCard>
+            )}
+
+            {/* ── Week view ── */}
+            {metricsView === "week" && (
+              <GlassCard className="p-4 rounded-3xl">
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">
+                  {t("coach.weeklyView")} ({weeklyRows.length})
+                </h3>
+                {weeklyRows.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p>
+                ) : (
+                  <div className="overflow-x-auto -mx-2">
+                    <table className="w-full text-[11px]">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left px-2 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            {t("coach.period")}
+                          </th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            <Footprints size={10} className="mx-auto text-metric-steps" />
+                          </th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            <Flame size={10} className="mx-auto text-metric-kcal" />
+                          </th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            <Weight size={10} className="mx-auto text-metric-weight" />
+                          </th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">%</th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            <Dumbbell size={10} className="mx-auto text-primary" />
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(metricsExpanded ? weeklyRows : weeklyRows.slice(0, 8)).map((row, i) => (
+                          <tr key={row.startDate} className={i % 2 === 0 ? "" : "bg-muted/20"}>
+                            <td className="px-2 py-2 font-bold text-foreground whitespace-nowrap">{row.label}</td>
+                            <td className="text-center px-1 py-2 font-bold text-foreground">
+                              {row.avgSteps != null ? Math.round(row.avgSteps).toLocaleString() : "—"}
+                            </td>
+                            <td className="text-center px-1 py-2 font-bold text-foreground">
+                              {row.avgKcal != null ? Math.round(row.avgKcal) : "—"}
+                            </td>
+                            <td className="text-center px-1 py-2 font-bold text-foreground">
+                              {row.avgWeight != null ? row.avgWeight.toFixed(1) : "—"}
+                            </td>
+                            <td className="text-center px-1 py-2">
+                              <VariationBadge value={row.weightVariation} />
+                            </td>
+                            <td className="text-center px-1 py-2 font-black text-primary">
+                              {row.sessionsCount}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {weeklyRows.length > 8 && (
+                      <button
+                        onClick={() => setMetricsExpanded(!metricsExpanded)}
+                        className="w-full flex items-center justify-center gap-1 mt-3 text-[10px] font-black uppercase tracking-widest text-primary"
+                      >
+                        {metricsExpanded ? (
+                          <><ChevronUp size={12} /> {t("coach.showLess")}</>
+                        ) : (
+                          <><ChevronDown size={12} /> {t("coach.showAll")} ({weeklyRows.length})</>
+                        )}
+                      </button>
+                    )}
                   </div>
-                  {metrics.length > 10 && (
-                    <button
-                      onClick={() => setMetricsExpanded(!metricsExpanded)}
-                      className="w-full flex items-center justify-center gap-1 mt-3 text-[10px] font-black uppercase tracking-widest text-primary"
-                    >
-                      {metricsExpanded ? (
-                        <><ChevronUp size={12} /> {t("coach.showLess")}</>
-                      ) : (
-                        <><ChevronDown size={12} /> {t("coach.showAll")} ({metrics.length})</>
-                      )}
-                    </button>
-                  )}
-                </>
-              )}
-            </GlassCard>
+                )}
+              </GlassCard>
+            )}
+
+            {/* ── Month view ── */}
+            {metricsView === "month" && (
+              <GlassCard className="p-4 rounded-3xl">
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">
+                  {t("coach.monthlyView")} ({monthlyRows.length})
+                </h3>
+                {monthlyRows.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p>
+                ) : (
+                  <div className="overflow-x-auto -mx-2">
+                    <table className="w-full text-[11px]">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left px-2 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            {t("coach.period")}
+                          </th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            <Footprints size={10} className="mx-auto text-metric-steps" />
+                          </th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            <Flame size={10} className="mx-auto text-metric-kcal" />
+                          </th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            <Weight size={10} className="mx-auto text-metric-weight" />
+                          </th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">%</th>
+                          <th className="text-center px-1 py-2 font-black uppercase tracking-wider text-muted-foreground text-[9px]">
+                            <Dumbbell size={10} className="mx-auto text-primary" />
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {monthlyRows.map((row, i) => (
+                          <tr key={row.label} className={i % 2 === 0 ? "" : "bg-muted/20"}>
+                            <td className="px-2 py-2 font-bold text-foreground capitalize whitespace-nowrap">{row.label}</td>
+                            <td className="text-center px-1 py-2 font-bold text-foreground">
+                              {row.avgSteps != null ? Math.round(row.avgSteps).toLocaleString() : "—"}
+                            </td>
+                            <td className="text-center px-1 py-2 font-bold text-foreground">
+                              {row.avgKcal != null ? Math.round(row.avgKcal) : "—"}
+                            </td>
+                            <td className="text-center px-1 py-2 font-bold text-foreground">
+                              {row.avgWeight != null ? row.avgWeight.toFixed(1) : "—"}
+                            </td>
+                            <td className="text-center px-1 py-2">
+                              <VariationBadge value={row.weightVariation} />
+                            </td>
+                            <td className="text-center px-1 py-2 font-black text-primary">
+                              {row.sessionsCount}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </GlassCard>
+            )}
           </>
         ) : activeTab === "training" ? (
           /* ── Training history ── */
@@ -396,7 +694,6 @@ export default function CoachAthleteViewPage() {
         ) : (
           /* ── Programs tab ── */
           <div className="space-y-4">
-            {/* Quick create button */}
             <button
               onClick={handleCreateProgram}
               disabled={creating}
@@ -406,7 +703,6 @@ export default function CoachAthleteViewPage() {
               {creating ? t("program.creating") : t("coach.newProgram")}
             </button>
 
-            {/* Program list */}
             {programs.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noPrograms")}</p>
             ) : (
