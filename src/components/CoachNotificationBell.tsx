@@ -137,6 +137,8 @@ export default function CoachNotificationBell() {
                             ? t("notifications.accepted", { email: n.athlete_email ?? "?" })
                             : n.type === "coach_request"
                             ? t("notifications.coachRequest", { email: n.athlete_email ?? "?" })
+                            : n.type === "subscription_cancelled"
+                            ? t("notifications.subscriptionCancelled", { email: n.athlete_email ?? "?" })
                             : t("notifications.rejected", { email: n.athlete_email ?? "?" })}
                         </p>
                         <p className="text-[10px] text-muted-foreground font-bold mt-0.5">
