@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import {
   Users, UserPlus, Mail, ChevronRight, Eye,
-  Loader2, Send, X, User, Crown, AlertTriangle, Trash2,
+  Loader2, Send, X, User, Crown, AlertTriangle, Trash2, Moon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
