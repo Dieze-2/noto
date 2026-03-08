@@ -17,6 +17,7 @@ import {
   getCoachPrograms, createProgram, deleteProgram, Program,
 } from "@/db/programs";
 import ProgramEditor from "@/components/ProgramEditor";
+import { getProfiles, formatName, Profile } from "@/db/profiles";
 
 export default function CoachDashboardPage() {
   const { t } = useTranslation();
