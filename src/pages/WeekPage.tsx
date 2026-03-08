@@ -290,7 +290,7 @@ export default function WeekPage() {
                 <div className={`w-12 h-12 rounded-2xl flex flex-col items-center justify-center font-black ${
                   isT ? "bg-primary text-primary-foreground" : "glass text-muted-foreground"
                 }`}>
-                  <span className="text-[9px] uppercase leading-none">{format(day, "EEE", { locale: fr })}</span>
+                  <span className="text-[9px] uppercase leading-none">{format(day, "EEE", { locale: getDateLocale() })}</span>
                   <span className="text-lg leading-none">{format(day, "d")}</span>
                 </div>
 
