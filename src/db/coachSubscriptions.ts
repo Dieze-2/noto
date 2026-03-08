@@ -87,6 +87,38 @@ export async function grantCoachTrial(userId: string): Promise<void> {
   if (error) throw error;
 }
 
+/** Check if the current user is eligible for a free trial (never been coach before) */
+export async function isTrialEligible(): Promise<boolean> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  // Check if user ever had a coach role (approved request or subscription)
+  const { count: requestCount } = await supabase
+    .from("coach_requests")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .in("status", ["approved", "pending"]);
+
+  if ((requestCount ?? 0) > 0) return false;
+
+  // Check if user ever had a subscription
+  const { count: subCount } = await supabase
+    .from("coach_subscriptions")
+    .select("*", { count: "exact", head: true })
+    .eq("coach_id", user.id);
+
+  if ((subCount ?? 0) > 0) return false;
+
+  // Check if user currently has coach role
+  const { count: roleCount } = await supabase
+    .from("user_roles")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("role", "coach");
+
+  return (roleCount ?? 0) === 0;
+}
+
 /** Plan limits and pricing */
 export const PLAN_CONFIG: Record<CoachPlan, { maxAthletes: number; label: string; priceLabel: string }> = {
   classic: { maxAthletes: 20, label: "Classic", priceLabel: "25€/mois" },

@@ -47,10 +47,14 @@ export default function PricingPage() {
   const { isCoach } = useRoles();
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [currentPlan, setCurrentPlan] = useState<CoachPlan | null>(null);
+  const [trialEligible, setTrialEligible] = useState(false);
+  const [requestingTrial, setRequestingTrial] = useState(false);
 
   useEffect(() => {
     if (isCoach) {
       getCoachSubscription().then((sub) => setCurrentPlan(sub?.plan ?? null));
+    } else {
+      isTrialEligible().then(setTrialEligible);
     }
   }, [isCoach]);
 
