@@ -239,9 +239,10 @@ function ExerciseRow({ exercise, onUpdate, onDelete }: {
 }
 
 /* ── Main editor ── */
-export default function ProgramEditor({ program, onBack }: {
+export default function ProgramEditor({ program, onBack, hideTitle = false }: {
   program: Program;
   onBack: () => void;
+  hideTitle?: boolean;
 }) {
   const { t } = useTranslation();
   const [sessions, setSessions] = useState<ProgramSessionWithExercises[]>([]);
@@ -349,24 +350,26 @@ export default function ProgramEditor({ program, onBack }: {
 
   return (
     <div className="space-y-4">
-      {/* Title */}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onBlur={handleSaveTitle}
-          className="flex-1 glass rounded-2xl px-4 py-3 text-lg font-black text-foreground outline-none focus:ring-1 focus:ring-primary"
-          placeholder={t("program.titlePlaceholder")}
-        />
-        <button
-          onClick={handleSaveTitle}
-          disabled={saving}
-          className="px-4 py-3 rounded-2xl bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
-        >
-          <Save size={16} />
-        </button>
-      </div>
+      {/* Title (hidden when used from coach athlete view) */}
+      {!hideTitle && (
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={handleSaveTitle}
+            className="flex-1 glass rounded-2xl px-4 py-3 text-lg font-black text-foreground outline-none focus:ring-1 focus:ring-primary"
+            placeholder={t("program.titlePlaceholder")}
+          />
+          <button
+            onClick={handleSaveTitle}
+            disabled={saving}
+            className="px-4 py-3 rounded-2xl bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          >
+            <Save size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Sessions (sortable) */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
