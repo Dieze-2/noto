@@ -66,13 +66,20 @@ serve(async (req) => {
     const productId = sub.items.data[0].price.product as string;
     const plan = PRODUCT_TO_PLAN[productId] ?? null;
 
+    let subscriptionEnd: string | null = null;
+    try {
+      if (sub.current_period_end) {
+        subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
+      }
+    } catch (_) { /* ignore date conversion errors */ }
+
     return new Response(
       JSON.stringify({
         subscribed: true,
         plan,
         product_id: productId,
-        subscription_end: new Date(sub.current_period_end * 1000).toISOString(),
-        quantity: sub.items.data[0].quantity,
+        subscription_end: subscriptionEnd,
+        quantity: sub.items.data[0]?.quantity ?? 1,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
