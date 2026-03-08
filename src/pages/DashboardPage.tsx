@@ -293,7 +293,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Weight size={18} className="text-[hsl(var(--metric-weight))]" />
-              <h2 className="text-noto-label text-foreground">Poids</h2>
+              <h2 className="text-noto-label text-foreground">{t("dashboard.weight")}</h2>
               <ChartExpandButton onClick={() => setFullscreenChart("weight")} />
             </div>
             <div className="flex gap-1">
