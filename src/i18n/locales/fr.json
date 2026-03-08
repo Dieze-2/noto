@@ -254,7 +254,8 @@
     "limitReached": "Limite d'athlètes atteinte",
     "upgradeHint": "Passez au forfait supérieur pour inviter plus d'athlètes.",
     "remainingSlots": "{{count}} place(s) restante(s)",
-    "upgrade": "Upgrade"
+    "upgrade": "Upgrade",
+    "changePlan": "Changer de forfait"
   },
   "pricing": {
     "title": "Nos Forfaits",

@@ -254,7 +254,8 @@
     "limitReached": "Athlete limit reached",
     "upgradeHint": "Upgrade your plan to invite more athletes.",
     "remainingSlots": "{{count}} slot(s) remaining",
-    "upgrade": "Upgrade"
+    "upgrade": "Upgrade",
+    "changePlan": "Change plan"
   },
   "pricing": {
     "title": "Our Plans",
