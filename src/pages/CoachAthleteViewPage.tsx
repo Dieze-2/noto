@@ -23,6 +23,7 @@ import {
 import ProgramEditor from "@/components/ProgramEditor";
 import CoachExerciseDashboard from "@/components/CoachExerciseDashboard";
 import { toast } from "sonner";
+import { generateAthletePDF } from "@/lib/generateAthletePDF";
 
 interface DailyMetric {
   date: string;
