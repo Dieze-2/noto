@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Target, LogOut, Download, Upload, Check, Weight,
   Footprints, Flame, X, Lock, ChevronRight, Database, Sun, Moon, Globe,
-  Shield,
+  Shield, Crown, Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -18,6 +18,9 @@ import logo from "@/assets/logo.png";
 import { getDailyMetricsRange } from "@/db/dailyMetrics";
 import { getUserGoals, saveUserGoals } from "@/db/goals";
 import { getMyCoachId } from "@/db/coachAthletes";
+import { useRoles } from "@/auth/RoleProvider";
+import { getMyCoachRequest, submitCoachRequest, CoachRequest } from "@/db/coachRequests";
+import { createNotification } from "@/db/notifications";
 import { getProfile, displayName } from "@/db/profiles";
 
 /* ── Workouts Export ── */
@@ -218,7 +221,12 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { isCoach, loading: rolesLoading } = useRoles();
   const [loggingOut, setLoggingOut] = useState(false);
+
+  /* Coach request state */
+  const [coachRequest, setCoachRequest] = useState<CoachRequest | null>(null);
+  const [submittingRequest, setSubmittingRequest] = useState(false);
 
   /* Drawers */
   const [goalsOpen, setGoalsOpen] = useState(false);
@@ -267,7 +275,12 @@ export default function SettingsPage() {
       const profile = await getProfile(coachId);
       setCoachName(displayName(profile));
     });
-  }, []);
+
+    // Fetch coach request status
+    if (!isCoach) {
+      getMyCoachRequest().then(setCoachRequest);
+    }
+  }, [isCoach]);
 
   const handleSaveGoals = async () => {
     setSavingGoals(true);
@@ -325,6 +338,34 @@ export default function SettingsPage() {
       if (file) await importDailyMetricsCSV(file);
     };
     input.click();
+  };
+
+  const handleCoachRequest = async () => {
+    setSubmittingRequest(true);
+    try {
+      const req = await submitCoachRequest();
+      setCoachRequest(req);
+      // Notify all admins — we send to a special "admin" notification channel
+      // For now, we create a notification that admins can see
+      // The admin's user_id needs to be known; we use a generic approach
+      // by inserting a notification row with a special admin coach_id
+      await createNotification({
+        coach_id: user!.id, // stored as reference, admin will query all coach_request notifications
+        type: "coach_request",
+        athlete_email: user!.email ?? null,
+        athlete_id: user!.id,
+        request_id: req.id,
+      });
+      toast.success(t("settings.coachRequestSent"));
+    } catch (e: any) {
+      if (e.message?.includes("duplicate") || e.code === "23505") {
+        toast.error(t("settings.coachRequestAlreadySent"));
+      } else {
+        toast.error(e.message);
+      }
+    } finally {
+      setSubmittingRequest(false);
+    }
   };
 
   /* Goals summary */
@@ -447,6 +488,56 @@ export default function SettingsPage() {
             </div>
           </button>
         </div>
+
+        {/* ── DEVENIR COACH ── */}
+        {!isCoach && !rolesLoading && (
+          <div className="space-y-3">
+            {coachRequest?.status === "pending" ? (
+              <div className="w-full flex items-center gap-3 p-4 rounded-2xl glass text-left">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Crown size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.coachRequestPending")}</p>
+                  <p className="text-[10px] text-muted-foreground font-bold">{t("settings.coachRequestPendingDesc")}</p>
+                </div>
+                <span className="text-[10px] font-bold uppercase text-warning bg-warning/10 px-2 py-0.5 rounded-full">
+                  {t("coach.pending")}
+                </span>
+              </div>
+            ) : coachRequest?.status === "rejected" ? (
+              <div className="w-full flex items-center gap-3 p-4 rounded-2xl glass text-left">
+                <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive">
+                  <Crown size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.coachRequestRejected")}</p>
+                  <p className="text-[10px] text-muted-foreground font-bold">{t("settings.coachRequestRejectedDesc")}</p>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCoachRequest}
+                disabled={submittingRequest}
+                className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left disabled:opacity-50"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Crown size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.becomeCoach")}</p>
+                  <p className="text-[10px] text-muted-foreground font-bold">{t("settings.becomeCoachDesc")}</p>
+                </div>
+                {submittingRequest ? (
+                  <Loader2 size={16} className="animate-spin text-primary" />
+                ) : (
+                  <ChevronRight size={16} className="text-muted-foreground/40" />
+                )}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* ── DÉCONNEXION ── */}
         <button

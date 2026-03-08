@@ -130,7 +130,15 @@
     "csvEmpty": "Empty or invalid CSV file",
     "steps": "steps",
     "kcal": "kcal",
-    "myCoach": "My coach"
+    "myCoach": "My coach",
+    "becomeCoach": "Become a coach",
+    "becomeCoachDesc": "Request access to the coaching space",
+    "coachRequestSent": "Request sent! An administrator will review it.",
+    "coachRequestAlreadySent": "You already have a pending request.",
+    "coachRequestPending": "Request pending",
+    "coachRequestPendingDesc": "Your request is being reviewed by an administrator.",
+    "coachRequestRejected": "Request rejected",
+    "coachRequestRejectedDesc": "Your request was rejected. Contact an administrator for more information."
   },
   "coach": {
     "title": "Coach Dashboard",
@@ -312,6 +320,7 @@
     "empty": "No notifications",
     "markAllRead": "Mark all read",
     "accepted": "{{email}} accepted your invitation",
-    "rejected": "{{email}} declined your invitation"
+    "rejected": "{{email}} declined your invitation",
+    "coachRequest": "{{email}} wants to become a coach"
   }
 }

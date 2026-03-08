@@ -125,7 +125,15 @@
     "csvEmpty": "Archivo CSV vacío o inválido",
     "steps": "pasos",
     "kcal": "kcal",
-    "myCoach": "Mi coach"
+    "myCoach": "Mi coach",
+    "becomeCoach": "Convertirse en coach",
+    "becomeCoachDesc": "Solicitar acceso al espacio de coaching",
+    "coachRequestSent": "¡Solicitud enviada! Un administrador la revisará.",
+    "coachRequestAlreadySent": "Ya tienes una solicitud pendiente.",
+    "coachRequestPending": "Solicitud en curso",
+    "coachRequestPendingDesc": "Tu solicitud está siendo revisada por un administrador.",
+    "coachRequestRejected": "Solicitud rechazada",
+    "coachRequestRejectedDesc": "Tu solicitud fue rechazada. Contacta a un administrador para más información."
   },
   "coach": {
     "title": "Panel del Coach",
@@ -301,6 +309,7 @@
     "empty": "Sin notificaciones",
     "markAllRead": "Marcar todo leído",
     "accepted": "{{email}} aceptó tu invitación",
-    "rejected": "{{email}} rechazó tu invitación"
+    "rejected": "{{email}} rechazó tu invitación",
+    "coachRequest": "{{email}} quiere convertirse en coach"
   }
 }
