@@ -489,6 +489,56 @@ export default function SettingsPage() {
           </button>
         </div>
 
+        {/* ── DEVENIR COACH ── */}
+        {!isCoach && !rolesLoading && (
+          <div className="space-y-3">
+            {coachRequest?.status === "pending" ? (
+              <div className="w-full flex items-center gap-3 p-4 rounded-2xl glass text-left">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Crown size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.coachRequestPending")}</p>
+                  <p className="text-[10px] text-muted-foreground font-bold">{t("settings.coachRequestPendingDesc")}</p>
+                </div>
+                <span className="text-[10px] font-bold uppercase text-warning bg-warning/10 px-2 py-0.5 rounded-full">
+                  {t("coach.pending")}
+                </span>
+              </div>
+            ) : coachRequest?.status === "rejected" ? (
+              <div className="w-full flex items-center gap-3 p-4 rounded-2xl glass text-left">
+                <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive">
+                  <Crown size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.coachRequestRejected")}</p>
+                  <p className="text-[10px] text-muted-foreground font-bold">{t("settings.coachRequestRejectedDesc")}</p>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCoachRequest}
+                disabled={submittingRequest}
+                className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left disabled:opacity-50"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Crown size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.becomeCoach")}</p>
+                  <p className="text-[10px] text-muted-foreground font-bold">{t("settings.becomeCoachDesc")}</p>
+                </div>
+                {submittingRequest ? (
+                  <Loader2 size={16} className="animate-spin text-primary" />
+                ) : (
+                  <ChevronRight size={16} className="text-muted-foreground/40" />
+                )}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* ── DÉCONNEXION ── */}
         <button
           onClick={handleLogout}

@@ -130,7 +130,15 @@
     "csvEmpty": "Fichier CSV vide ou invalide",
     "steps": "pas",
     "kcal": "kcal",
-    "myCoach": "Mon coach"
+    "myCoach": "Mon coach",
+    "becomeCoach": "Devenir coach",
+    "becomeCoachDesc": "Demander l'accès à l'espace coaching",
+    "coachRequestSent": "Demande envoyée ! Un administrateur va l'examiner.",
+    "coachRequestAlreadySent": "Vous avez déjà une demande en attente.",
+    "coachRequestPending": "Demande en cours",
+    "coachRequestPendingDesc": "Votre demande est en attente de validation par un administrateur.",
+    "coachRequestRejected": "Demande refusée",
+    "coachRequestRejectedDesc": "Votre demande a été refusée. Contactez un administrateur pour plus d'informations."
   },
   "coach": {
     "title": "Espace Coach",
