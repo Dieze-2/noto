@@ -423,17 +423,29 @@ export default function DashboardPage() {
             <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="bg-muted rounded-xl p-3 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                  {exStats.isPDC ? t("dashboard.repsMax") : t("dashboard.totalMax")}
+                  {t("dashboard.volumeMax")}
                 </p>
                 <p className="text-lg font-black text-foreground">
-                  {exStats.isPDC ? exStats.maxReps : exStats.maxTotal.toFixed(1)}
-                  <span className="text-xs text-muted-foreground ml-0.5">{exStats.isPDC ? "reps" : "kg"}</span>
+                  {exStats.maxVolume.toFixed(0)}
+                  <span className="text-xs text-muted-foreground ml-0.5">kg</span>
                 </p>
               </div>
               <div className="bg-muted rounded-xl p-3 text-center">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">{t("dashboard.progression")}</p>
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{t("dashboard.progression")}</p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info size={12} className="text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[240px] text-xs">
+                        {t("dashboard.volumeExplanation")}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 {(() => {
-                  const prog = exStats.progression ?? exStats.repsProg;
+                  const prog = exStats.progression;
                   if (prog === null) return <p className="text-lg font-black text-muted-foreground">—</p>;
                   return (
                     <p className={`text-lg font-black ${prog >= 0 ? "text-primary" : "text-destructive"}`}>
