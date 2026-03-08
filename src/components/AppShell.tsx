@@ -33,7 +33,7 @@ export default function AppShell({ children }: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { isCoach } = useRoles();
+  const { isCoach, isAdmin } = useRoles();
 
   const visibleItems = NAV_ICONS.filter((item) => !item.coachOnly || isCoach);
 
