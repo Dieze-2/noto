@@ -175,8 +175,8 @@ export default function CoachAthleteViewPage() {
   }
 
   const TrendIcon = ({ value }: { value: number }) => {
-    if (value > 0.3) return <TrendingUp size={14} className="text-green-500" />;
-    if (value < -0.3) return <TrendingDown size={14} className="text-red-500" />;
+    if (value > 0.3) return <TrendingUp size={14} className="text-primary" />;
+    if (value < -0.3) return <TrendingDown size={14} className="text-destructive" />;
     return <Minus size={14} className="text-muted-foreground" />;
   };
 
