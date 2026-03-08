@@ -98,9 +98,9 @@ export default function RoleProvider({ children }: { children: ReactNode }) {
       } else {
         setSubscription({ subscribed: false });
 
-        // If Stripe says not subscribed but user has coach role from a paid sub,
-        // check if they have an active trial before removing
-        if (finalRoles.includes("coach")) {
+        // If Stripe says not subscribed but user has coach role,
+        // only remove if NOT admin and no active trial
+        if (finalRoles.includes("coach") && !finalRoles.includes("admin")) {
           const { data: sub } = await supabase
             .from("coach_subscriptions")
             .select("trial_end")
@@ -109,7 +109,6 @@ export default function RoleProvider({ children }: { children: ReactNode }) {
 
           const isActiveTrial = sub?.trial_end && new Date(sub.trial_end) > new Date();
           if (!isActiveTrial) {
-            // No active Stripe sub and no active trial → remove coach role
             await supabase
               .from("user_roles")
               .delete()
