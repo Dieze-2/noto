@@ -531,7 +531,7 @@ export default function WeekPage() {
 
                                     {/* Color picker */}
                                     <div>
-                                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">Couleur</p>
+                                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">{t("week.color")}</p>
                                       <div className="flex flex-wrap gap-2">
                                         {EVENT_COLORS.map((col) => (
                                           <button key={col} type="button"
