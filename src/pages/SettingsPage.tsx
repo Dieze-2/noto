@@ -214,6 +214,7 @@ function SettingRow({
 export default function SettingsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loggingOut, setLoggingOut] = useState(false);
 
   /* Drawers */
