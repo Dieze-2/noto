@@ -401,7 +401,7 @@ export default function AppHomePage() {
 
   /* ═══ RENDER ═══ */
   return (
-    <div className="max-w-xl mx-auto px-4 pt-8 pb-32">
+    <div className="max-w-5xl mx-auto px-4 pt-8 pb-32 lg:pb-8">
       <header className="flex flex-col items-center mb-8">
 
         {/* ── Date navigation ── */}

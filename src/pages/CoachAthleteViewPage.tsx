@@ -278,7 +278,7 @@ export default function CoachAthleteViewPage() {
   /* ── Program editor view (editing sessions) ── */
   if (editingProgram) {
     return (
-      <div className="mx-auto max-w-md px-4 pt-6 pb-32">
+      <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
           <button
             onClick={() => { setEditingProgram(null); refreshSessions(); }}
@@ -314,7 +314,7 @@ export default function CoachAthleteViewPage() {
   const visibleMetrics = metricsExpanded ? metrics : metrics.slice(0, 14);
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6 pb-32">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">

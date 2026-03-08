@@ -32,7 +32,7 @@ export default function ProgramPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6 pb-32">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         <h1 className="text-noto-title text-3xl text-primary text-center mb-6">
           {t("program.mySessions")}

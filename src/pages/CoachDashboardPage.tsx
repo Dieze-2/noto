@@ -76,7 +76,7 @@ export default function CoachDashboardPage() {
 
   if (!isCoach) {
     return (
-      <div className="mx-auto max-w-md px-4 pt-20 text-center space-y-4">
+      <div className="mx-auto max-w-5xl px-4 pt-20 text-center space-y-4">
         <Users className="mx-auto h-12 w-12 text-muted-foreground/40" />
         <h1 className="text-noto-title text-2xl text-foreground">{t("coach.notCoach")}</h1>
         <p className="text-sm text-muted-foreground">{t("coach.notCoachDesc")}</p>
@@ -88,7 +88,7 @@ export default function CoachDashboardPage() {
   const pending = athletes.filter((a) => a.status === "pending");
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6 pb-32">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         <h1 className="text-noto-title text-3xl text-primary text-center mb-6">
           {t("coach.title")}
