@@ -814,6 +814,9 @@ export default function SettingsPage() {
             <p className="text-[9px] text-muted-foreground mt-1">
               {t("settings.csvFormat")}
             </p>
+            <p className="text-[9px] text-primary/70 font-bold mt-0.5">
+              {t("settings.csvFormatCoach")}
+            </p>
           </div>
 
           <div className="h-px bg-border" />
