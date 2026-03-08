@@ -235,7 +235,7 @@ export default function DashboardPage() {
     }
 
     return [xs, loads];
-  }, [exData, showTotal, weightData]);
+  }, [exData, showTotal, allWeightData]);
 
   /* Chart options (memoized to avoid re-creates) */
   const weightOpts = useMemo(() => buildWeightOpts(220), []);
