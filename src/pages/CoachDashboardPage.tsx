@@ -296,18 +296,29 @@ export default function CoachDashboardPage() {
               {accepted.map((a) => {
                 const profile = a.athlete_id ? profiles[a.athlete_id] : null;
                 const name = displayName(profile, a.invite_email ?? a.athlete_id ?? undefined);
+                const lastWk = a.athlete_id ? lastWorkouts[a.athlete_id] : null;
+                const sevenDaysAgo = format(new Date(Date.now() - 7 * 86400000), "yyyy-MM-dd");
+                const isInactive = !lastWk || lastWk < sevenDaysAgo;
+                const daysSince = lastWk ? Math.floor((Date.now() - new Date(lastWk).getTime()) / 86400000) : null;
                 return (
                   <div key={a.id} className="flex items-center gap-2">
                     <button
                       onClick={() => navigate(`/coach/athlete/${a.athlete_id}`)}
                       className="flex-1 flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                        <Eye size={14} />
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isInactive ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary"}`}>
+                        {isInactive ? <Moon size={14} /> : <Eye size={14} />}
                       </div>
-                      <span className="text-sm font-bold text-foreground flex-1 truncate">
-                        {name}
-                      </span>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-bold text-foreground truncate block">
+                          {name}
+                        </span>
+                        {isInactive && (
+                          <span className="text-[10px] font-bold text-warning">
+                            {daysSince != null ? t("coach.alertInactive", { days: daysSince }) : t("coach.alertNoWorkout")}
+                          </span>
+                        )}
+                      </div>
                       <ChevronRight size={14} className="text-muted-foreground/40" />
                     </button>
                     <button
