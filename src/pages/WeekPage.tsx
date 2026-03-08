@@ -119,6 +119,7 @@ export default function WeekPage() {
 
   useEffect(() => { refreshWeek().catch(() => {}); }, [startStr, endStr]);
   useEffect(() => { refreshAllEvents().catch(() => {}); }, []);
+  useEffect(() => { getUserGoals().then(setGoals).catch(() => {}); }, []);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
