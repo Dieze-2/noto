@@ -16,6 +16,7 @@ import {
   getEventsOverlappingRange, createEvent, updateEvent, deleteEvent,
   EventRow,
 } from "@/db/events";
+import { getUserGoals, UserGoals } from "@/db/goals";
 
 /* ── Constants ── */
 const EVENT_COLORS = [
