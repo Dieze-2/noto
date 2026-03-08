@@ -461,7 +461,7 @@ export default function AppHomePage() {
           onChange={(v) => updateMetric("steps", v)}
           onBlur={() => flushMetricsForDate(dateISO).catch(() => {})}
           accent inputMode="numeric" />
-        <StatBubble icon={Flame} label="Kcal" value={metrics.kcal}
+        <StatBubble icon={Flame} label={t("today.kcal")} value={metrics.kcal}
           onChange={(v) => updateMetric("kcal", v)}
           onBlur={() => flushMetricsForDate(dateISO).catch(() => {})}
           colorClass="text-metric-kcal" inputMode="numeric" />
