@@ -95,6 +95,21 @@ export default function CoachDashboardPage() {
     }
   };
 
+  const handleRemove = async () => {
+    if (!removeTarget) return;
+    setRemoving(true);
+    try {
+      await removeAthlete(removeTarget.id);
+      toast.success(t("coach.athleteRemoved"));
+      setRemoveTarget(null);
+      refresh();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setRemoving(false);
+    }
+  };
+
   if (rolesLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
