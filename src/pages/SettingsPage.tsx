@@ -514,6 +514,12 @@ export default function SettingsPage() {
                   <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.coachRequestRejected")}</p>
                   <p className="text-[10px] text-muted-foreground font-bold">{t("settings.coachRequestRejectedDesc")}</p>
                 </div>
+                <button
+                  onClick={() => setCoachRequest(null)}
+                  className="text-[10px] font-black uppercase tracking-wider text-primary hover:text-primary/80 transition-colors px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20"
+                >
+                  {t("settings.dismissRejection")}
+                </button>
               </div>
             ) : (
               <button
