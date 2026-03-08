@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Target, LogOut, Download, Upload, Check, Weight,
-  Footprints, Flame, X, Lock, ChevronRight, Database, Sun, Moon,
+  Footprints, Flame, X, Lock, ChevronRight, Database, Sun, Moon, Globe,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/auth/AuthProvider";
