@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { subMonths, format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
+import { getDateLocale } from "@/i18n/dateLocale";
 import { Weight, Dumbbell, TrendingUp, TrendingDown } from "lucide-react";
 import uPlot from "uplot";
 
