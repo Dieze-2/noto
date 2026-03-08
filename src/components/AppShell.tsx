@@ -43,13 +43,6 @@ export default function AppShell({ children }: AppShellProps) {
             </button>
           );
         })}
-        <button
-          onClick={handleLogout}
-          className="flex flex-col items-center gap-0.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
-        >
-          <LogOut className="h-5 w-5" />
-          <span className="text-noto-label text-[10px]">Quit</span>
-        </button>
       </nav>
     </div>
   );

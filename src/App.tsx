@@ -38,6 +38,7 @@ function ProtectedRoutes() {
         <Route path="/week" element={<WeekPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/catalog" element={<CatalogPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AppShell>
