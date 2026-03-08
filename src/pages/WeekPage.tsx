@@ -434,8 +434,8 @@ export default function WeekPage() {
                           }}
                         />
                         <div className="mt-3 flex justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                          <span>DU: {fromISO || "--"}</span>
-                          <span>AU: {toISOValue || "--"}</span>
+                          <span>{t("week.fromDate")}: {fromISO || "--"}</span>
+                          <span>{t("week.toDate")}: {toISOValue || "--"}</span>
                         </div>
                       </div>
 
