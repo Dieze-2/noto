@@ -140,7 +140,7 @@ export default function DashboardPage() {
   const [exRange, setExRange] = useState<RangeKey>("3M");
   const [exData, setExData] = useState<any[]>([]);
   const [firstExDate, setFirstExDate] = useState<string | null>(null);
-  const [showTotal, setShowTotal] = useState(false);
+  const [_showTotal, _setShowTotal] = useState(false); // kept for compatibility
   const [loadingEx, setLoadingEx] = useState(true);
 
   /* All weight data for Total calculation (independent of weight chart range) */
