@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => ({
         background_color: "#1F2023",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/",
+        start_url: "/noto/",
         icons: [
           {
             src: "/pwa-icon-192.png",
