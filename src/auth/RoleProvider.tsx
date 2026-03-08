@@ -76,14 +76,10 @@ export default function RoleProvider({ children }: { children: ReactNode }) {
           subscription_end: stripeResult.subscription_end,
         });
 
-        // If Stripe says subscribed but user doesn't have coach role, add it
+        // Subscription is source of truth for coach access in UI.
+        // DB role sync may be blocked by RLS from the client, so we ensure coach locally.
         if (!finalRoles.includes("coach")) {
-          const { error } = await supabase
-            .from("user_roles")
-            .insert({ user_id: user.id, role: "coach" });
-          if (!error || error.message?.includes("duplicate")) {
-            finalRoles.push("coach");
-          }
+          finalRoles.push("coach");
         }
 
         // Ensure coach_subscriptions row exists
