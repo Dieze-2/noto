@@ -10,7 +10,7 @@ import { createNotification } from "@/db/notifications";
 import { supabase } from "@/lib/supabaseClient";
 import { getProfile, displayName } from "@/db/profiles";
 import { useRoles } from "@/auth/RoleProvider";
-import { getCoachSubscription, cancelCoachSubscription, CoachPlan } from "@/db/coachSubscriptions";
+import { getCoachSubscription, requestCancellation, CoachPlan } from "@/db/coachSubscriptions";
 
 const plans = [
   {
