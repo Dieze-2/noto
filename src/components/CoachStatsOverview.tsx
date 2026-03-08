@@ -259,38 +259,16 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
         </GlassCard>
       </div>
 
-      {/* Row 2: Secondary metrics */}
-      <div className="grid grid-cols-3 gap-3">
-        <GlassCard className="p-4 rounded-2xl text-center">
-          <div className="flex items-center justify-center gap-1 mb-1">
-            <Flame size={14} className="text-primary" />
-          </div>
-          <div className="text-xl font-black text-foreground">{stats.consistencyRate}%</div>
-          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            {t("coachStats.consistency")}
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-4 rounded-2xl text-center">
-          <div className="flex items-center justify-center gap-1 mb-1">
-            <BarChart3 size={14} className="text-primary" />
-          </div>
-          <div className="text-xl font-black text-foreground">{stats.totalSets}</div>
-          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            {t("coachStats.totalSets")}
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-4 rounded-2xl text-center">
-          <div className="flex items-center justify-center gap-1 mb-1">
-            <Target size={14} className="text-primary" />
-          </div>
-          <div className="text-xl font-black text-foreground">{stats.uniqueExercises}</div>
-          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            {t("coachStats.uniqueExercises")}
-          </div>
-        </GlassCard>
-      </div>
+      {/* Row 2: Consistency */}
+      <GlassCard className="p-4 rounded-2xl text-center">
+        <div className="flex items-center justify-center gap-1 mb-1">
+          <Flame size={14} className="text-primary" />
+        </div>
+        <div className="text-xl font-black text-foreground">{stats.consistencyRate}%</div>
+        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+          {t("coachStats.consistency")}
+        </div>
+      </GlassCard>
 
       {/* Top progressions */}
       {stats.topExercises.length > 0 && (
