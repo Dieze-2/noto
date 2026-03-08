@@ -172,6 +172,7 @@
   },
   "program": {
     "title": "Programas",
+    "mySessions": "Mis sesiones",
     "newProgram": "Nuevo programa",
     "titlePlaceholder": "Título del programa…",
     "selectAthlete": "Seleccionar un atleta…",
