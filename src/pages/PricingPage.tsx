@@ -1,8 +1,15 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Crown, Zap, Building2, ArrowLeft } from "lucide-react";
+import { Check, Crown, Zap, Building2, ArrowLeft, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import GlassCard from "@/components/GlassCard";
+import { submitCoachRequest, getMyCoachRequest } from "@/db/coachRequests";
+import { createNotification } from "@/db/notifications";
+import { supabase } from "@/lib/supabaseClient";
+import { getProfile, displayName } from "@/db/profiles";
+import { useRoles } from "@/auth/RoleProvider";
 
 const plans = [
   {
@@ -36,13 +43,66 @@ const plans = [
 export default function PricingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { isCoach } = useRoles();
+  const [submitting, setSubmitting] = useState<string | null>(null);
+
+  const handleSubscribe = async (planKey: string) => {
+    setSubmitting(planKey);
+    try {
+      // Check if already has a pending request
+      const existing = await getMyCoachRequest();
+      if (existing?.status === "pending") {
+        toast.error(t("settings.coachRequestAlreadySent"));
+        setSubmitting(null);
+        return;
+      }
+
+      // Submit coach request
+      const req = await submitCoachRequest();
+
+      // Notify admins
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const profile = await getProfile(user.id);
+        const name = profile ? displayName(profile) : user.email ?? "";
+        // Find admin users to notify
+        const { data: adminRoles } = await supabase
+          .from("user_roles")
+          .select("user_id")
+          .eq("role", "admin");
+
+        if (adminRoles) {
+          for (const ar of adminRoles) {
+            await createNotification({
+              coach_id: ar.user_id,
+              type: "coach_request",
+              athlete_email: name,
+              athlete_id: user.id,
+              request_id: req.id,
+            });
+          }
+        }
+      }
+
+      toast.success(t("settings.coachRequestSent"));
+      navigate("/settings");
+    } catch (e: any) {
+      if (e.message?.includes("duplicate") || e.code === "23505") {
+        toast.error(t("settings.coachRequestAlreadySent"));
+      } else {
+        toast.error(e.message);
+      }
+    } finally {
+      setSubmitting(null);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
         {/* Back button */}
         <button
-          onClick={() => navigate("/coach")}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft size={16} />
@@ -61,6 +121,7 @@ export default function PricingPage() {
           {plans.map((plan, i) => {
             const Icon = plan.icon;
             const features = t(`pricing.${plan.key}.features`, { returnObjects: true }) as string[];
+            const isSubmitting = submitting === plan.key;
             return (
               <motion.div
                 key={plan.key}
@@ -118,16 +179,27 @@ export default function PricingPage() {
                   </ul>
 
                   {/* CTA */}
-                  <button
-                    disabled
-                    className={`w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-opacity disabled:opacity-60 ${
-                      plan.featured
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-foreground"
-                    }`}
-                  >
-                    {t("pricing.comingSoon")}
-                  </button>
+                  {isCoach ? (
+                    <button
+                      disabled
+                      className="w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider bg-muted text-muted-foreground opacity-60"
+                    >
+                      {t("pricing.alreadyCoach")}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleSubscribe(plan.key)}
+                      disabled={!!submitting}
+                      className={`w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 ${
+                        plan.featured
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {isSubmitting && <Loader2 size={14} className="animate-spin" />}
+                      {t("pricing.subscribe")}
+                    </button>
+                  )}
                 </GlassCard>
               </motion.div>
             );

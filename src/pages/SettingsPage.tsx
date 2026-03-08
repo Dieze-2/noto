@@ -518,9 +518,8 @@ export default function SettingsPage() {
             ) : (
               <button
                 type="button"
-                onClick={handleCoachRequest}
-                disabled={submittingRequest}
-                className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left disabled:opacity-50"
+                onClick={() => navigate("/pricing")}
+                className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <Crown size={18} />
@@ -529,11 +528,7 @@ export default function SettingsPage() {
                   <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.becomeCoach")}</p>
                   <p className="text-[10px] text-muted-foreground font-bold">{t("settings.becomeCoachDesc")}</p>
                 </div>
-                {submittingRequest ? (
-                  <Loader2 size={16} className="animate-spin text-primary" />
-                ) : (
-                  <ChevronRight size={16} className="text-muted-foreground/40" />
-                )}
+                <ChevronRight size={16} className="text-muted-foreground/40" />
               </button>
             )}
           </div>
