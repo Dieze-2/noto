@@ -175,6 +175,12 @@ export default function CoachDashboardPage() {
                 {t("subscription.upgradeHint")}
               </p>
             </div>
+            <button
+              onClick={() => navigate("/pricing")}
+              className="shrink-0 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity"
+            >
+              {t("subscription.upgrade")}
+            </button>
           </motion.div>
         )}
 

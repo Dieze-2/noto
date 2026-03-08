@@ -253,6 +253,49 @@
     "usage": "{{count}} / {{max}} athlètes",
     "limitReached": "Limite d'athlètes atteinte",
     "upgradeHint": "Passez au forfait supérieur pour inviter plus d'athlètes.",
-    "remainingSlots": "{{count}} place(s) restante(s)"
+    "remainingSlots": "{{count}} place(s) restante(s)",
+    "upgrade": "Upgrade"
+  },
+  "pricing": {
+    "title": "Nos Forfaits",
+    "subtitle": "Choisissez le forfait adapté à votre activité de coaching.",
+    "back": "Retour",
+    "popular": "Populaire",
+    "comingSoon": "Bientôt disponible",
+    "note": "Tous les forfaits incluent un accès illimité à toutes les fonctionnalités. Seul le nombre d'athlètes varie.",
+    "classic": {
+      "name": "Classic",
+      "tagline": "Pour démarrer",
+      "extra": "",
+      "features": [
+        "Jusqu'à 20 athlètes",
+        "Dashboard coach complet",
+        "Programmes personnalisés",
+        "Suivi des métriques",
+        "Support par email"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "tagline": "Pour les coachs confirmés",
+      "extra": "+ {{price}}€/mois par athlète au-delà de 20",
+      "features": [
+        "Jusqu'à 50 athlètes",
+        "Tout le forfait Classic",
+        "Priorité sur les nouvelles fonctionnalités",
+        "Support prioritaire"
+      ]
+    },
+    "club": {
+      "name": "Club",
+      "tagline": "Pour les structures",
+      "extra": "+ {{price}}€/mois par athlète au-delà de 50",
+      "features": [
+        "Athlètes illimités",
+        "Tout le forfait Pro",
+        "Accompagnement dédié",
+        "Facturation personnalisée"
+      ]
+    }
   }
 }

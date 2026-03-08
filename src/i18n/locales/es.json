@@ -242,6 +242,49 @@
     "usage": "{{count}} / {{max}} atletas",
     "limitReached": "Límite de atletas alcanzado",
     "upgradeHint": "Actualiza tu plan para invitar más atletas.",
-    "remainingSlots": "{{count}} plaza(s) disponible(s)"
+    "remainingSlots": "{{count}} plaza(s) disponible(s)",
+    "upgrade": "Upgrade"
+  },
+  "pricing": {
+    "title": "Nuestros Planes",
+    "subtitle": "Elige el plan que se adapte a tu actividad de coaching.",
+    "back": "Volver",
+    "popular": "Popular",
+    "comingSoon": "Próximamente",
+    "note": "Todos los planes incluyen acceso ilimitado a todas las funciones. Solo varía el número de atletas.",
+    "classic": {
+      "name": "Classic",
+      "tagline": "Para empezar",
+      "extra": "",
+      "features": [
+        "Hasta 20 atletas",
+        "Dashboard de coach completo",
+        "Programas personalizados",
+        "Seguimiento de métricas",
+        "Soporte por email"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "tagline": "Para coachs experimentados",
+      "extra": "+ {{price}}€/mes por atleta más allá de 20",
+      "features": [
+        "Hasta 50 atletas",
+        "Todo lo del plan Classic",
+        "Acceso anticipado a nuevas funciones",
+        "Soporte prioritario"
+      ]
+    },
+    "club": {
+      "name": "Club",
+      "tagline": "Para organizaciones",
+      "extra": "+ {{price}}€/mes por atleta más allá de 50",
+      "features": [
+        "Atletas ilimitados",
+        "Todo lo del plan Pro",
+        "Soporte dedicado",
+        "Facturación personalizada"
+      ]
+    }
   }
 }
