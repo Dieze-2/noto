@@ -212,7 +212,12 @@
     "alertInactive": "Inactif depuis {{days}} jours",
     "alertNoWorkout": "Aucun entraînement enregistré",
     "alertWeightLoss": "Perte de poids rapide : -{{kg}} kg cette semaine",
-    "alertPR": "🏆 {{count}} PR battu(s) cette semaine ({{exercise}})"
+    "alertPR": "🏆 {{count}} PR battu(s) cette semaine ({{exercise}})",
+    "privateNotes": "Notes privées",
+    "notesPlaceholder": "Écrivez vos notes privées sur cet athlète…",
+    "notesSaving": "Enregistrement…",
+    "notesSaved": "Enregistré",
+    "notesUnsaved": "Non enregistré"
   },
   "coachStats": {
     "title": "Statistiques",

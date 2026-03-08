@@ -208,7 +208,12 @@
     "alertInactive": "Inactive for {{days}} days",
     "alertNoWorkout": "No workouts recorded",
     "alertWeightLoss": "Rapid weight loss: -{{kg}} kg this week",
-    "alertPR": "🏆 {{count}} PR(s) beaten this week ({{exercise}})"
+    "alertPR": "🏆 {{count}} PR(s) beaten this week ({{exercise}})",
+    "privateNotes": "Private notes",
+    "notesPlaceholder": "Write your private notes about this athlete…",
+    "notesSaving": "Saving…",
+    "notesSaved": "Saved",
+    "notesUnsaved": "Unsaved"
   },
   "program": {
     "title": "Programs",

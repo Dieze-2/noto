@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -6,7 +6,7 @@ import {
   TrendingUp, TrendingDown, Minus, Dumbbell,
   ClipboardList, Plus, ChevronRight, ChevronDown, ChevronUp,
   Calendar, Trash2, CheckCircle2, AlertTriangle, Trophy, Moon,
-  FileDown,
+  FileDown, StickyNote, Save,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
@@ -24,6 +24,7 @@ import ProgramEditor from "@/components/ProgramEditor";
 import CoachExerciseDashboard from "@/components/CoachExerciseDashboard";
 import { toast } from "sonner";
 import { generateAthletePDF } from "@/lib/generateAthletePDF";
+import { getCoachNote, saveCoachNote } from "@/db/coachNotes";
 
 interface DailyMetric {
   date: string;
@@ -154,6 +155,25 @@ export default function CoachAthleteViewPage() {
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [creating, setCreating] = useState(false);
 
+  /* ── Coach notes state ── */
+  const [noteContent, setNoteContent] = useState("");
+  const [noteSaved, setNoteSaved] = useState(true);
+  const [noteSaving, setNoteSaving] = useState(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleNoteChange = useCallback((value: string) => {
+    setNoteContent(value);
+    setNoteSaved(false);
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      if (!athleteId) return;
+      setNoteSaving(true);
+      await saveCoachNote(athleteId, value);
+      setNoteSaving(false);
+      setNoteSaved(true);
+    }, 1500);
+  }, [athleteId]);
+
   /** Get or create the single program for this athlete */
   const getOrCreateProgram = async (): Promise<Program> => {
     if (athleteProgram) return athleteProgram;
@@ -218,6 +238,11 @@ export default function CoachAthleteViewPage() {
       });
       setWorkoutHistory(Array.from(byDate.values()));
     }
+
+    // Load coach note
+    const note = await getCoachNote(athleteId);
+    setNoteContent(note);
+    setNoteSaved(true);
 
     setLoading(false);
   };
@@ -886,6 +911,25 @@ export default function CoachAthleteViewPage() {
                 )}
               </GlassCard>
             )}
+
+            {/* ── Coach Private Notes ── */}
+            <GlassCard className="p-5 rounded-3xl space-y-3">
+              <div className="flex items-center gap-2">
+                <StickyNote size={16} className="text-primary" />
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex-1">
+                  {t("coach.privateNotes")}
+                </h3>
+                <span className="text-[9px] font-bold text-muted-foreground">
+                  {noteSaving ? t("coach.notesSaving") : noteSaved ? t("coach.notesSaved") : t("coach.notesUnsaved")}
+                </span>
+              </div>
+              <textarea
+                value={noteContent}
+                onChange={(e) => handleNoteChange(e.target.value)}
+                placeholder={t("coach.notesPlaceholder")}
+                className="w-full min-h-[120px] bg-muted/30 border border-border/50 rounded-xl p-3 text-sm text-foreground placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:ring-1 focus:ring-primary/30"
+              />
+            </GlassCard>
           </>
         ) : activeTab === "training" ? (
           <CoachExerciseDashboard athleteId={athleteId!} />
