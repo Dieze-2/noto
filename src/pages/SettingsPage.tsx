@@ -10,8 +10,8 @@ import { format } from "date-fns";
 
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/auth/AuthProvider";
-import logo from "@/assets/logo.png";
 import { supabase } from "@/lib/supabaseClient";
+import logo from "@/assets/logo.png";
 import { getDailyMetricsRange } from "@/db/dailyMetrics";
 import { getUserGoals, saveUserGoals } from "@/db/goals";
 
