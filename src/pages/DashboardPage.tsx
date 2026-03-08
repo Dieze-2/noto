@@ -361,31 +361,7 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Toggle total (charge + poids du corps) */}
-          {selectedExercise && (
-            <div className="mb-3 flex items-center gap-2">
-              <button
-                onClick={() => setShowTotal(false)}
-                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                  !showTotal
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {t("dashboard.charge")}
-              </button>
-              <button
-                onClick={() => setShowTotal(true)}
-                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                  showTotal
-                    ? "bg-[hsl(var(--metric-kcal))] text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {t("dashboard.total")}
-              </button>
-            </div>
-          )}
+
 
           {loadingEx && exercises.length === 0 ? (
             <Skeleton className="h-[220px] w-full rounded-2xl" />
