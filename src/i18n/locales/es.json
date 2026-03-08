@@ -272,6 +272,8 @@
     "alreadyCoach": "Ya eres coach",
     "currentPlan": "Plan actual",
     "changePlan": "Cambiar de plan",
+    "cancelSubscription": "Cancelar mi suscripción",
+    "cancelledSuccess": "Suscripción cancelada. Tu rol de coach ha sido retirado.",
     "stripeComingSoon": "El pago con Stripe estará disponible pronto.",
     "comingSoon": "Próximamente",
     "note": "Todos los planes incluyen acceso ilimitado a todas las funciones. Solo varía el número de atletas.",
