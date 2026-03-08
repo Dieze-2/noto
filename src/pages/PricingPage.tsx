@@ -46,6 +46,18 @@ export default function PricingPage() {
   const navigate = useNavigate();
   const { isCoach } = useRoles();
   const [submitting, setSubmitting] = useState<string | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<CoachPlan | null>(null);
+
+  useEffect(() => {
+    if (isCoach) {
+      getCoachSubscription().then((sub) => setCurrentPlan(sub?.plan ?? null));
+    }
+  }, [isCoach]);
+
+  const handleChangePlan = (planKey: string) => {
+    // TODO: redirect to Stripe checkout/portal for plan change
+    toast.info(t("pricing.stripeComingSoon"));
+  };
 
   const handleSubscribe = async (planKey: string) => {
     setSubmitting(planKey);
