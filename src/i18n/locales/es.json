@@ -184,7 +184,15 @@
     "signingUp": "Creando…",
     "noAccount": "¿No tienes cuenta?",
     "hasAccount": "¿Ya tienes cuenta?",
-    "checkEmail": "¡Revisa tu email para confirmar tu cuenta!"
+    "checkEmail": "¡Revisa tu email para confirmar tu cuenta!",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetPassword": "Restablecer",
+    "resetEmailSent": "¡Se ha enviado un email de restablecimiento!",
+    "sending": "Enviando…",
+    "backToLogin": "Volver al inicio de sesión",
+    "newPasswordLabel": "Elige tu nueva contraseña",
+    "passwordResetSuccess": "¡Contraseña cambiada! Redirigiendo…",
+    "invalidResetLink": "Enlace de restablecimiento inválido o expirado."
   },
   "notFound": {
     "title": "404",

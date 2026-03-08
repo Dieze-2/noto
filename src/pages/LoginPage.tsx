@@ -12,12 +12,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/#/reset-password`,
+      });
+      if (error) setError(error.message);
+      else setError(t("login.resetEmailSent"));
+      setLoading(false);
+      return;
+    }
 
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -60,37 +70,64 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <div>
-              <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.password")}</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
-                required
-              />
-            </div>
+
+            {mode !== "forgot" && (
+              <div>
+                <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.password")}</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                  required
+                />
+              </div>
+            )}
 
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <p className={`text-sm ${mode === "forgot" && error === t("login.resetEmailSent") ? "text-foreground" : "text-destructive"}`}>{error}</p>
             )}
 
             <Button type="submit" disabled={loading} className="mt-2 font-bold">
-              {loading
-                ? (mode === "login" ? t("login.loggingIn") : t("login.signingUp"))
-                : (mode === "login" ? t("login.login") : t("login.signup"))}
+              {mode === "forgot"
+                ? (loading ? t("login.sending") : t("login.resetPassword"))
+                : mode === "login"
+                  ? (loading ? t("login.loggingIn") : t("login.login"))
+                  : (loading ? t("login.signingUp") : t("login.signup"))}
             </Button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            {mode === "login" ? t("login.noAccount") : t("login.hasAccount")}{" "}
+          {mode === "login" && (
             <button
               type="button"
-              onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}
-              className="font-bold text-primary hover:underline"
+              onClick={() => { setMode("forgot"); setError(""); }}
+              className="mt-3 block w-full text-center text-xs text-muted-foreground hover:text-primary transition-colors"
             >
-              {mode === "login" ? t("login.signup") : t("login.login")}
+              {t("login.forgotPassword")}
             </button>
+          )}
+
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            {mode === "forgot" ? (
+              <button
+                type="button"
+                onClick={() => { setMode("login"); setError(""); }}
+                className="font-bold text-primary hover:underline"
+              >
+                {t("login.backToLogin")}
+              </button>
+            ) : (
+              <>
+                {mode === "login" ? t("login.noAccount") : t("login.hasAccount")}{" "}
+                <button
+                  type="button"
+                  onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}
+                  className="font-bold text-primary hover:underline"
+                >
+                  {mode === "login" ? t("login.signup") : t("login.login")}
+                </button>
+              </>
+            )}
           </p>
         </GlassCard>
       </motion.div>

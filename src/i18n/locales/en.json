@@ -184,7 +184,15 @@
     "signingUp": "Signing up…",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
-    "checkEmail": "Check your email to confirm your account!"
+    "checkEmail": "Check your email to confirm your account!",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset",
+    "resetEmailSent": "A reset email has been sent!",
+    "sending": "Sending…",
+    "backToLogin": "Back to login",
+    "newPasswordLabel": "Choose your new password",
+    "passwordResetSuccess": "Password changed! Redirecting…",
+    "invalidResetLink": "Invalid or expired reset link."
   },
   "notFound": {
     "title": "404",

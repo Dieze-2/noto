@@ -15,6 +15,7 @@ import SettingsPage from "@/pages/SettingsPage";
 import CoachDashboardPage from "@/pages/CoachDashboardPage";
 import CoachAthleteViewPage from "@/pages/CoachAthleteViewPage";
 import ProgramPage from "@/pages/ProgramPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import NotFound from "@/pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -69,6 +70,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={session ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/*" element={<ProtectedRoutes />} />
     </Routes>
   );
