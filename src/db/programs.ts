@@ -59,10 +59,11 @@ export async function getCoachPrograms(): Promise<Program[]> {
 export async function getMyPrograms(): Promise<Program[]> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
+  // Return programs where user is the athlete OR where user is both coach and athlete (self-coaching)
   const { data, error } = await supabase
     .from("programs")
     .select("*")
-    .eq("athlete_id", user.id)
+    .or(`athlete_id.eq.${user.id}`)
     .order("updated_at", { ascending: false });
   if (error) { console.error("getMyPrograms:", error); return []; }
   return data ?? [];

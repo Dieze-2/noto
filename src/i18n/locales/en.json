@@ -131,6 +131,8 @@
   },
   "coach": {
     "title": "Coach Dashboard",
+    "myProfile": "My profile",
+    "myProfileDesc": "View my stats, training and sessions",
     "notCoach": "Coach access only",
     "notCoachDesc": "Contact an administrator to get the coach role.",
     "inviteAthlete": "Invite an athlete",

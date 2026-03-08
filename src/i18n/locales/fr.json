@@ -131,6 +131,8 @@
   },
   "coach": {
     "title": "Espace Coach",
+    "myProfile": "Mon profil",
+    "myProfileDesc": "Voir mes stats, entraînements et séances",
     "notCoach": "Accès réservé aux coachs",
     "notCoachDesc": "Contactez un administrateur pour obtenir le rôle coach.",
     "inviteAthlete": "Inviter un athlète",
