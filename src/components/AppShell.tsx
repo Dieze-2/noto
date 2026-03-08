@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { CalendarDays, Dumbbell, LayoutDashboard, BookOpen, Settings, Users, ClipboardList } from "lucide-react";
+import { CalendarDays, Dumbbell, LayoutDashboard, BookOpen, Settings, Users, ClipboardList, Shield } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
