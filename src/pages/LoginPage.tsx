@@ -30,7 +30,8 @@ export default function LoginPage() {
         className="w-full max-w-sm"
       >
         {/* Brand */}
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center flex flex-col items-center">
+          <img src={logo} alt="NOTO" className="w-24 h-24 mb-4 object-contain" />
           <h1 className="text-noto-title text-5xl text-primary">NOTO</h1>
           <p className="mt-2 text-sm text-muted-foreground">Track. Train. Transform.</p>
         </div>
