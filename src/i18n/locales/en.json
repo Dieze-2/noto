@@ -144,7 +144,12 @@
     "last30Days": "Last 30 days",
     "noData": "No data available",
     "programs": "Programs",
-    "noPrograms": "No programs"
+    "noPrograms": "No programs",
+    "overview": "Overview",
+    "workouts": "Workouts",
+    "avgSteps": "Avg steps",
+    "avgKcal": "Avg kcal",
+    "recentMetrics": "Recent metrics"
   },
   "program": {
     "title": "Programs",

@@ -42,7 +42,7 @@ const StatBubble = forwardRef<HTMLInputElement, StatBubbleProps>(
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-16 bg-transparent text-center text-2xl font-black text-foreground outline-none placeholder:text-muted-foreground/40"
+            className="w-20 bg-transparent text-center text-2xl font-black text-foreground outline-none placeholder:text-muted-foreground/40"
             placeholder="—"
             {...props}
           />

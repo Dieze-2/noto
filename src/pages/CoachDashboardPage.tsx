@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, UserPlus, Mail, ChevronRight, Eye,
-  ClipboardList, Loader2, Send, X, Plus, ArrowLeft,
+  Loader2, Send, X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -13,10 +13,7 @@ import { useRoles } from "@/auth/RoleProvider";
 import {
   getCoachAthletes, inviteAthlete, CoachAthlete,
 } from "@/db/coachAthletes";
-import {
-  getCoachPrograms, createProgram, deleteProgram, Program,
-} from "@/db/programs";
-import ProgramEditor from "@/components/ProgramEditor";
+import { getProfiles, displayName, Profile } from "@/db/profiles";
 
 export default function CoachDashboardPage() {
   const { t } = useTranslation();
@@ -24,7 +21,7 @@ export default function CoachDashboardPage() {
   const navigate = useNavigate();
 
   const [athletes, setAthletes] = useState<CoachAthlete[]>([]);
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [loadingData, setLoadingData] = useState(true);
 
   /* invite drawer */
@@ -32,19 +29,20 @@ export default function CoachDashboardPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [sending, setSending] = useState(false);
 
-  /* program editor */
-  const [editingProgram, setEditingProgram] = useState<Program | null>(null);
-
-  /* new program */
-  const [newTitle, setNewTitle] = useState("");
-  const [newAthleteId, setNewAthleteId] = useState("");
-  const [creating, setCreating] = useState(false);
-
   const refresh = async () => {
     setLoadingData(true);
-    const [a, p] = await Promise.all([getCoachAthletes(), getCoachPrograms()]);
+    const a = await getCoachAthletes();
     setAthletes(a);
-    setPrograms(p);
+
+    // Fetch profiles for accepted athletes
+    const athleteIds = a
+      .filter((x) => x.status === "accepted" && x.athlete_id)
+      .map((x) => x.athlete_id!);
+    const profileList = await getProfiles(athleteIds);
+    const map: Record<string, Profile> = {};
+    profileList.forEach((p) => { map[p.id] = p; });
+    setProfiles(map);
+
     setLoadingData(false);
   };
 
@@ -63,33 +61,6 @@ export default function CoachDashboardPage() {
       toast.error(e.message);
     } finally {
       setSending(false);
-    }
-  };
-
-  const handleCreate = async () => {
-    if (!newTitle.trim() || !newAthleteId) return;
-    setCreating(true);
-    try {
-      const p = await createProgram(newAthleteId, newTitle.trim());
-      setNewTitle("");
-      setNewAthleteId("");
-      await refresh();
-      setEditingProgram(p);
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteProgram(id);
-      setEditingProgram(null);
-      toast.success(t("program.deleted"));
-      refresh();
-    } catch (e: any) {
-      toast.error(e.message);
     }
   };
 
@@ -113,31 +84,6 @@ export default function CoachDashboardPage() {
 
   const accepted = athletes.filter((a) => a.status === "accepted");
   const pending = athletes.filter((a) => a.status === "pending");
-
-  /* ── If editing a program ── */
-  if (editingProgram) {
-    return (
-      <div className="mx-auto max-w-md px-4 pt-6 pb-32">
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => { setEditingProgram(null); refresh(); }}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft size={16} /> {t("program.backToList")}
-            </button>
-            <button
-              onClick={() => handleDelete(editingProgram.id)}
-              className="text-xs font-black uppercase tracking-wider text-destructive/60 hover:text-destructive"
-            >
-              {t("program.deleteProgram")}
-            </button>
-          </div>
-          <ProgramEditor program={editingProgram} onBack={() => { setEditingProgram(null); refresh(); }} />
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
@@ -178,21 +124,25 @@ export default function CoachDashboardPage() {
             <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noAthletes")}</p>
           ) : (
             <div className="space-y-2">
-              {accepted.map((a) => (
-                <button
-                  key={a.id}
-                  onClick={() => navigate(`/coach/athlete/${a.athlete_id}`)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                    <Eye size={14} />
-                  </div>
-                  <span className="text-sm font-bold text-foreground flex-1 truncate">
-                    {a.invite_email ?? a.athlete_id}
-                  </span>
-                  <ChevronRight size={14} className="text-muted-foreground/40" />
-                </button>
-              ))}
+              {accepted.map((a) => {
+                const profile = a.athlete_id ? profiles[a.athlete_id] : null;
+                const name = displayName(profile, a.invite_email ?? a.athlete_id ?? undefined);
+                return (
+                  <button
+                    key={a.id}
+                    onClick={() => navigate(`/coach/athlete/${a.athlete_id}`)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                      <Eye size={14} />
+                    </div>
+                    <span className="text-sm font-bold text-foreground flex-1 truncate">
+                      {name}
+                    </span>
+                    <ChevronRight size={14} className="text-muted-foreground/40" />
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -209,67 +159,6 @@ export default function CoachDashboardPage() {
                     {t("coach.pending")}
                   </span>
                 </div>
-              ))}
-            </div>
-          )}
-        </GlassCard>
-
-        {/* ── Programs ── */}
-        <GlassCard className="p-5 rounded-3xl space-y-4">
-          <div className="flex items-center gap-2">
-            <ClipboardList size={18} className="text-primary" />
-            <h2 className="text-noto-label text-foreground flex-1">{t("coach.programs")}</h2>
-          </div>
-
-          {/* Create form */}
-          <div className="space-y-2 p-3 rounded-2xl bg-muted/30 border border-border/50">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-              {t("program.newProgram")}
-            </p>
-            <input
-              type="text"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder={t("program.titlePlaceholder")}
-              className="w-full glass rounded-xl px-3 py-2 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
-            />
-            {accepted.length > 0 && (
-              <select
-                value={newAthleteId}
-                onChange={(e) => setNewAthleteId(e.target.value)}
-                className="w-full glass rounded-xl px-3 py-2 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary bg-transparent"
-              >
-                <option value="">{t("program.selectAthlete")}</option>
-                {accepted.map((a) => (
-                  <option key={a.id} value={a.athlete_id!}>
-                    {a.invite_email ?? a.athlete_id}
-                  </option>
-                ))}
-              </select>
-            )}
-            <button
-              onClick={handleCreate}
-              disabled={creating || !newTitle.trim() || !newAthleteId}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 disabled:opacity-50"
-            >
-              <Plus size={14} /> {creating ? t("program.creating") : t("program.create")}
-            </button>
-          </div>
-
-          {/* Program list */}
-          {programs.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noPrograms")}</p>
-          ) : (
-            <div className="space-y-2">
-              {programs.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setEditingProgram(p)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left"
-                >
-                  <span className="text-sm font-bold text-foreground flex-1 truncate">{p.title}</span>
-                  <ChevronRight size={14} className="text-muted-foreground/40" />
-                </button>
               ))}
             </div>
           )}
