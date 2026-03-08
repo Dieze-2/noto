@@ -193,12 +193,22 @@ export default function PricingPage() {
 
                   {/* CTA */}
                   {isCoach ? (
-                    <button
-                      disabled
-                      className="w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider bg-muted text-muted-foreground opacity-60"
-                    >
-                      {t("pricing.alreadyCoach")}
-                    </button>
+                    currentPlan === plan.key ? (
+                      <div className="w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider bg-primary/10 text-primary text-center">
+                        {t("pricing.currentPlan")}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleChangePlan(plan.key)}
+                        className={`w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-opacity flex items-center justify-center gap-2 ${
+                          plan.featured
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        {t("pricing.changePlan")}
+                      </button>
+                    )
                   ) : (
                     <button
                       onClick={() => handleSubscribe(plan.key)}
