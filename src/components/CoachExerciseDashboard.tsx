@@ -203,8 +203,8 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
 
     return Array.from(map.entries())
       .map(([name, entries]) => {
-        const volumes = entries.map((e) => computeVolume(e, weightData));
-        const maxVolume = Math.max(...volumes);
+        const e1rms = entries.map((e) => computeE1RM(e, weightData));
+        const maxE1RM = Math.max(...e1rms);
         const isPDC = entries.some((e) => e.load_type === "PDC" || e.load_type === "PDC_PLUS");
         const firstVol = volumes[0];
         const lastVol = volumes[volumes.length - 1];
