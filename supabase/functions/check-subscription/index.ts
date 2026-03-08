@@ -49,17 +49,20 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
-      limit: 1,
+      status: "all",
+      limit: 10,
     });
 
-    if (subscriptions.data.length === 0) {
+    const sub = subscriptions.data.find((s) =>
+      s.status === "active" || s.status === "trialing"
+    );
+
+    if (!sub) {
       return new Response(JSON.stringify({ subscribed: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const sub = subscriptions.data[0];
     const productId = sub.items.data[0].price.product as string;
     const plan = PRODUCT_TO_PLAN[productId] ?? null;
 
