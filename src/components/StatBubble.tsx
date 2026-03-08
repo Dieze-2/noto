@@ -23,7 +23,8 @@ const StatBubble = forwardRef<HTMLInputElement, StatBubbleProps>(
     // Support both ReactNode and LucideIcon component
     const renderIcon = () => {
       if (!icon) return null;
-      if (typeof icon === "function") {
+      // Check if it's a component (function or forwardRef object) vs a ReactNode
+      if (typeof icon === "function" || (typeof icon === "object" && icon !== null && "$$typeof" in icon && "render" in (icon as any))) {
         const IconComp = icon as LucideIcon;
         return <IconComp size={20} className={cn(accent ? "text-primary" : colorClass || "text-muted-foreground")} />;
       }
