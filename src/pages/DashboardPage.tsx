@@ -171,6 +171,10 @@ export default function DashboardPage() {
   /* Load first weight date */
   useEffect(() => {
     getFirstWeightDate().then(setFirstWeight);
+    // Load ALL weight data for Total calculation
+    getDailyMetricsRange("2000-01-01", format(new Date(), "yyyy-MM-dd")).then((d) => {
+      setAllWeightData(d.filter((r) => r.weight_g != null));
+    });
   }, []);
 
   /* Load weight data */
