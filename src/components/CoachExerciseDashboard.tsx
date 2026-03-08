@@ -108,6 +108,13 @@ function buildExOpts(height: number): uPlot.Options {
         fill: "hsla(156,100%,50%,0.08)",
         points: { size: 4, fill: "hsl(156,100%,50%)" },
       },
+      {
+        label: "Charge (kg)",
+        stroke: "hsl(36,100%,55%)",
+        width: 1.5,
+        dash: [6, 4],
+        points: { size: 3, fill: "hsl(36,100%,55%)" },
+      },
     ],
   };
 }
