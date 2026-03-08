@@ -203,9 +203,64 @@ export default function SettingsPage() {
 
         {/* ── OBJECTIFS ── */}
         <SettingsSection icon={Target} title="Objectifs">
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Les objectifs personnalisés arrivent bientôt ! Tu pourras définir ton poids cible, tes pas quotidiens et tes calories.
-          </p>
+          <div className="space-y-4">
+            {/* Poids cible */}
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
+                <Weight size={12} className="text-metric-weight" />
+                Poids cible (kg)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="Ex: 75.0"
+                value={targetWeight}
+                onChange={(e) => setTargetWeight(e.target.value)}
+                className="w-full glass rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
+              />
+            </div>
+
+            {/* Pas quotidiens */}
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
+                <Footprints size={12} className="text-metric-steps" />
+                Pas quotidiens
+              </label>
+              <input
+                type="number"
+                step="100"
+                placeholder="Ex: 10000"
+                value={targetSteps}
+                onChange={(e) => setTargetSteps(e.target.value)}
+                className="w-full glass rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
+              />
+            </div>
+
+            {/* Calories */}
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
+                <Flame size={12} className="text-metric-kcal" />
+                Calories quotidiennes
+              </label>
+              <input
+                type="number"
+                step="50"
+                placeholder="Ex: 2200"
+                value={targetKcal}
+                onChange={(e) => setTargetKcal(e.target.value)}
+                className="w-full glass rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
+              />
+            </div>
+
+            <button
+              onClick={handleSaveGoals}
+              disabled={savingGoals || !goalsLoaded}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              <Check size={16} />
+              {savingGoals ? "Sauvegarde…" : "Enregistrer"}
+            </button>
+          </div>
         </SettingsSection>
 
         {/* ── IMPORT / EXPORT ── */}
