@@ -183,6 +183,16 @@ export default function SettingsPage() {
   /* Drawers */
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
+
+  /* Theme */
+  const [dark, setDark] = useState(() => !document.documentElement.classList.contains("light"));
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("light", !next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  };
 
   /* Goals state */
   const [targetWeight, setTargetWeight] = useState("");
