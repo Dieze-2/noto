@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, useTransform, useMotionValue } from "framer-motion";
 import { format, addDays, parseISO, isValid } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { useTranslation } from "react-i18next";
 import { getDateLocale } from "@/i18n/dateLocale";
 import {
   Footprints, Flame, Weight, Plus, ChevronLeft, ChevronRight,
