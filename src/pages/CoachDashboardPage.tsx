@@ -48,6 +48,7 @@ export default function CoachDashboardPage() {
   /* remove confirm */
   const [removeTarget, setRemoveTarget] = useState<CoachAthlete | null>(null);
   const [removing, setRemoving] = useState(false);
+  const [lastWorkouts, setLastWorkouts] = useState<Record<string, string>>({});
 
   const refresh = async () => {
     setLoadingData(true);
