@@ -261,7 +261,17 @@ export default function SettingsPage() {
         setGoalsLoaded(true);
       })
       .catch(() => setGoalsLoaded(true));
-  }, []);
+
+    if (user) {
+      getProfile(user.id).then((p) => {
+        if (p) {
+          setProfileFirstName(p.first_name);
+          setProfileLastName(p.last_name);
+        }
+        setProfileLoaded(true);
+      }).catch(() => setProfileLoaded(true));
+    }
+  }, [user]);
 
   const handleSaveGoals = async () => {
     setSavingGoals(true);
