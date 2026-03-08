@@ -214,6 +214,9 @@ export default function CoachDashboardPage() {
           </motion.div>
         )}
 
+        {/* ── Stats Overview ── */}
+        <CoachStatsOverview athletes={athletes} profiles={profiles} />
+
         {/* ── Invite button ── */}
         <button
           onClick={() => {
