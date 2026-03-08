@@ -26,6 +26,7 @@ export default function CoachDashboardPage() {
 
   const [athletes, setAthletes] = useState<CoachAthlete[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
+  const [athleteProfiles, setAthleteProfiles] = useState<Record<string, Profile>>({});
   const [loadingData, setLoadingData] = useState(true);
 
   /* invite drawer */
