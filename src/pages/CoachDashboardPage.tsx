@@ -12,7 +12,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import GlassCard from "@/components/GlassCard";
 import { useRoles } from "@/auth/RoleProvider";
 import {
-  getCoachAthletes, inviteAthlete, CoachAthlete,
+  getCoachAthletes, inviteAthlete, removeAthlete, CoachAthlete,
 } from "@/db/coachAthletes";
 import { getProfiles, displayName, Profile } from "@/db/profiles";
 import {
