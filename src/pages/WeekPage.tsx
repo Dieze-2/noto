@@ -222,7 +222,7 @@ export default function WeekPage() {
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <Footprints size={16} className="text-metric-steps" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pas</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("week.steps")}</span>
                 </div>
                 <span className="text-sm font-black text-foreground">
                   {stats.steps.toLocaleString()}
