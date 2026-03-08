@@ -212,11 +212,10 @@
     "avgFrequency": "Moy. / semaine",
     "avgProgression": "Progression e1RM",
     "consistency": "Assiduité (7j)",
-    "totalSets": "Séries (30j)",
-    "uniqueExercises": "Exos pratiqués",
     "topProgressions": "Top progressions e1RM",
-    "bestExercise": "Meilleure progr.",
-    "worstExercise": "À surveiller"
+    "bestAthlete": "Meilleure progr.",
+    "worstAthlete": "À surveiller",
+    "avgE1rm": "progression e1RM moy."
   },
   "program": {
     "title": "Programmes",

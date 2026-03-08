@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Activity, TrendingUp, TrendingDown, Users, Zap, Calendar,
-  Loader2, Trophy, Flame,
+  Loader2, Trophy, Flame, User,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { subDays, format, differenceInCalendarWeeks, parseISO } from "date-fns";
@@ -99,9 +99,6 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       : 0;
 
     // --- Global e1RM progressions per exercise ---
-
-    // Per exercise across all athletes
-    const exerciseProgressions: { name: string; pct: number }[] = [];
     const perAthleteExercises = new Map<string, Map<string, any[]>>();
 
     allWorkouts.forEach((w) => {
@@ -112,12 +109,14 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       exes.get(w.exercise_name)!.push(w);
     });
 
+    // Compute per-athlete average progression
+    const athleteProgressionMap = new Map<string, number[]>();
+
     // Aggregate progression per exercise across all athletes
     const globalExProgression = new Map<string, number[]>();
-    perAthleteExercises.forEach((exes) => {
+    perAthleteExercises.forEach((exes, athleteId) => {
       exes.forEach((entries, exName) => {
         if (entries.length < 2) return;
-        // Find first and last entries with usable data
         const first = entries[0];
         const last = entries[entries.length - 1];
         const firstLoad = (first.load_g ?? 0) / 1000;
@@ -126,12 +125,10 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
         let pct: number | null = null;
 
         if (firstLoad > 0 && lastLoad > 0) {
-          // Both have load: use e1RM
           const firstE1RM = computeE1RM(firstLoad, first.reps);
           const lastE1RM = computeE1RM(lastLoad, last.reps);
           if (firstE1RM > 0) pct = ((lastE1RM - firstE1RM) / firstE1RM) * 100;
         } else if (lastLoad > 0 && firstLoad <= 0) {
-          // Started bodyweight, now has load — find first entry with load
           const firstWithLoad = entries.find((e: any) => (e.load_g ?? 0) > 0);
           const lastWithLoad = [...entries].reverse().find((e: any) => (e.load_g ?? 0) > 0);
           if (firstWithLoad && lastWithLoad && firstWithLoad !== lastWithLoad) {
@@ -140,22 +137,24 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
             if (fE1RM > 0) pct = ((lE1RM - fE1RM) / fE1RM) * 100;
           }
         } else {
-          // Pure bodyweight: use reps as proxy
           if (first.reps > 0) pct = ((last.reps - first.reps) / first.reps) * 100;
         }
 
         if (pct !== null) {
           if (!globalExProgression.has(exName)) globalExProgression.set(exName, []);
           globalExProgression.get(exName)!.push(pct);
+
+          if (!athleteProgressionMap.has(athleteId)) athleteProgressionMap.set(athleteId, []);
+          athleteProgressionMap.get(athleteId)!.push(pct);
         }
       });
     });
 
+    const exerciseProgressions: { name: string; pct: number }[] = [];
     globalExProgression.forEach((values, name) => {
       const avg = values.reduce((a, b) => a + b, 0) / values.length;
       exerciseProgressions.push({ name, pct: avg });
     });
-
     exerciseProgressions.sort((a, b) => b.pct - a.pct);
 
     // Overall avg progression
@@ -164,10 +163,18 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       ? allProgressions.reduce((a, b) => a + b, 0) / allProgressions.length
       : null;
 
-    // Best & worst exercise
-    const bestExercise = exerciseProgressions.length > 0 ? exerciseProgressions[0] : null;
-    const worstExercise = exerciseProgressions.length > 0
-      ? exerciseProgressions[exerciseProgressions.length - 1]
+    // Best & worst ATHLETE
+    const athleteAvgProgressions: { id: string; name: string; pct: number }[] = [];
+    athleteProgressionMap.forEach((values, id) => {
+      const avg = values.reduce((a, b) => a + b, 0) / values.length;
+      const profile = profiles[id];
+      athleteAvgProgressions.push({ id, name: displayName(profile, id.slice(0, 8)), pct: avg });
+    });
+    athleteAvgProgressions.sort((a, b) => b.pct - a.pct);
+
+    const bestAthlete = athleteAvgProgressions.length > 0 ? athleteAvgProgressions[0] : null;
+    const worstAthlete = athleteAvgProgressions.length > 0
+      ? athleteAvgProgressions[athleteAvgProgressions.length - 1]
       : null;
 
     return {
@@ -177,8 +184,8 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       avgFrequency,
       avgProgression,
       consistencyRate,
-      bestExercise,
-      worstExercise,
+      bestAthlete,
+      worstAthlete,
       topExercises: exerciseProgressions.slice(0, 5),
     };
   }, [recentWorkouts, allWorkouts, acceptedAthletes.length]);
@@ -268,73 +275,86 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
         </GlassCard>
       </div>
 
-      {/* Row 2: Consistency */}
-      <GlassCard className="p-4 rounded-2xl text-center">
-        <div className="flex items-center justify-center gap-1 mb-1">
-          <Flame size={14} className="text-primary" />
-        </div>
-        <div className="text-xl font-black text-foreground">{stats.consistencyRate}%</div>
-        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-          {t("coachStats.consistency")}
-        </div>
-      </GlassCard>
-
-      {/* Top progressions */}
-      {stats.topExercises.length > 0 && (
-        <GlassCard className="rounded-2xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-            <Trophy size={12} className="text-primary" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-              {t("coachStats.topProgressions")}
-            </p>
+      {/* Row 2: Consistency + Top progressions side by side */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <GlassCard className="p-4 rounded-2xl text-center">
+          <div className="flex items-center justify-center gap-1 mb-1">
+            <Flame size={14} className="text-primary" />
           </div>
-          <div className="divide-y divide-border">
-            {stats.topExercises.map((ex, i) => (
-              <div key={ex.name} className="px-4 py-2.5 flex items-center gap-3">
-                <span className="text-[10px] font-black text-muted-foreground w-5 text-center">
-                  {i + 1}
-                </span>
-                <span className="text-xs font-bold text-foreground flex-1 truncate">
-                  {ex.name}
-                </span>
-                <span className={`text-xs font-black ${ex.pct >= 0 ? "text-primary" : "text-destructive"}`}>
-                  {ex.pct > 0 ? "+" : ""}{ex.pct.toFixed(1)}%
-                </span>
-              </div>
-            ))}
+          <div className="text-2xl font-black text-foreground">{stats.consistencyRate}%</div>
+          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            {t("coachStats.consistency")}
           </div>
         </GlassCard>
-      )}
 
-      {/* Best / Worst highlights */}
-      {(stats.bestExercise || stats.worstExercise) && (
+        {stats.topExercises.length > 0 && (
+          <GlassCard className="rounded-2xl overflow-hidden">
+            <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
+              <Trophy size={12} className="text-primary" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                {t("coachStats.topProgressions")}
+              </p>
+            </div>
+            <div className="divide-y divide-border">
+              {stats.topExercises.map((ex, i) => (
+                <div key={ex.name} className="px-4 py-2 flex items-center gap-3">
+                  <span className="text-[10px] font-black text-muted-foreground w-5 text-center">
+                    {i + 1}
+                  </span>
+                  <span className="text-xs font-bold text-foreground flex-1 truncate">
+                    {ex.name}
+                  </span>
+                  <span className={`text-xs font-black ${ex.pct >= 0 ? "text-primary" : "text-destructive"}`}>
+                    {ex.pct > 0 ? "+" : ""}{ex.pct.toFixed(1)}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        )}
+      </div>
+
+      {/* Row 3: Best / Worst athlete */}
+      {(stats.bestAthlete || stats.worstAthlete) && (
         <div className="grid grid-cols-2 gap-3">
-          {stats.bestExercise && (
+          {stats.bestAthlete && (
             <GlassCard className="p-4 rounded-2xl">
               <div className="flex items-center gap-1.5 mb-2">
                 <TrendingUp size={12} className="text-primary" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                  {t("coachStats.bestExercise")}
+                  {t("coachStats.bestAthlete")}
                 </span>
               </div>
-              <p className="text-xs font-bold text-foreground truncate">{stats.bestExercise.name}</p>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <User size={12} className="text-primary" />
+                </div>
+                <p className="text-xs font-bold text-foreground truncate">{stats.bestAthlete.name}</p>
+              </div>
               <p className="text-lg font-black text-primary">
-                +{stats.bestExercise.pct.toFixed(1)}%
+                {stats.bestAthlete.pct > 0 ? "+" : ""}{stats.bestAthlete.pct.toFixed(1)}%
               </p>
+              <p className="text-[9px] font-bold text-muted-foreground">{t("coachStats.avgE1rm")}</p>
             </GlassCard>
           )}
-          {stats.worstExercise && stats.worstExercise.name !== stats.bestExercise?.name && (
+          {stats.worstAthlete && stats.worstAthlete.id !== stats.bestAthlete?.id && (
             <GlassCard className="p-4 rounded-2xl">
               <div className="flex items-center gap-1.5 mb-2">
                 <TrendingDown size={12} className="text-destructive" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                  {t("coachStats.worstExercise")}
+                  {t("coachStats.worstAthlete")}
                 </span>
               </div>
-              <p className="text-xs font-bold text-foreground truncate">{stats.worstExercise.name}</p>
-              <p className={`text-lg font-black ${stats.worstExercise.pct >= 0 ? "text-primary" : "text-destructive"}`}>
-                {stats.worstExercise.pct > 0 ? "+" : ""}{stats.worstExercise.pct.toFixed(1)}%
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-6 h-6 rounded-lg bg-destructive/10 flex items-center justify-center">
+                  <User size={12} className="text-destructive" />
+                </div>
+                <p className="text-xs font-bold text-foreground truncate">{stats.worstAthlete.name}</p>
+              </div>
+              <p className={`text-lg font-black ${stats.worstAthlete.pct >= 0 ? "text-primary" : "text-destructive"}`}>
+                {stats.worstAthlete.pct > 0 ? "+" : ""}{stats.worstAthlete.pct.toFixed(1)}%
               </p>
+              <p className="text-[9px] font-bold text-muted-foreground">{t("coachStats.avgE1rm")}</p>
             </GlassCard>
           )}
         </div>
