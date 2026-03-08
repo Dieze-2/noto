@@ -191,5 +191,11 @@
     "choose": "Choose…",
     "search": "Search…",
     "noResult": "No exercise found"
+  },
+  "invitation": {
+    "coachInvite": "Coaching invitation",
+    "from": "From",
+    "accepted": "Invitation accepted!",
+    "rejected": "Invitation declined"
   }
 }

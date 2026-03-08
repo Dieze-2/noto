@@ -191,5 +191,11 @@
     "choose": "Choisir…",
     "search": "Rechercher…",
     "noResult": "Aucun exercice trouvé"
+  },
+  "invitation": {
+    "coachInvite": "Invitation coaching",
+    "from": "De la part de",
+    "accepted": "Invitation acceptée !",
+    "rejected": "Invitation refusée"
   }
 }

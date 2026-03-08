@@ -37,6 +37,7 @@ export default function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
+      <InvitationBanner />
       <main className="flex-1 overflow-y-auto pb-24">{children}</main>
 
       <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto flex w-[92%] max-w-md items-center justify-around rounded-2xl glass py-3 px-2">
