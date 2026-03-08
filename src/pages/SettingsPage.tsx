@@ -264,7 +264,7 @@ export default function SettingsPage() {
         target_steps: targetSteps ? parseInt(targetSteps) : null,
         target_kcal: targetKcal ? parseInt(targetKcal) : null,
       });
-      toast.success("Objectifs sauvegardés !");
+      toast.success(t("settings.goalsSaved"));
       setGoalsOpen(false);
     } catch (e: any) {
       toast.error("Erreur : " + e.message);
