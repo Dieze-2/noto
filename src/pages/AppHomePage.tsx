@@ -531,7 +531,7 @@ export default function AppHomePage() {
       </Drawer>
 
       {/* Edit Master */}
-      <Drawer open={editMasterOpen} onClose={() => { setEditMasterOpen(false); setEditMasterTarget(null); }} title="Edit Master">
+      <Drawer open={editMasterOpen} onClose={() => { setEditMasterOpen(false); setEditMasterTarget(null); }} title={t("today.editMaster")}>
         <div className="glass rounded-[2rem] p-6 space-y-4">
           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{editMasterTarget?.exercise_name ?? ""}</p>
           <LoadTypeToggle value={editMasterForm.load_type} onChange={(v) => setEditMasterForm({ ...editMasterForm, load_type: v })} />
