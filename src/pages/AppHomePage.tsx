@@ -1,17 +1,22 @@
 import { useEffect, useState, useCallback } from "react";
-import { format } from "date-fns";
+import { format, addDays, subDays, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import StatBubble from "@/components/StatBubble";
 import GlassCard from "@/components/GlassCard";
 import { getDailyMetricsByDate, saveDailyMetrics } from "@/db/dailyMetrics";
 import { useAuth } from "@/auth/AuthProvider";
-import { Loader2 } from "lucide-react";
+import { Loader2, Weight, Footprints, Flame } from "lucide-react";
+
+const SWIPE_THRESHOLD = 50;
 
 export default function AppHomePage() {
   const { user } = useAuth();
-  const today = format(new Date(), "yyyy-MM-dd");
-  const displayDate = format(new Date(), "EEEE d MMMM", { locale: fr });
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [direction, setDirection] = useState(0); // -1 left, 1 right
+  const dateStr = format(currentDate, "yyyy-MM-dd");
+  const displayDate = format(currentDate, "EEEE d MMMM", { locale: fr });
+  const todayLabel = isToday(currentDate) ? "Today" : format(currentDate, "dd/MM");
 
   const [weight, setWeight] = useState("");
   const [steps, setSteps] = useState("");
@@ -20,11 +25,15 @@ export default function AppHomePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Load today's metrics
+  // Load metrics for current date
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    getDailyMetricsByDate(today).then((m) => {
+    setWeight("");
+    setSteps("");
+    setKcal("");
+    setNote("");
+    getDailyMetricsByDate(dateStr).then((m) => {
       if (m) {
         setWeight(m.weight_g != null ? (m.weight_g / 1000).toString() : "");
         setSteps(m.steps != null ? m.steps.toString() : "");
@@ -33,9 +42,8 @@ export default function AppHomePage() {
       }
       setLoading(false);
     });
-  }, [user, today]);
+  }, [user, dateStr]);
 
-  // Auto-save on blur
   const save = useCallback(async () => {
     if (!user || saving) return;
     setSaving(true);
@@ -46,83 +54,108 @@ export default function AppHomePage() {
     const kcalNum = parseInt(kcal);
 
     await saveDailyMetrics({
-      date: today,
+      date: dateStr,
       weight_g: weightG,
       steps: !isNaN(stepsNum) ? stepsNum : null,
       kcal: !isNaN(kcalNum) ? kcalNum : null,
       note: note.trim() || null,
     });
     setSaving(false);
-  }, [user, today, weight, steps, kcal, note, saving]);
+  }, [user, dateStr, weight, steps, kcal, note, saving]);
 
-  if (loading) {
-    return (
-      <div className="flex h-[60dvh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const goNext = () => {
+    setDirection(1);
+    setCurrentDate((d) => addDays(d, 1));
+  };
+  const goPrev = () => {
+    setDirection(-1);
+    setCurrentDate((d) => subDays(d, 1));
+  };
+
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    if (info.offset.x < -SWIPE_THRESHOLD) goNext();
+    else if (info.offset.x > SWIPE_THRESHOLD) goPrev();
+  };
+
+  const variants = {
+    enter: (dir: number) => ({ x: dir > 0 ? 200 : -200, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? -200 : 200, opacity: 0 }),
+  };
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6">
-      {/* Header */}
+    <div className="mx-auto max-w-md px-4 pt-6 overflow-hidden">
+      {/* Header — date first, then label */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-6"
       >
-        <h1 className="text-noto-title text-3xl text-primary">Today</h1>
         <p className="text-sm capitalize text-muted-foreground">{displayDate}</p>
+        <h1 className="text-noto-title text-3xl text-primary">{todayLabel}</h1>
       </motion.div>
 
-      {/* Metrics grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-3 gap-3 mb-4"
-      >
-        <StatBubble
-          label="Poids"
-          unit="kg"
-          value={weight}
-          onChange={setWeight}
-          onBlur={save}
-        />
-        <StatBubble
-          label="Steps"
-          value={steps}
-          onChange={setSteps}
-          onBlur={save}
-        />
-        <StatBubble
-          label="Kcal"
-          value={kcal}
-          onChange={setKcal}
-          onBlur={save}
-        />
-      </motion.div>
+      {/* Swipeable content */}
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.div
+          key={dateStr}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.3}
+          onDragEnd={handleDragEnd}
+        >
+          {loading ? (
+            <div className="flex h-40 items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <>
+              {/* Metrics grid */}
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <StatBubble
+                  icon={<Weight className="h-5 w-5 text-metric-weight" />}
+                  unit="kg"
+                  value={weight}
+                  onChange={setWeight}
+                  onBlur={save}
+                />
+                <StatBubble
+                  icon={<Footprints className="h-5 w-5 text-metric-steps" />}
+                  value={steps}
+                  onChange={setSteps}
+                  onBlur={save}
+                />
+                <StatBubble
+                  icon={<Flame className="h-5 w-5 text-metric-kcal" />}
+                  value={kcal}
+                  onChange={setKcal}
+                  onBlur={save}
+                />
+              </div>
 
-      {/* Note */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <GlassCard>
-          <label className="text-noto-label text-muted-foreground mb-2 block">Note</label>
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            onBlur={save}
-            rows={3}
-            placeholder="Comment s'est passée ta journée ?"
-            className="w-full bg-transparent text-foreground outline-none resize-none placeholder:text-muted-foreground/40"
-          />
-        </GlassCard>
-      </motion.div>
+              {/* Note */}
+              <GlassCard>
+                <label className="text-noto-label text-muted-foreground mb-2 block">Note</label>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  onBlur={save}
+                  rows={3}
+                  placeholder="Comment s'est passée ta journée ?"
+                  className="w-full bg-transparent text-foreground outline-none resize-none placeholder:text-muted-foreground/40"
+                />
+              </GlassCard>
+            </>
+          )}
+        </motion.div>
+      </AnimatePresence>
 
-      {/* Save indicator */}
       {saving && (
         <p className="mt-3 text-center text-xs text-muted-foreground animate-pulse">
           Enregistrement…

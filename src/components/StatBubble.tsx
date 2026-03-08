@@ -1,15 +1,16 @@
 import { cn } from "@/lib/utils";
-import { InputHTMLAttributes, forwardRef, KeyboardEvent } from "react";
+import { InputHTMLAttributes, forwardRef, KeyboardEvent, ReactNode } from "react";
 
 interface StatBubbleProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> {
-  label: string;
+  icon?: ReactNode;
+  label?: string;
   unit?: string;
   value: string;
   onChange: (value: string) => void;
 }
 
 const StatBubble = forwardRef<HTMLInputElement, StatBubbleProps>(
-  ({ label, unit, value, onChange, className, ...props }, ref) => {
+  ({ icon, label, unit, value, onChange, className, ...props }, ref) => {
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
         (e.target as HTMLInputElement).blur();
@@ -17,8 +18,9 @@ const StatBubble = forwardRef<HTMLInputElement, StatBubbleProps>(
     };
 
     return (
-      <div className={cn("glass rounded-xl p-3 flex flex-col items-center gap-1", className)}>
-        <span className="text-noto-label text-muted-foreground">{label}</span>
+      <div className={cn("glass rounded-xl p-3 flex flex-col items-center gap-1.5", className)}>
+        {icon && <div className="flex items-center justify-center">{icon}</div>}
+        {!icon && label && <span className="text-noto-label text-muted-foreground">{label}</span>}
         <div className="flex items-baseline gap-1">
           <input
             ref={ref}

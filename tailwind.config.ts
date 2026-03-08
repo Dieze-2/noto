@@ -54,6 +54,9 @@ export default {
           DEFAULT: "hsl(var(--sauge))",
           foreground: "hsl(var(--sauge-foreground))",
         },
+        "metric-weight": "hsl(var(--metric-weight))",
+        "metric-steps": "hsl(var(--metric-steps))",
+        "metric-kcal": "hsl(var(--metric-kcal))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

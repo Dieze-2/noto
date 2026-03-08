@@ -46,6 +46,11 @@
     --sauge: 97 18% 62%;
     --sauge-foreground: 220 6% 10%;
 
+    /* Metric accent colors */
+    --metric-weight: 270 60% 65%;
+    --metric-steps: 156 100% 50%;
+    --metric-kcal: 36 100% 55%;
+
     --sidebar-background: 220 6% 11%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 156 100% 50%;
