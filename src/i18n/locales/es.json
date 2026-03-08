@@ -349,5 +349,11 @@
     "startTrial": "Iniciar",
     "trialGranted": "¡Prueba de 30 días concedida!",
     "userNotFound": "No se encontró ningún usuario con este email."
+  },
+  "pdf": {
+    "bilanTitle": "Informe del atleta",
+    "generatedOn": "Generado el",
+    "export": "Exportar PDF",
+    "downloaded": "¡PDF descargado!"
   }
 }
