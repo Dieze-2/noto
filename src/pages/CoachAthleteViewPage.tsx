@@ -525,36 +525,7 @@ export default function CoachAthleteViewPage() {
             )}
           </>
         ) : activeTab === "training" ? (
-          <div className="space-y-3">
-            {workoutHistory.length === 0 ? (
-              <div className="text-center py-12 space-y-2">
-                <Dumbbell className="mx-auto h-10 w-10 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">{t("coach.noTrainingData")}</p>
-              </div>
-            ) : (
-              workoutHistory.map((day) => (
-                <GlassCard key={day.date} className="p-4 rounded-2xl">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Calendar size={14} className="text-primary" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{format(new Date(day.date), "dd/MM/yyyy")}</span>
-                    <span className="text-[10px] font-bold text-primary ml-auto">{day.exercises.length} {t("coach.exercisesCount")}</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {day.exercises.map((ex, i) => (
-                      <div key={i} className="flex items-center gap-3 py-1.5 border-b border-border/20 last:border-0">
-                        <Dumbbell size={12} className="text-muted-foreground/60 shrink-0" />
-                        <span className="text-xs font-bold text-foreground flex-1 truncate">{ex.name}</span>
-                        <span className="text-[11px] font-black text-muted-foreground whitespace-nowrap">
-                          {loadDisplay(ex.load_type, ex.load_g)} {ex.load_type !== "PDC" && ex.load_type !== "TEXT" && "kg"}
-                        </span>
-                        <span className="text-[11px] font-black text-primary whitespace-nowrap">{ex.reps} reps</span>
-                      </div>
-                    ))}
-                  </div>
-                </GlassCard>
-              ))
-            )}
-          </div>
+          <CoachExerciseDashboard athleteId={athleteId!} />
         ) : (
           /* ── Sessions tab ── */
           <div className="space-y-4">
