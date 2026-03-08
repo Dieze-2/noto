@@ -150,7 +150,7 @@ export default function RoleProvider({ children }: { children: ReactNode }) {
     <RoleContext.Provider
       value={{
         roles,
-        isCoach: roles.includes("coach"),
+        isCoach: roles.includes("coach") || roles.includes("admin"),
         isAdmin: roles.includes("admin"),
         loading,
         subscription,
