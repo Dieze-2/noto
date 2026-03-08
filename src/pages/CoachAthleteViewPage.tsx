@@ -494,6 +494,35 @@ export default function CoachAthleteViewPage() {
               {t("coach.fullHistory")}
             </p>
           </div>
+          <button
+            onClick={() => {
+              generateAthletePDF({
+                athleteName,
+                stats,
+                weeklyRows,
+                muscleGroups,
+                personalRecords,
+                sessions: sessions.map((s) => ({
+                  name: s.name,
+                  exercises: s.exercises.map((ex) => ({
+                    exercise_name: ex.exercise_name,
+                    sets: ex.sets,
+                    reps: ex.reps,
+                    rest: ex.rest,
+                    work_type: ex.work_type,
+                    note: ex.note,
+                  })),
+                })),
+                frequencyAvg: frequencyByWeek.avgFreq,
+                t,
+              });
+              toast.success(t("pdf.downloaded"));
+            }}
+            className="p-2.5 rounded-xl glass hover:bg-muted/50 text-primary"
+            title={t("pdf.export")}
+          >
+            <FileDown size={18} />
+          </button>
         </div>
 
         {/* Tabs */}
