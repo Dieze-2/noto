@@ -106,14 +106,12 @@ export default function AdminDashboardPage() {
     <div className="mx-auto max-w-3xl px-4 pt-6 pb-32 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+        <div className="text-center space-y-2">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto">
             <Shield size={22} />
           </div>
-          <div>
-            <h1 className="text-noto-title text-2xl text-primary">{t("admin.title")}</h1>
-            <p className="text-xs text-muted-foreground font-bold">{t("admin.subtitle")}</p>
-          </div>
+          <h1 className="text-noto-title text-2xl text-primary">{t("admin.title")}</h1>
+          <p className="text-xs text-muted-foreground font-bold">{t("admin.subtitle")}</p>
         </div>
 
         {/* Coach Requests Section */}
