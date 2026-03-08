@@ -72,35 +72,194 @@ async function exportDailyMetricsCSV() {
   toast.success(i18n.t("settings.exportDownloaded"));
 }
 
-/* ── CSV Import ── */
+/* ── CSV Parser (handles quoted fields with commas) ── */
+function parseCSVLine(line: string): string[] {
+  const parts: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (const ch of line) {
+    if (ch === '"') { inQuotes = !inQuotes; continue; }
+    if (ch === "," && !inQuotes) { parts.push(current.trim()); current = ""; continue; }
+    current += ch;
+  }
+  parts.push(current.trim());
+  return parts;
+}
+
+/** Parse a French-style number: "72,5" → 72.5, "71.8" → 71.8 */
+function parseFrenchNumber(s: string): number | null {
+  if (!s || !s.trim()) return null;
+  const cleaned = s.trim().replace(",", ".");
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? null : n;
+}
+
+/** Parse DD/MM/YYYY to YYYY-MM-DD */
+function parseDateDMY(s: string): string | null {
+  const m = s.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return null;
+  return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+}
+
+/** Detect if CSV is the Google Sheet coach format */
+function isCoachSheetFormat(lines: string[]): boolean {
+  // Look for "JOURNAL DE BORD" or "Date,PAS" pattern in first 15 lines
+  const header = lines.slice(0, 15).join(" ").toLowerCase();
+  return header.includes("journal de bord") || header.includes("pas") && header.includes("poids") && header.includes("exercice");
+}
+
+/** Parse the load column: "PDC" → { type: "PDC", g: 0 }, "PDC + 10" → { type: "PDC_PLUS", g: 10000 }, "17,5" → { type: "KG", g: 17500 } */
+function parseLoadField(s: string): { load_type: string; load_g: number } | null {
+  if (!s || !s.trim()) return null;
+  const t = s.trim().toUpperCase();
+  if (t === "PDC") return { load_type: "PDC", load_g: 0 };
+  // "PDC + 10", "PDC+15", "PDC + 40"
+  const pdcMatch = t.match(/^PDC\s*\+\s*(.+)$/);
+  if (pdcMatch) {
+    const val = parseFrenchNumber(pdcMatch[1]);
+    return { load_type: "PDC_PLUS", load_g: val != null ? Math.round(val * 1000) : 0 };
+  }
+  // Plain number → KG
+  const val = parseFrenchNumber(s);
+  if (val != null) return { load_type: "KG", load_g: Math.round(val * 1000) };
+  return null;
+}
+
+/* ── CSV Import (supports both standard and coach sheet formats) ── */
 async function importDailyMetricsCSV(file: File) {
   const text = await file.text();
-  const lines = text.split("\n").filter((l) => l.trim());
-  if (lines.length < 2) { toast.error(i18n.t("settings.csvEmpty")); return; }
+  const rawLines = text.split("\n");
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) { toast.error(i18n.t("settings.notAuthenticated")); return; }
-  const rows = lines.slice(1).map((line) => {
-    const parts: string[] = [];
-    let current = "";
-    let inQuotes = false;
-    for (const ch of line) {
-      if (ch === '"') { inQuotes = !inQuotes; continue; }
-      if (ch === "," && !inQuotes) { parts.push(current.trim()); current = ""; continue; }
-      current += ch;
+
+  if (isCoachSheetFormat(rawLines)) {
+    // ── Coach Google Sheet format ──
+    // Find the first line with a valid date in col 1
+    const metricsRows: { user_id: string; date: string; weight_g: number | null; steps: number | null; kcal: number | null; note: string | null }[] = [];
+    const workoutRows: { date: string; exercise_name: string; load_type: string; load_g: number | null; reps: number }[] = [];
+
+    for (const rawLine of rawLines) {
+      const cols = parseCSVLine(rawLine);
+      const dateStr = parseDateDMY(cols[1] ?? "");
+      if (!dateStr) continue;
+
+      // Metrics: steps (col 2), kcal (col 4), weight in kg (col 6)
+      const steps = parseFrenchNumber(cols[2] ?? "");
+      const kcal = parseFrenchNumber(cols[4] ?? "");
+      const weightKg = parseFrenchNumber(cols[6] ?? "");
+      const comment = (cols[12] ?? "").trim() || null;
+
+      if (steps != null || kcal != null || weightKg != null) {
+        metricsRows.push({
+          user_id: user.id,
+          date: dateStr,
+          weight_g: weightKg != null ? Math.round(weightKg * 1000) : null,
+          steps: steps != null ? Math.round(steps) : null,
+          kcal: kcal != null ? Math.round(kcal) : null,
+          note: comment,
+        });
+      }
+
+      // Workout: exercise (col 9), load (col 10), reps (col 11)
+      const exerciseName = (cols[9] ?? "").trim();
+      if (exerciseName) {
+        const load = parseLoadField(cols[10] ?? "");
+        const reps = parseFrenchNumber(cols[11] ?? "");
+        if (load && reps != null) {
+          workoutRows.push({
+            date: dateStr,
+            exercise_name: exerciseName,
+            load_type: load.load_type,
+            load_g: load.load_g,
+            reps: Math.round(reps),
+          });
+        }
+      }
     }
-    parts.push(current.trim());
-    const [date, weight_g, steps, kcal, note] = parts;
-    return {
-      user_id: user.id, date,
-      weight_g: weight_g ? Number(weight_g) : null,
-      steps: steps ? Number(steps) : null,
-      kcal: kcal ? Number(kcal) : null,
-      note: note || null,
-    };
-  });
-  const { error } = await supabase.from("daily_metrics").upsert(rows, { onConflict: "user_id,date" });
-  if (error) { toast.error(i18n.t("settings.importError") + " : " + error.message); return; }
-  toast.success(i18n.t("settings.importSuccess", { count: rows.length }));
+
+    // Import metrics
+    let metricsCount = 0;
+    if (metricsRows.length > 0) {
+      const { error } = await supabase.from("daily_metrics").upsert(metricsRows, { onConflict: "user_id,date" });
+      if (error) { toast.error(i18n.t("settings.importError") + " (metrics): " + error.message); return; }
+      metricsCount = metricsRows.length;
+    }
+
+    // Import workouts
+    let workoutCount = 0;
+    if (workoutRows.length > 0) {
+      // Group by date, create workouts then exercises
+      const byDate = new Map<string, typeof workoutRows>();
+      workoutRows.forEach((w) => {
+        if (!byDate.has(w.date)) byDate.set(w.date, []);
+        byDate.get(w.date)!.push(w);
+      });
+
+      for (const [date, exercises] of byDate) {
+        // Get or create workout
+        const { data: existing } = await supabase
+          .from("workouts")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("date", date)
+          .maybeSingle();
+
+        let workoutId: string;
+        if (existing) {
+          workoutId = existing.id;
+        } else {
+          const { data: created, error: wErr } = await supabase
+            .from("workouts")
+            .insert({ user_id: user.id, date, title: null, note: null })
+            .select("id")
+            .single();
+          if (wErr || !created) continue;
+          workoutId = created.id;
+        }
+
+        // Check existing exercises to avoid duplicates
+        const { data: existingExercises } = await supabase
+          .from("workout_exercises")
+          .select("exercise_name")
+          .eq("workout_id", workoutId);
+        const existingNames = new Set((existingExercises ?? []).map((e: any) => e.exercise_name));
+
+        for (let i = 0; i < exercises.length; i++) {
+          const ex = exercises[i];
+          if (existingNames.has(ex.exercise_name)) continue;
+          await supabase.from("workout_exercises").insert({
+            workout_id: workoutId,
+            exercise_name: ex.exercise_name,
+            load_type: ex.load_type,
+            load_g: ex.load_g,
+            reps: ex.reps,
+            sort_order: i,
+          });
+          workoutCount++;
+        }
+      }
+    }
+
+    toast.success(i18n.t("settings.importCoachSuccess", { metrics: metricsCount, workouts: workoutCount }));
+  } else {
+    // ── Standard format: date,weight_g,steps,kcal,note ──
+    const lines = rawLines.filter((l) => l.trim());
+    if (lines.length < 2) { toast.error(i18n.t("settings.csvEmpty")); return; }
+    const rows = lines.slice(1).map((line) => {
+      const parts = parseCSVLine(line);
+      const [date, weight_g, steps, kcal, note] = parts;
+      return {
+        user_id: user.id, date,
+        weight_g: weight_g ? Number(weight_g) : null,
+        steps: steps ? Number(steps) : null,
+        kcal: kcal ? Number(kcal) : null,
+        note: note || null,
+      };
+    });
+    const { error } = await supabase.from("daily_metrics").upsert(rows, { onConflict: "user_id,date" });
+    if (error) { toast.error(i18n.t("settings.importError") + " : " + error.message); return; }
+    toast.success(i18n.t("settings.importSuccess", { count: rows.length }));
+  }
 }
 
 /* ── Drawer wrapper ── */
