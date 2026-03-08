@@ -202,7 +202,11 @@
     "completionTitle": "Complétion des données",
     "last30days": "30 derniers jours",
     "trainingConsistency": "Assiduité entraînement",
-    "weeksActive": "sem. actives"
+    "weeksActive": "sem. actives",
+    "trainingFrequency": "Fréquence d'entraînement",
+    "perWeek": "sem.",
+    "muscleGroups": "Répartition musculaire",
+    "personalRecords": "Records personnels (e1RM)"
   },
   "coachStats": {
     "title": "Statistiques",

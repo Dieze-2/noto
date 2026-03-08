@@ -198,7 +198,11 @@
     "backToExercises": "Back to exercises",
     "searchExercise": "Search exercise…",
     "exercisesTracked": "exercises tracked",
-    "detailedHistory": "Detailed history"
+    "detailedHistory": "Detailed history",
+    "trainingFrequency": "Training frequency",
+    "perWeek": "wk",
+    "muscleGroups": "Muscle group split",
+    "personalRecords": "Personal records (e1RM)"
   },
   "program": {
     "title": "Programs",
