@@ -121,9 +121,9 @@ export async function isTrialEligible(): Promise<boolean> {
 
 /** Plan limits and pricing */
 export const PLAN_CONFIG: Record<CoachPlan, { maxAthletes: number; label: string; priceLabel: string }> = {
-  classic: { maxAthletes: 20, label: "Classic", priceLabel: "25€/mois" },
-  pro:     { maxAthletes: 50, label: "Pro",     priceLabel: "25€ + 1,50€/athlète suppl." },
-  club:    { maxAthletes: Infinity, label: "Club", priceLabel: "25€ + 1,50€×30 + 1€/athlète suppl." },
+  classic: { maxAthletes: 20, label: "Classic", priceLabel: "24,90€/mois" },
+  pro:     { maxAthletes: 50, label: "Pro",     priceLabel: "24,90€ + 1,50€/athlète suppl." },
+  club:    { maxAthletes: Infinity, label: "Club", priceLabel: "69,90€ + 1€/athlète suppl." },
 };
 
 /** Get the current coach's subscription (or null = no subscription / free trial) */
