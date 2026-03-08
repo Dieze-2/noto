@@ -252,14 +252,12 @@ export default function DashboardPage() {
     return { first, last, diff, pct };
   }, [weightData]);
 
-  /* Exercise stats */
+  /* Exercise stats — volume-based: volume = totalLoad × reps */
   const exStats = useMemo(() => {
     if (exData.length < 1) return null;
     const loads = exData.map((d: any) => (d.load_g ?? 0) / 1000);
     const reps = exData.map((d: any) => d.reps ?? 0);
-    const maxLoad = Math.max(...loads);
-    const maxReps = Math.max(...reps);
-    const isPDC = maxLoad === 0;
+    const isPDC = loads.every((l: number) => l === 0);
 
     // Compute total loads (charge + bodyweight for PDC/PDC_PLUS)
     const totalLoads = exData.map((d: any) => {
@@ -270,17 +268,16 @@ export default function DashboardPage() {
       return d.load_type === "PDC" || d.load_type === "PDC_PLUS" ? load + bw : load;
     });
 
+    // Volume = totalLoad × reps
+    const volumes = totalLoads.map((tl: number, i: number) => tl * reps[i]);
+    const maxVolume = Math.max(...volumes);
+    const firstVol = volumes[0];
+    const lastVol = volumes[volumes.length - 1];
+    const progression = firstVol > 0 ? ((lastVol - firstVol) / firstVol) * 100 : null;
+
     const maxTotal = Math.max(...totalLoads);
-    const firstTotal = totalLoads[0];
-    const lastTotal = totalLoads[totalLoads.length - 1];
-    const progression = firstTotal > 0 ? ((lastTotal - firstTotal) / firstTotal) * 100 : null;
 
-    // Reps progression fallback for pure PDC with no weight data
-    const firstReps = reps[0];
-    const lastReps = reps[reps.length - 1];
-    const repsProg = firstReps > 0 ? ((lastReps - firstReps) / firstReps) * 100 : null;
-
-    return { maxLoad, maxTotal, maxReps, lastLoad: loads[loads.length - 1], progression, repsProg, sessions: exData.length, isPDC };
+    return { maxLoad: Math.max(...loads), maxTotal, maxVolume, lastLoad: loads[loads.length - 1], progression, sessions: exData.length, isPDC };
   }, [exData, allWeightData]);
 
   return (
