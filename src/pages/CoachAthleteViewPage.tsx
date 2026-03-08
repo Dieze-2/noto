@@ -344,6 +344,62 @@ export default function CoachAthleteViewPage() {
     return records.sort((a, b) => b.e1rm - a.e1rm).slice(0, 10);
   }, [workoutHistory, metrics]);
 
+  /* ── Coach alerts (client-side) ── */
+  const alerts = useMemo(() => {
+    const result: { type: "inactive" | "weightLoss" | "pr"; icon: typeof AlertTriangle; color: string; bgColor: string; message: string }[] = [];
+    const today = format(new Date(), "yyyy-MM-dd");
+    const sevenDaysAgo = format(new Date(Date.now() - 7 * 86400000), "yyyy-MM-dd");
+
+    // 1. Inactivity > 7 days
+    const lastWorkoutDate = workoutHistory.length > 0 ? workoutHistory[0].date : null;
+    if (!lastWorkoutDate || lastWorkoutDate < sevenDaysAgo) {
+      const daysSince = lastWorkoutDate
+        ? Math.floor((Date.now() - parseISO(lastWorkoutDate).getTime()) / 86400000)
+        : null;
+      result.push({
+        type: "inactive",
+        icon: Moon,
+        color: "text-warning",
+        bgColor: "border-warning/30 bg-warning/5",
+        message: daysSince != null
+          ? t("coach.alertInactive", { days: daysSince })
+          : t("coach.alertNoWorkout"),
+      });
+    }
+
+    // 2. Rapid weight loss (>1kg in last 7 days)
+    const recentMetrics = metrics.filter((m) => m.date >= sevenDaysAgo && m.weight_g != null);
+    if (recentMetrics.length >= 2) {
+      const sorted = [...recentMetrics].sort((a, b) => a.date.localeCompare(b.date));
+      const firstW = sorted[0].weight_g! / 1000;
+      const lastW = sorted[sorted.length - 1].weight_g! / 1000;
+      const diff = lastW - firstW;
+      if (diff < -1) {
+        result.push({
+          type: "weightLoss",
+          icon: AlertTriangle,
+          color: "text-destructive",
+          bgColor: "border-destructive/30 bg-destructive/5",
+          message: t("coach.alertWeightLoss", { kg: Math.abs(diff).toFixed(1) }),
+        });
+      }
+    }
+
+    // 3. PR beaten in last 7 days
+    const recentPRs = personalRecords.filter((pr) => pr.date >= sevenDaysAgo);
+    if (recentPRs.length > 0) {
+      result.push({
+        type: "pr",
+        icon: Trophy,
+        color: "text-primary",
+        bgColor: "border-primary/30 bg-primary/5",
+        message: t("coach.alertPR", { count: recentPRs.length, exercise: recentPRs[0].name }),
+      });
+    }
+
+    return result;
+  }, [workoutHistory, metrics, personalRecords, t]);
+
   const weeklyRows = useMemo(() => computeWeeklyRows(metrics, workoutHistory), [metrics, workoutHistory]);
   const monthlyRows = useMemo(() => computeMonthlyRows(metrics, workoutHistory), [metrics, workoutHistory]);
 
