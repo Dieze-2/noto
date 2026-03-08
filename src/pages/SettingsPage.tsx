@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Target, LogOut, Download, Upload, Check, Weight,
-  Footprints, Flame, X, Lock, ChevronRight,
+  Footprints, Flame, X, Lock, ChevronRight, Database, Sun, Moon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
