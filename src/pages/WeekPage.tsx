@@ -203,10 +203,10 @@ export default function WeekPage() {
           <p className="text-2xl font-black text-foreground">
             {stats.weight ? stats.weight.toFixed(1) : "--"}kg
           </p>
-          <div className={`mt-2 inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-            stats.variation > 0 ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+          <div className={`mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-tight ${
+            stats.variation > 0 ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"
           }`}>
-            {stats.variation > 0 ? "+" : ""}{stats.variation.toFixed(2)}%
+            {stats.variation > 0 ? "▲" : "▼"} {stats.variation > 0 ? "+" : ""}{stats.variation.toFixed(2)}%
           </div>
         </GlassCard>
 
