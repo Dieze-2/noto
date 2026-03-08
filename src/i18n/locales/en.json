@@ -370,5 +370,11 @@
     "startTrial": "Start",
     "trialGranted": "30-day coach trial granted!",
     "userNotFound": "No user found with this email."
+  },
+  "pdf": {
+    "bilanTitle": "Athlete Report",
+    "generatedOn": "Generated on",
+    "export": "Export PDF",
+    "downloaded": "PDF downloaded!"
   }
 }

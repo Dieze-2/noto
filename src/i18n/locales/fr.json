@@ -405,5 +405,11 @@
     "noExpiringTrials": "Aucun essai n'expire prochainement",
     "trialEndsOn": "Fin le {{date}}",
     "noCoaches": "Aucun coach inscrit"
+  },
+  "pdf": {
+    "bilanTitle": "Bilan Athlète",
+    "generatedOn": "Généré le",
+    "export": "Exporter PDF",
+    "downloaded": "PDF téléchargé !"
   }
 }
