@@ -109,6 +109,23 @@ export default function CoachDashboardPage() {
           <ChevronRight size={16} className="text-muted-foreground/40" />
         </button>
 
+        {/* ── My own profile (coach as athlete) ── */}
+        {user && (
+          <button
+            onClick={() => navigate(`/coach/athlete/${user.id}`)}
+            className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left"
+          >
+            <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center text-accent-foreground">
+              <User size={18} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("coach.myProfile")}</p>
+              <p className="text-[10px] text-muted-foreground font-bold">{t("coach.myProfileDesc")}</p>
+            </div>
+            <ChevronRight size={16} className="text-muted-foreground/40" />
+          </button>
+        )}
+
         {/* ── Athletes ── */}
         <GlassCard className="p-5 rounded-3xl">
           <div className="flex items-center gap-2 mb-4">
