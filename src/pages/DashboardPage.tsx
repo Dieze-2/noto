@@ -285,7 +285,7 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-noto-title text-3xl text-primary mb-6">Dashboard</h1>
+        <h1 className="text-noto-title text-3xl text-primary text-center mb-6">Tableau de bord</h1>
 
         {/* ── WEIGHT CHART ── */}
         <GlassCard className="p-5 rounded-3xl mb-6">
