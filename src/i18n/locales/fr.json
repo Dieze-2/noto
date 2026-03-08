@@ -139,7 +139,8 @@
     "coachRequestPending": "Demande en cours",
     "coachRequestPendingDesc": "Votre demande est en attente de validation par un administrateur.",
     "coachRequestRejected": "Demande refusée",
-    "coachRequestRejectedDesc": "Votre demande a été refusée. Contactez un administrateur pour plus d'informations."
+    "coachRequestRejectedDesc": "Votre demande a été refusée. Contactez un administrateur pour plus d'informations.",
+    "dismissRejection": "Réessayer"
   },
   "coach": {
     "title": "Espace Coach",
