@@ -340,6 +340,34 @@ export default function SettingsPage() {
     input.click();
   };
 
+  const handleCoachRequest = async () => {
+    setSubmittingRequest(true);
+    try {
+      const req = await submitCoachRequest();
+      setCoachRequest(req);
+      // Notify all admins — we send to a special "admin" notification channel
+      // For now, we create a notification that admins can see
+      // The admin's user_id needs to be known; we use a generic approach
+      // by inserting a notification row with a special admin coach_id
+      await createNotification({
+        coach_id: user!.id, // stored as reference, admin will query all coach_request notifications
+        type: "coach_request",
+        athlete_email: user!.email ?? null,
+        athlete_id: user!.id,
+        request_id: req.id,
+      });
+      toast.success(t("settings.coachRequestSent"));
+    } catch (e: any) {
+      if (e.message?.includes("duplicate") || e.code === "23505") {
+        toast.error(t("settings.coachRequestAlreadySent"));
+      } else {
+        toast.error(e.message);
+      }
+    } finally {
+      setSubmittingRequest(false);
+    }
+  };
+
   /* Goals summary */
   const goalsSummary = [
     targetWeight && `${targetWeight} kg`,
