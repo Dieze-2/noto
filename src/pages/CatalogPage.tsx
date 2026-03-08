@@ -4,8 +4,10 @@ import { Search, Play, StickyNote, BookOpen } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 import { listCatalogExercises, CatalogExercise } from "@/db/catalog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 export default function CatalogPage() {
+  const { t } = useTranslation();
   const [allExercises, setAllExercises] = useState<CatalogExercise[]>([]);
   const [filtered, setFiltered] = useState<CatalogExercise[]>([]);
   const [search, setSearch] = useState("");
@@ -29,20 +31,18 @@ export default function CatalogPage() {
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-noto-title text-3xl text-primary text-center mb-6">Catalogue</h1>
+        <h1 className="text-noto-title text-3xl text-primary text-center mb-6">{t("catalog.title")}</h1>
 
-        {/* Search */}
         <div className="flex items-center gap-2 bg-muted rounded-2xl px-4 py-3 mb-6 border border-border">
           <Search size={16} className="text-muted-foreground shrink-0" />
           <input
-            placeholder="Rechercher un exercice…"
+            placeholder={t("catalog.search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="bg-transparent w-full text-sm text-foreground outline-none placeholder:text-muted-foreground font-bold"
           />
         </div>
 
-        {/* List */}
         {loading ? (
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -51,7 +51,7 @@ export default function CatalogPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center text-muted-foreground text-sm py-16">
-            {search ? "Aucun exercice trouvé" : "Catalogue vide"}
+            {search ? t("catalog.noResult") : t("catalog.empty")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -81,9 +81,9 @@ export default function CatalogPage() {
                                   ? "bg-primary text-primary-foreground"
                                   : "bg-muted-foreground/20 text-muted-foreground hover:text-foreground"
                               }`}
-                              aria-label="Voir la note"
+                              aria-label={t("catalog.seeNote")}
                             >
-                              Note
+                              {t("catalog.seeNote")}
                             </button>
                           )}
                           {ex.youtube_url && (
@@ -92,7 +92,7 @@ export default function CatalogPage() {
                               target="_blank"
                               rel="noreferrer"
                               className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-lg hover:opacity-90 transition-opacity"
-                              aria-label="Voir la vidéo"
+                              aria-label={t("catalog.seeVideo")}
                             >
                               <Play size={18} fill="currentColor" />
                             </a>

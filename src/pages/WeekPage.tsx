@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { startOfWeek, addDays, format, isToday, subDays, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
+import { getDateLocale } from "@/i18n/dateLocale";
 import { DayPicker } from "react-day-picker";
 import type { DateRange } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -69,6 +70,7 @@ function SwipeDeleteEventRow({ ev, isEditing, onDelete, children }: {
    ════════════════════════════════════════════ */
 export default function WeekPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [anchorDate, setAnchorDate] = useState(new Date());
@@ -188,9 +190,9 @@ export default function WeekPage() {
             <ChevronLeft size={28} />
           </button>
           <div className="text-center">
-            <h1 className="text-noto-title text-3xl text-primary">Semaine</h1>
+            <h1 className="text-noto-title text-3xl text-primary">{t("week.title")}</h1>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">
-              du {format(start, "d MMMM", { locale: fr })}
+              {t("week.from")} {format(start, "d MMMM", { locale: getDateLocale() })}
             </p>
           </div>
           <button onClick={() => setAnchorDate(addDays(anchorDate, 7))} className="p-2 text-muted-foreground hover:text-foreground">
@@ -220,7 +222,7 @@ export default function WeekPage() {
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <Footprints size={16} className="text-metric-steps" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pas</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("week.steps")}</span>
                 </div>
                 <span className="text-sm font-black text-foreground">
                   {stats.steps.toLocaleString()}
@@ -245,7 +247,7 @@ export default function WeekPage() {
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <Flame size={16} className="text-metric-kcal" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Calories</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("week.calories")}</span>
                 </div>
                 <span className="text-sm font-black text-foreground">
                   {stats.kcal.toLocaleString()}
@@ -289,13 +291,13 @@ export default function WeekPage() {
                 <div className={`w-12 h-12 rounded-2xl flex flex-col items-center justify-center font-black ${
                   isT ? "bg-primary text-primary-foreground" : "glass text-muted-foreground"
                 }`}>
-                  <span className="text-[9px] uppercase leading-none">{format(day, "EEE", { locale: fr })}</span>
+                  <span className="text-[9px] uppercase leading-none">{format(day, "EEE", { locale: getDateLocale() })}</span>
                   <span className="text-lg leading-none">{format(day, "d")}</span>
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <p className="font-black uppercase italic text-sm text-foreground flex items-center">
-                    {format(day, "EEEE", { locale: fr })}
+                    {format(day, "EEEE", { locale: getDateLocale() })}
                     {dayEvents.length > 0 && (
                       <Sparkles size={12} className="ml-2"
                         style={{ color: isHex6(dayEvents[0].color) ? dayEvents[0].color! : "#FFA94D" }} />
@@ -351,7 +353,7 @@ export default function WeekPage() {
       <div className="mt-8">
         <button type="button" onClick={openNoteDrawer}
           className="w-full py-4 glass rounded-2xl font-black uppercase italic text-xs tracking-widest text-muted-foreground hover:text-foreground transition-colors">
-          NOTE
+          {t("week.note")}
         </button>
       </div>
 
@@ -374,7 +376,7 @@ export default function WeekPage() {
                   {/* Handle */}
                   <div className="px-5 pt-4 pb-3 flex items-center justify-between relative">
                     <div className="w-12 h-1.5 rounded-full bg-muted mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
-                    <h2 className="text-sm font-black uppercase italic tracking-widest text-muted-foreground">Planning</h2>
+                    <h2 className="text-sm font-black uppercase italic tracking-widest text-muted-foreground">{t("week.planning")}</h2>
                     <button type="button" onClick={closeNoteDrawer} className="p-2 text-muted-foreground hover:text-foreground">
                       <X size={18} />
                     </button>
@@ -384,14 +386,14 @@ export default function WeekPage() {
                     {/* ── CREATE FORM ── */}
                     <GlassCard className="p-6 rounded-[2.5rem] space-y-4 border-b-4 border-primary">
                       <input
-                        placeholder="Nom de l'événement..."
+                        placeholder={t("week.eventName")}
                         value={title} onChange={(e) => setTitle(e.target.value)}
                         className="w-full glass rounded-2xl px-4 py-3 text-xl font-bold text-foreground outline-none focus:ring-1 focus:ring-primary"
                       />
 
                       {/* Color picker */}
                       <div>
-                        <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">Couleur</p>
+                        <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">{t("week.color")}</p>
                         <div className="flex flex-wrap gap-2">
                           {EVENT_COLORS.map((c) => (
                             <button key={c} type="button" onClick={() => setSelectedColor(c)}
@@ -407,7 +409,7 @@ export default function WeekPage() {
                       <div className="glass rounded-3xl p-4">
                         <DayPicker
                           mode="range" selected={range} onSelect={setRange}
-                          locale={fr} weekStartsOn={1} fixedWeeks showOutsideDays
+                          locale={getDateLocale()} weekStartsOn={1} fixedWeeks showOutsideDays
                           className="text-foreground pointer-events-auto"
                           classNames={{
                             months: "flex flex-col",
@@ -432,8 +434,8 @@ export default function WeekPage() {
                           }}
                         />
                         <div className="mt-3 flex justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                          <span>DU: {fromISO || "--"}</span>
-                          <span>AU: {toISOValue || "--"}</span>
+                          <span>{t("week.fromDate")}: {fromISO || "--"}</span>
+                          <span>{t("week.toDate")}: {toISOValue || "--"}</span>
                         </div>
                       </div>
 
@@ -454,7 +456,7 @@ export default function WeekPage() {
                         className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-colors ${
                           canCreate ? "bg-primary text-primary-foreground" : "glass text-muted-foreground border border-border"
                         }`}>
-                        Ajouter au calendrier
+                        {t("week.addToCalendar")}
                       </button>
                     </GlassCard>
 
@@ -477,8 +479,8 @@ export default function WeekPage() {
                                         <p className="font-black text-foreground text-lg uppercase italic truncate">{ev.title}</p>
                                       </div>
                                       <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1 italic">
-                                        {format(parseISO(ev.start_date), "d MMM", { locale: fr })} —{" "}
-                                        {format(parseISO(ev.end_date), "d MMM yyyy", { locale: fr })}
+                                        {format(parseISO(ev.start_date), "d MMM", { locale: getDateLocale() })} —{" "}
+                                        {format(parseISO(ev.end_date), "d MMM yyyy", { locale: getDateLocale() })}
                                       </p>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -489,9 +491,9 @@ export default function WeekPage() {
                                         <Pencil size={16} />
                                       </button>
                                       <button type="button"
-                                        onClick={async () => { if (!confirm("Supprimer ?")) return; await handleSwipeDeleteEvent(ev.id); }}
+                                        onClick={async () => { if (!confirm(t("week.deleteConfirm"))) return; await handleSwipeDeleteEvent(ev.id); }}
                                         className="text-destructive font-black text-[10px] uppercase px-2 py-2">
-                                        Suppr.
+                                        {t("week.delete")}
                                       </button>
                                     </div>
                                   </div>
@@ -529,7 +531,7 @@ export default function WeekPage() {
 
                                     {/* Color picker */}
                                     <div>
-                                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">Couleur</p>
+                                      <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">{t("week.color")}</p>
                                       <div className="flex flex-wrap gap-2">
                                         {EVENT_COLORS.map((col) => (
                                           <button key={col} type="button"

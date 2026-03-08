@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Dumbbell, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ExercisePickerSheetProps {
   exercises: string[];
@@ -13,6 +14,7 @@ export default function ExercisePickerSheet({
   selected,
   onSelect,
 }: ExercisePickerSheetProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -22,24 +24,22 @@ export default function ExercisePickerSheet({
 
   return (
     <>
-      {/* Trigger button */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted border border-border text-sm font-bold text-foreground hover:border-primary/30 transition-colors w-full"
       >
         <Dumbbell size={14} className="text-primary shrink-0" />
-        <span className="truncate flex-1 text-left">{selected || "Choisir…"}</span>
+        <span className="truncate flex-1 text-left">{selected || t("exercisePicker.choose")}</span>
         <ChevronDown size={14} className="text-muted-foreground shrink-0" />
       </button>
 
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
             <motion.button
               type="button"
-              aria-label="Fermer"
+              aria-label="Close"
               onClick={() => { setOpen(false); setSearch(""); }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -47,7 +47,6 @@ export default function ExercisePickerSheet({
               className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm"
             />
 
-            {/* Sheet */}
             <motion.div
               drag="y"
               dragConstraints={{ top: 0, bottom: 0 }}
@@ -66,11 +65,10 @@ export default function ExercisePickerSheet({
             >
               <div className="mx-auto max-w-xl">
                 <div className="rounded-t-[2rem] border border-border bg-card/95 backdrop-blur-2xl shadow-[0_-20px_60px_rgba(0,0,0,0.5)]">
-                  {/* Header */}
                   <div className="px-5 pt-4 pb-3 flex items-center justify-between relative">
                     <div className="w-12 h-1.5 rounded-full bg-muted-foreground/20 mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
                     <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground">
-                      Exercice
+                      {t("exercisePicker.title")}
                     </h2>
                     <button
                       type="button"
@@ -81,25 +79,23 @@ export default function ExercisePickerSheet({
                     </button>
                   </div>
 
-                  {/* Search */}
                   <div className="px-5 pb-3">
                     <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2.5">
                       <Search size={14} className="text-muted-foreground shrink-0" />
                       <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Rechercher…"
+                        placeholder={t("exercisePicker.search")}
                         className="bg-transparent w-full text-sm text-foreground outline-none placeholder:text-muted-foreground"
                         autoFocus
                       />
                     </div>
                   </div>
 
-                  {/* List */}
                   <div className="px-5 pb-6 max-h-[50vh] overflow-auto space-y-1">
                     {filtered.length === 0 ? (
                       <p className="text-center text-sm text-muted-foreground py-8">
-                        Aucun exercice trouvé
+                        {t("exercisePicker.noResult")}
                       </p>
                     ) : (
                       filtered.map((ex) => {

@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { subMonths, format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
+import { getDateLocale } from "@/i18n/dateLocale";
 import { Weight, Dumbbell, TrendingUp, TrendingDown } from "lucide-react";
 import uPlot from "uplot";
 
@@ -19,12 +20,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 /* ── Types ── */
 type RangeKey = "3M" | "6M" | "ALL";
-
-const RANGE_LABELS: { key: RangeKey; label: string }[] = [
-  { key: "3M", label: "3 mois" },
-  { key: "6M", label: "6 mois" },
-  { key: "ALL", label: "Tout" },
-];
 
 /* ── Helpers ── */
 function toUnix(dateStr: string) {
@@ -60,7 +55,7 @@ function buildWeightOpts(height: number): uPlot.Options {
         ticks: { stroke: "transparent" },
         font: "11px Inter",
         values: (_u: uPlot, vals: number[]) =>
-          vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: fr })),
+          vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: getDateLocale() })),
       },
       {
         stroke: "hsla(220,6%,55%,0.5)",
@@ -121,7 +116,7 @@ function buildExerciseOpts(height: number, showTotal: boolean): uPlot.Options {
         ticks: { stroke: "transparent" },
         font: "11px Inter",
         values: (_u: uPlot, vals: number[]) =>
-          vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: fr })),
+          vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: getDateLocale() })),
       },
       {
         stroke: "hsla(220,6%,55%,0.5)",
@@ -138,6 +133,12 @@ function buildExerciseOpts(height: number, showTotal: boolean): uPlot.Options {
 
 /* ── Main Component ── */
 export default function DashboardPage() {
+  const { t } = useTranslation();
+  const RANGE_LABELS: { key: RangeKey; label: string }[] = [
+    { key: "3M", label: t("dashboard.range3M") },
+    { key: "6M", label: t("dashboard.range6M") },
+    { key: "ALL", label: t("dashboard.rangeAll") },
+  ];
   /* Weight state */
   const [weightRange, setWeightRange] = useState<RangeKey>("3M");
   const [weightData, setWeightData] = useState<DailyMetrics[]>([]);
@@ -285,14 +286,14 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-noto-title text-3xl text-primary text-center mb-6">Tableau de bord</h1>
+        <h1 className="text-noto-title text-3xl text-primary text-center mb-6">{t("dashboard.title")}</h1>
 
         {/* ── WEIGHT CHART ── */}
         <GlassCard className="p-5 rounded-3xl mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Weight size={18} className="text-[hsl(var(--metric-weight))]" />
-              <h2 className="text-noto-label text-foreground">Poids</h2>
+              <h2 className="text-noto-label text-foreground">{t("dashboard.weight")}</h2>
               <ChartExpandButton onClick={() => setFullscreenChart("weight")} />
             </div>
             <div className="flex gap-1">
@@ -337,7 +338,7 @@ export default function DashboardPage() {
             <Skeleton className="h-[220px] w-full rounded-2xl" />
           ) : weightData.length < 2 ? (
             <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
-              Pas assez de données
+              {t("dashboard.notEnoughData")}
             </div>
           ) : (
             <UPlotChart options={weightOpts} data={weightChartData} />
@@ -349,7 +350,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Dumbbell size={18} className="text-primary" />
-              <h2 className="text-noto-label text-foreground">Exercice</h2>
+              <h2 className="text-noto-label text-foreground">{t("dashboard.exercise")}</h2>
               <ChartExpandButton onClick={() => setFullscreenChart("exercise")} />
             </div>
             <div className="flex gap-1">
@@ -391,7 +392,7 @@ export default function DashboardPage() {
                     : "bg-muted text-muted-foreground"
                 }`}
               >
-                Charge
+                {t("dashboard.charge")}
               </button>
               <button
                 onClick={() => setShowTotal(true)}
@@ -401,7 +402,7 @@ export default function DashboardPage() {
                     : "bg-muted text-muted-foreground"
                 }`}
               >
-                Total
+                {t("dashboard.total")}
               </button>
             </div>
           )}
@@ -410,11 +411,11 @@ export default function DashboardPage() {
             <Skeleton className="h-[220px] w-full rounded-2xl" />
           ) : exercises.length === 0 ? (
             <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
-              Aucun exercice enregistré
+              {t("dashboard.noExercise")}
             </div>
           ) : exData.length < 2 ? (
             <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
-              Pas assez de données pour « {selectedExercise} »
+              {t("dashboard.notEnoughDataFor", { name: selectedExercise })}
             </div>
           ) : (
             <UPlotChart options={exOpts} data={exChartData} />
@@ -425,7 +426,7 @@ export default function DashboardPage() {
             <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="bg-muted rounded-xl p-3 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                  {exStats.isPDC ? "Reps max" : "Total max"}
+                  {exStats.isPDC ? t("dashboard.repsMax") : t("dashboard.totalMax")}
                 </p>
                 <p className="text-lg font-black text-foreground">
                   {exStats.isPDC ? exStats.maxReps : exStats.maxTotal.toFixed(1)}
@@ -433,7 +434,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="bg-muted rounded-xl p-3 text-center">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Progression</p>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">{t("dashboard.progression")}</p>
                 {(() => {
                   const prog = exStats.progression ?? exStats.repsProg;
                   if (prog === null) return <p className="text-lg font-black text-muted-foreground">—</p>;
@@ -445,7 +446,7 @@ export default function DashboardPage() {
                 })()}
               </div>
               <div className="bg-muted rounded-xl p-3 text-center">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Séances</p>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">{t("dashboard.sessions")}</p>
                 <p className="text-lg font-black text-foreground">{exStats.sessions}</p>
               </div>
             </div>
@@ -455,7 +456,7 @@ export default function DashboardPage() {
         <ChartFullscreen
           open={fullscreenChart === "weight"}
           onClose={() => setFullscreenChart(null)}
-          title="Poids"
+          title={t("dashboard.weight")}
           options={weightOpts}
           data={weightChartData}
         />

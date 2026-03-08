@@ -2,13 +2,14 @@ import { cn } from "@/lib/utils";
 import { CalendarDays, Dumbbell, LayoutDashboard, BookOpen, Settings } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
-const NAV_ITEMS = [
-  { path: "/", label: "Today", icon: Dumbbell },
-  { path: "/week", label: "Week", icon: CalendarDays },
-  { path: "/dashboard", label: "Stats", icon: LayoutDashboard },
-  { path: "/catalog", label: "Exos", icon: BookOpen },
-  { path: "/settings", label: "Réglages", icon: Settings },
+const NAV_ICONS = [
+  { path: "/", key: "today", icon: Dumbbell },
+  { path: "/week", key: "week", icon: CalendarDays },
+  { path: "/dashboard", key: "stats", icon: LayoutDashboard },
+  { path: "/catalog", key: "exercises", icon: BookOpen },
+  { path: "/settings", key: "settings", icon: Settings },
 ];
 
 interface AppShellProps {
@@ -18,15 +19,14 @@ interface AppShellProps {
 export default function AppShell({ children }: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
-      {/* Content */}
       <main className="flex-1 overflow-y-auto pb-24">{children}</main>
 
-      {/* Bottom nav */}
       <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto flex w-[92%] max-w-md items-center justify-around rounded-2xl glass py-3 px-2">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ICONS.map((item) => {
           const active = location.pathname === item.path;
           return (
             <button
@@ -38,7 +38,7 @@ export default function AppShell({ children }: AppShellProps) {
               )}
             >
               <item.icon className="h-5 w-5" />
-              <span className="text-noto-label text-[10px]">{item.label}</span>
+              <span className="text-noto-label text-[10px]">{t(`nav.${item.key}`)}</span>
             </button>
           );
         })}

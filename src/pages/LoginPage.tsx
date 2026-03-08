@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/GlassCard";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo.png";
+import { useTranslation } from "react-i18next";
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,7 +31,6 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-sm"
       >
-        {/* Brand */}
         <div className="mb-8 text-center flex flex-col items-center">
           <img src={logo} alt="NOTO" className="w-24 h-24 mb-4 object-contain" />
           <h1 className="text-noto-title text-5xl text-primary">NOTO</h1>
@@ -39,7 +40,7 @@ export default function LoginPage() {
         <GlassCard className="p-6">
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <div>
-              <label className="text-noto-label text-muted-foreground mb-1 block">Email</label>
+              <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.email")}</label>
               <input
                 type="email"
                 value={email}
@@ -49,7 +50,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="text-noto-label text-muted-foreground mb-1 block">Password</label>
+              <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.password")}</label>
               <input
                 type="password"
                 value={password}
@@ -64,7 +65,7 @@ export default function LoginPage() {
             )}
 
             <Button type="submit" disabled={loading} className="mt-2 font-bold">
-              {loading ? "Connexion…" : "Se connecter"}
+              {loading ? t("login.loggingIn") : t("login.login")}
             </Button>
           </form>
         </GlassCard>

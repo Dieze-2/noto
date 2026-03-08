@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Target, LogOut, Download, Upload, Check, Weight,
-  Footprints, Flame, X, Lock, ChevronRight, Database, Sun, Moon,
+  Footprints, Flame, X, Lock, ChevronRight, Database, Sun, Moon, Globe,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/auth/AuthProvider";
@@ -18,8 +20,7 @@ import { getUserGoals, saveUserGoals } from "@/db/goals";
 /* ── Workouts Export ── */
 async function exportWorkoutsCSV() {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { toast.error("Non authentifié"); return; }
-
+  if (!user) { toast.error(i18n.t("settings.notAuthenticated")); return; }
   // Fetch workouts with exercises and sets via the flat view
   const { data, error } = await supabase
     .from("v_workout_exercises_flat")
@@ -27,8 +28,8 @@ async function exportWorkoutsCSV() {
     .eq("user_id", user.id)
     .order("workout_date", { ascending: true });
 
-  if (error) { toast.error("Erreur : " + error.message); return; }
-  if (!data?.length) { toast.error("Aucune séance à exporter"); return; }
+  if (error) { toast.error(i18n.t("settings.error") + " : " + error.message); return; }
+  if (!data?.length) { toast.error(i18n.t("settings.noWorkoutsToExport")); return; }
 
   const header = "date,exercise_name,load_type,load_g,reps";
   const lines = data.map(
@@ -43,13 +44,13 @@ async function exportWorkoutsCSV() {
   a.download = `noto-workouts-${format(new Date(), "yyyy-MM-dd")}.csv`;
   a.click();
   URL.revokeObjectURL(url);
-  toast.success("Export séances téléchargé !");
+  toast.success(i18n.t("settings.workoutsExported"));
 }
 
 /* ── CSV Export ── */
 async function exportDailyMetricsCSV() {
   const rows = await getDailyMetricsRange("2000-01-01", format(new Date(), "yyyy-MM-dd"));
-  if (!rows.length) { toast.error("Aucune donnée à exporter"); return; }
+  if (!rows.length) { toast.error(i18n.t("settings.noDataToExport")); return; }
   const header = "date,weight_g,steps,kcal,note";
   const lines = rows.map(
     (r) => `${r.date},${r.weight_g ?? ""},${r.steps ?? ""},${r.kcal ?? ""},"${(r.note ?? "").replace(/"/g, '""')}"`
@@ -62,16 +63,16 @@ async function exportDailyMetricsCSV() {
   a.download = `noto-export-${format(new Date(), "yyyy-MM-dd")}.csv`;
   a.click();
   URL.revokeObjectURL(url);
-  toast.success("Export téléchargé !");
+  toast.success(i18n.t("settings.exportDownloaded"));
 }
 
 /* ── CSV Import ── */
 async function importDailyMetricsCSV(file: File) {
   const text = await file.text();
   const lines = text.split("\n").filter((l) => l.trim());
-  if (lines.length < 2) { toast.error("Fichier CSV vide ou invalide"); return; }
+  if (lines.length < 2) { toast.error(i18n.t("settings.csvEmpty")); return; }
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { toast.error("Non authentifié"); return; }
+  if (!user) { toast.error(i18n.t("settings.notAuthenticated")); return; }
   const rows = lines.slice(1).map((line) => {
     const parts: string[] = [];
     let current = "";
@@ -92,8 +93,8 @@ async function importDailyMetricsCSV(file: File) {
     };
   });
   const { error } = await supabase.from("daily_metrics").upsert(rows, { onConflict: "user_id,date" });
-  if (error) { toast.error("Erreur d'import : " + error.message); return; }
-  toast.success(`${rows.length} lignes importées !`);
+  if (error) { toast.error(i18n.t("settings.importError") + " : " + error.message); return; }
+  toast.success(i18n.t("settings.importSuccess", { count: rows.length }));
 }
 
 /* ── Drawer wrapper ── */
@@ -213,6 +214,7 @@ function SettingRow({
 export default function SettingsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loggingOut, setLoggingOut] = useState(false);
 
   /* Drawers */
@@ -262,10 +264,10 @@ export default function SettingsPage() {
         target_steps: targetSteps ? parseInt(targetSteps) : null,
         target_kcal: targetKcal ? parseInt(targetKcal) : null,
       });
-      toast.success("Objectifs sauvegardés !");
+      toast.success(t("settings.goalsSaved"));
       setGoalsOpen(false);
     } catch (e: any) {
-      toast.error("Erreur : " + e.message);
+      toast.error(t("settings.error") + " : " + e.message);
     } finally {
       setSavingGoals(false);
     }
@@ -273,23 +275,23 @@ export default function SettingsPage() {
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
-      toast.error("Le mot de passe doit contenir au moins 6 caractères");
+      toast.error(t("settings.passwordTooShort"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Les mots de passe ne correspondent pas");
+      toast.error(t("settings.passwordMismatch"));
       return;
     }
     setChangingPw(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Mot de passe modifié !");
+      toast.success(t("settings.passwordChanged"));
       setNewPassword("");
       setConfirmPassword("");
       setPasswordOpen(false);
     } catch (e: any) {
-      toast.error("Erreur : " + e.message);
+      toast.error(t("settings.error") + " : " + e.message);
     } finally {
       setChangingPw(false);
     }
@@ -315,9 +317,9 @@ export default function SettingsPage() {
   /* Goals summary */
   const goalsSummary = [
     targetWeight && `${targetWeight} kg`,
-    targetSteps && `${parseInt(targetSteps).toLocaleString()} pas`,
-    targetKcal && `${parseInt(targetKcal).toLocaleString()} kcal`,
-  ].filter(Boolean).join(" · ") || "Non définis";
+    targetSteps && `${parseInt(targetSteps).toLocaleString()} ${t("settings.steps")}`,
+    targetKcal && `${parseInt(targetKcal).toLocaleString()} ${t("settings.kcal")}`,
+  ].filter(Boolean).join(" · ") || t("settings.goalsNotSet");
 
   return (
     <div className="mx-auto max-w-md px-4 pt-6 pb-32">
@@ -327,18 +329,18 @@ export default function SettingsPage() {
         className="space-y-6"
       >
         <h1 className="text-noto-title text-3xl text-primary text-center mb-6">
-          Paramètres
+          {t("settings.title")}
         </h1>
 
         {/* ── PROFIL ── */}
-        <SettingsSection icon={User} title="Profil" trailing={<img src={logo} alt="NOTO" className="w-8 h-8 object-contain opacity-50 rounded-lg" />}>
+        <SettingsSection icon={User} title={t("settings.profile")} trailing={<img src={logo} alt="NOTO" className="w-8 h-8 object-contain opacity-50 rounded-lg" />}>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("settings.email")}</span>
               <span className="text-sm font-bold text-foreground truncate ml-4">{user?.email ?? "—"}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Membre depuis</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t("settings.memberSince")}</span>
               <span className="text-sm font-bold text-foreground">
                 {user?.created_at ? format(new Date(user.created_at), "dd/MM/yyyy") : "—"}
               </span>
@@ -350,21 +352,21 @@ export default function SettingsPage() {
         <div className="space-y-3">
           <SettingRow
             icon={Target}
-            label="Objectifs"
-            sublabel={goalsLoaded ? goalsSummary : "Chargement…"}
+            label={t("settings.goals")}
+            sublabel={goalsLoaded ? goalsSummary : t("settings.loading")}
             onClick={() => setGoalsOpen(true)}
           />
           <SettingRow
             icon={Lock}
-            label="Mot de passe"
-            sublabel="Changer le mot de passe"
+            label={t("settings.password")}
+            sublabel={t("settings.changePassword")}
             onClick={() => setPasswordOpen(true)}
             iconColor="text-metric-weight"
           />
           <SettingRow
             icon={Database}
-            label="Données"
-            sublabel="Importer ou exporter en CSV"
+            label={t("settings.data")}
+            sublabel={t("settings.dataSubtitle")}
             onClick={() => setDataOpen(true)}
             iconColor="text-metric-kcal"
           />
@@ -379,8 +381,8 @@ export default function SettingsPage() {
               {dark ? <Moon size={18} /> : <Sun size={18} />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-black uppercase tracking-wider text-foreground">Thème</p>
-              <p className="text-[10px] text-muted-foreground font-bold">{dark ? "Mode sombre" : "Mode clair"}</p>
+              <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.theme")}</p>
+              <p className="text-[10px] text-muted-foreground font-bold">{dark ? t("settings.darkMode") : t("settings.lightMode")}</p>
             </div>
             <div className={`w-12 h-7 rounded-full p-1 transition-colors ${dark ? "bg-primary" : "bg-muted-foreground/30"}`}>
               <motion.div
@@ -392,6 +394,38 @@ export default function SettingsPage() {
           </button>
         </div>
 
+        {/* ── LANGUAGE ── */}
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={() => {
+              const langs = ["fr", "en", "es"] as const;
+              const idx = langs.indexOf(i18n.language as any);
+              const next = langs[(idx + 1) % langs.length];
+              i18n.changeLanguage(next);
+              localStorage.setItem("lang", next);
+            }}
+            className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left"
+          >
+            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary">
+              <Globe size={18} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.language")}</p>
+              <p className="text-[10px] text-muted-foreground font-bold">
+                {i18n.language === "fr" ? t("settings.langFr") : i18n.language === "en" ? t("settings.langEn") : t("settings.langEs")}
+              </p>
+            </div>
+            <div className="flex gap-1">
+              {(["fr", "en", "es"] as const).map((l) => (
+                <span key={l} className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${i18n.language === l ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  {l}
+                </span>
+              ))}
+            </div>
+          </button>
+        </div>
+
         {/* ── DÉCONNEXION ── */}
         <button
           onClick={handleLogout}
@@ -399,16 +433,16 @@ export default function SettingsPage() {
           className="w-full flex items-center justify-center gap-2 py-4 rounded-3xl bg-destructive/10 text-destructive text-sm font-black uppercase tracking-wider hover:bg-destructive/20 transition-colors disabled:opacity-50"
         >
           <LogOut size={18} />
-          {loggingOut ? "Déconnexion…" : "Se déconnecter"}
+          {loggingOut ? t("settings.loggingOut") : t("settings.logout")}
         </button>
       </motion.div>
 
       {/* ═══ DRAWER OBJECTIFS ═══ */}
-      <SettingsDrawer open={goalsOpen} onClose={() => setGoalsOpen(false)} title="Objectifs">
+      <SettingsDrawer open={goalsOpen} onClose={() => setGoalsOpen(false)} title={t("settings.goals")}>
         <div className="space-y-4">
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Weight size={12} className="text-metric-weight" /> Poids cible (kg)
+              <Weight size={12} className="text-metric-weight" /> {t("settings.targetWeight")}
             </label>
             <input
               type="number" step="0.1" placeholder="Ex: 75.0"
@@ -418,7 +452,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Footprints size={12} className="text-metric-steps" /> Pas quotidiens
+              <Footprints size={12} className="text-metric-steps" /> {t("settings.targetSteps")}
             </label>
             <input
               type="number" step="100" placeholder="Ex: 10000"
@@ -428,7 +462,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Flame size={12} className="text-metric-kcal" /> Calories quotidiennes
+              <Flame size={12} className="text-metric-kcal" /> {t("settings.targetKcal")}
             </label>
             <input
               type="number" step="50" placeholder="Ex: 2200"
@@ -442,30 +476,30 @@ export default function SettingsPage() {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <Check size={16} />
-            {savingGoals ? "Sauvegarde…" : "Enregistrer"}
+            {savingGoals ? t("settings.saving") : t("settings.register")}
           </button>
         </div>
       </SettingsDrawer>
 
       {/* ═══ DRAWER MOT DE PASSE ═══ */}
-      <SettingsDrawer open={passwordOpen} onClose={() => setPasswordOpen(false)} title="Mot de passe">
+      <SettingsDrawer open={passwordOpen} onClose={() => setPasswordOpen(false)} title={t("settings.password")}>
         <div className="space-y-4">
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Lock size={12} /> Nouveau mot de passe
+              <Lock size={12} /> {t("settings.newPassword")}
             </label>
             <input
-              type="password" placeholder="6 caractères minimum"
+              type="password" placeholder={t("settings.minChars")}
               value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
               className="w-full glass rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
             />
           </div>
           <div>
             <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              <Check size={12} /> Confirmer
+              <Check size={12} /> {t("settings.confirm")}
             </label>
             <input
-              type="password" placeholder="Confirmer le mot de passe"
+              type="password" placeholder={t("settings.confirmPlaceholder")}
               value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full glass rounded-2xl px-4 py-3 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
             />
@@ -476,18 +510,17 @@ export default function SettingsPage() {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             <Check size={16} />
-            {changingPw ? "Modification…" : "Changer le mot de passe"}
+            {changingPw ? t("settings.changingPassword") : t("settings.changePassword")}
           </button>
         </div>
       </SettingsDrawer>
 
       {/* ═══ DRAWER DONNÉES ═══ */}
-      <SettingsDrawer open={dataOpen} onClose={() => setDataOpen(false)} title="Données">
+      <SettingsDrawer open={dataOpen} onClose={() => setDataOpen(false)} title={t("settings.data")}>
         <div className="space-y-5">
-          {/* Métriques */}
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              Métriques quotidiennes
+              {t("settings.dailyMetrics")}
             </p>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -495,37 +528,36 @@ export default function SettingsPage() {
                 className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 text-primary text-xs font-black uppercase tracking-wider hover:bg-primary/20 transition-colors"
               >
                 <Download size={16} />
-                Exporter
+                {t("settings.export")}
               </button>
               <button
                 onClick={() => { handleImport(); setDataOpen(false); }}
                 className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-muted text-muted-foreground text-xs font-black uppercase tracking-wider hover:text-foreground transition-colors"
               >
                 <Upload size={16} />
-                Importer
+                {t("settings.import")}
               </button>
             </div>
             <p className="text-[9px] text-muted-foreground mt-1">
-              CSV : date, weight_g, steps, kcal, note
+              {t("settings.csvFormat")}
             </p>
           </div>
 
           <div className="h-px bg-border" />
 
-          {/* Séances */}
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
-              Séances d'entraînement
+              {t("settings.workouts")}
             </p>
             <button
               onClick={() => { exportWorkoutsCSV(); setDataOpen(false); }}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary/10 text-primary text-xs font-black uppercase tracking-wider hover:bg-primary/20 transition-colors"
             >
               <Download size={16} />
-              Exporter les séances
+              {t("settings.exportWorkouts")}
             </button>
             <p className="text-[9px] text-muted-foreground mt-1">
-              CSV : date, exercise_name, load_type, load_g, reps
+              {t("settings.csvWorkoutFormat")}
             </p>
           </div>
         </div>

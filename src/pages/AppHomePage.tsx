@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, useTransform, useMotionValue } from "framer-motion";
 import { format, addDays, parseISO, isValid } from "date-fns";
-import { fr } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
+import { getDateLocale } from "@/i18n/dateLocale";
 import {
   Footprints, Flame, Weight, Plus, ChevronLeft, ChevronRight,
   Dumbbell, Trash2, Sparkles, X,
@@ -210,6 +211,7 @@ function DrawerSubmit({ disabled, onClick, label }: { disabled: boolean; onClick
    ════════════════════════════════════════════ */
 export default function AppHomePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const dateISO = useMemo(() => getISODateFromParams(searchParams.get("date")), [searchParams]);
   const currentDate = useMemo(() => parseISO(dateISO), [dateISO]);
@@ -416,10 +418,10 @@ export default function AppHomePage() {
           </button>
           <div className="text-center">
             <h1 className="text-noto-title text-3xl text-primary">
-              {format(currentDate, "EEEE d", { locale: fr })}
+              {format(currentDate, "EEEE d", { locale: getDateLocale() })}
             </h1>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">
-              {format(currentDate, "MMMM yyyy", { locale: fr })}
+              {format(currentDate, "MMMM yyyy", { locale: getDateLocale() })}
             </p>
             {/* Event dots */}
             {dayEvents.length > 0 && (
@@ -454,15 +456,15 @@ export default function AppHomePage() {
 
       {/* ── Metrics ── */}
       <div className="grid grid-cols-3 gap-3 mb-10">
-        <StatBubble icon={Footprints} label="Pas" value={metrics.steps}
+        <StatBubble icon={Footprints} label={t("today.steps")} value={metrics.steps}
           onChange={(v) => updateMetric("steps", v)}
           onBlur={() => flushMetricsForDate(dateISO).catch(() => {})}
           accent inputMode="numeric" />
-        <StatBubble icon={Flame} label="Kcal" value={metrics.kcal}
+        <StatBubble icon={Flame} label={t("today.kcal")} value={metrics.kcal}
           onChange={(v) => updateMetric("kcal", v)}
           onBlur={() => flushMetricsForDate(dateISO).catch(() => {})}
           colorClass="text-metric-kcal" inputMode="numeric" />
-        <StatBubble icon={Weight} label="Kg" value={metrics.weight}
+        <StatBubble icon={Weight} label={t("today.kg")} value={metrics.weight}
           onChange={(v) => updateMetric("weight", v)}
           onBlur={() => flushMetricsForDate(dateISO).catch(() => {})}
           colorClass="text-metric-weight" inputMode="decimal" />
@@ -470,7 +472,7 @@ export default function AppHomePage() {
 
       {/* ── Workout section ── */}
       <div className="space-y-6">
-        <h2 className="text-noto-title text-2xl text-foreground text-center">Ma Séance</h2>
+        <h2 className="text-noto-title text-2xl text-foreground text-center">{t("today.myWorkout")}</h2>
         <div className="space-y-3">
           <AnimatePresence mode="popLayout">
             {masters.map((ex) => (
@@ -482,7 +484,7 @@ export default function AppHomePage() {
           <button onClick={() => { setMasterForm({ exercise_name: "", load_type: "KG", weight: "", reps: "" }); setShowSuggestions(false); setMasterOpen(true); }}
             className="w-full py-6 border-2 border-dashed border-border rounded-[2rem] flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
             <Plus size={24} />
-            <span className="text-[10px] font-black uppercase tracking-widest mt-2">Nouveau mouvement</span>
+            <span className="text-[10px] font-black uppercase tracking-widest mt-2">{t("today.newMovement")}</span>
           </button>
         </div>
       </div>
@@ -490,9 +492,9 @@ export default function AppHomePage() {
       {/* ═══ DRAWERS ═══ */}
 
       {/* Add Master */}
-      <Drawer open={masterOpen} onClose={() => setMasterOpen(false)} title="Ajouter Exercice">
+      <Drawer open={masterOpen} onClose={() => setMasterOpen(false)} title={t("today.addExercise")}>
         <div className="glass rounded-[2rem] p-6 space-y-4">
-          <input placeholder="Exercice..."
+          <input placeholder={t("today.exercise")}
             className="w-full glass rounded-xl px-4 py-3 font-bold uppercase italic outline-none text-foreground focus:ring-1 focus:ring-primary"
             value={masterForm.exercise_name}
             onChange={(e) => { setMasterForm({ ...masterForm, exercise_name: e.target.value }); setShowSuggestions(true); }} />
@@ -511,43 +513,43 @@ export default function AppHomePage() {
           <DrawerInputRow weight={masterForm.weight} reps={masterForm.reps}
             onWeightChange={(v) => setMasterForm({ ...masterForm, weight: v })}
             onRepsChange={(v) => setMasterForm({ ...masterForm, reps: v })} />
-          <DrawerSubmit disabled={!masterCanValidate} onClick={onAddMaster} label="Valider" />
+          <DrawerSubmit disabled={!masterCanValidate} onClick={onAddMaster} label={t("today.validate")} />
         </div>
       </Drawer>
 
       {/* Add Set */}
-      <Drawer open={setOpen} onClose={() => { setSetOpen(false); setSetTarget(null); }} title="Ajouter Set">
+      <Drawer open={setOpen} onClose={() => { setSetOpen(false); setSetTarget(null); }} title={t("today.addSet")}>
         <div className="glass rounded-[2rem] p-6 space-y-4">
           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{setTarget?.exercise_name ?? ""}</p>
           <LoadTypeToggle value={newSet.load_type} onChange={(v) => setNewSet({ ...newSet, load_type: v })} />
           <DrawerInputRow weight={newSet.weight} reps={newSet.reps}
             onWeightChange={(v) => setNewSet({ ...newSet, weight: v })}
             onRepsChange={(v) => setNewSet({ ...newSet, reps: v })} />
-          <DrawerSubmit disabled={!setCanValidate} onClick={onAddSet} label="Valider" />
+          <DrawerSubmit disabled={!setCanValidate} onClick={onAddSet} label={t("today.validate")} />
         </div>
       </Drawer>
 
       {/* Edit Master */}
-      <Drawer open={editMasterOpen} onClose={() => { setEditMasterOpen(false); setEditMasterTarget(null); }} title="Edit Master">
+      <Drawer open={editMasterOpen} onClose={() => { setEditMasterOpen(false); setEditMasterTarget(null); }} title={t("today.editMaster")}>
         <div className="glass rounded-[2rem] p-6 space-y-4">
           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{editMasterTarget?.exercise_name ?? ""}</p>
           <LoadTypeToggle value={editMasterForm.load_type} onChange={(v) => setEditMasterForm({ ...editMasterForm, load_type: v })} />
           <DrawerInputRow weight={editMasterForm.weight} reps={editMasterForm.reps}
             onWeightChange={(v) => setEditMasterForm({ ...editMasterForm, weight: v })}
             onRepsChange={(v) => setEditMasterForm({ ...editMasterForm, reps: v })} />
-          <DrawerSubmit disabled={!editMasterCanSave} onClick={saveEditMaster} label="Sauver" />
+          <DrawerSubmit disabled={!editMasterCanSave} onClick={saveEditMaster} label={t("today.save")} />
         </div>
       </Drawer>
 
       {/* Edit Set */}
-      <Drawer open={editSetOpen} onClose={() => { setEditSetOpen(false); setEditSetTarget(null); }} title="Edit Set">
+      <Drawer open={editSetOpen} onClose={() => { setEditSetOpen(false); setEditSetTarget(null); }} title={t("today.editSet")}>
         <div className="glass rounded-[2rem] p-6 space-y-4">
           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">SET</p>
           <LoadTypeToggle value={editSetForm.load_type} onChange={(v) => setEditSetForm({ ...editSetForm, load_type: v })} />
           <DrawerInputRow weight={editSetForm.weight} reps={editSetForm.reps}
             onWeightChange={(v) => setEditSetForm({ ...editSetForm, weight: v })}
             onRepsChange={(v) => setEditSetForm({ ...editSetForm, reps: v })} />
-          <DrawerSubmit disabled={!editSetCanSave} onClick={saveEditSet} label="Sauver" />
+          <DrawerSubmit disabled={!editSetCanSave} onClick={saveEditSet} label={t("today.save")} />
         </div>
       </Drawer>
     </div>
