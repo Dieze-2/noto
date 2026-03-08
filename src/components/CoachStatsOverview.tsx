@@ -117,10 +117,23 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
     perAthleteExercises.forEach((exes) => {
       exes.forEach((entries, exName) => {
         if (entries.length < 2) return;
-        const firstLoad = (entries[0].load_g ?? 0) / 1000;
-        const lastLoad = (entries[entries.length - 1].load_g ?? 0) / 1000;
-        const firstE1RM = computeE1RM(firstLoad, entries[0].reps);
-        const lastE1RM = computeE1RM(lastLoad, entries[entries.length - 1].reps);
+        const first = entries[0];
+        const last = entries[entries.length - 1];
+        const firstLoad = (first.load_g ?? 0) / 1000;
+        const lastLoad = (last.load_g ?? 0) / 1000;
+
+        // For PDC/bodyweight exercises: use reps as proxy
+        if (firstLoad <= 0 && lastLoad <= 0) {
+          if (first.reps > 0) {
+            const pct = ((last.reps - first.reps) / first.reps) * 100;
+            if (!globalExProgression.has(exName)) globalExProgression.set(exName, []);
+            globalExProgression.get(exName)!.push(pct);
+          }
+          return;
+        }
+
+        const firstE1RM = computeE1RM(firstLoad, first.reps);
+        const lastE1RM = computeE1RM(lastLoad, last.reps);
         if (firstE1RM > 0) {
           const pct = ((lastE1RM - firstE1RM) / firstE1RM) * 100;
           if (!globalExProgression.has(exName)) globalExProgression.set(exName, []);
