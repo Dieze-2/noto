@@ -408,7 +408,7 @@ export default function WeekPage() {
                       <div className="glass rounded-3xl p-4">
                         <DayPicker
                           mode="range" selected={range} onSelect={setRange}
-                          locale={fr} weekStartsOn={1} fixedWeeks showOutsideDays
+                          locale={getDateLocale()} weekStartsOn={1} fixedWeeks showOutsideDays
                           className="text-foreground pointer-events-auto"
                           classNames={{
                             months: "flex flex-col",
