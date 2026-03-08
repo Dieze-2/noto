@@ -415,7 +415,7 @@ export default function DashboardPage() {
             </div>
           ) : exData.length < 2 ? (
             <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
-              Pas assez de données pour « {selectedExercise} »
+              {t("dashboard.notEnoughDataFor", { name: selectedExercise })}
             </div>
           ) : (
             <UPlotChart options={exOpts} data={exChartData} />
