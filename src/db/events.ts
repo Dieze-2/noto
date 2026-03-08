@@ -27,3 +27,43 @@ export async function getEventsOverlappingRange(
   if (error) throw error;
   return (data ?? []) as EventRow[];
 }
+
+export async function createEvent(payload: {
+  title: string;
+  start_date: string;
+  end_date: string;
+  color: string;
+}): Promise<EventRow> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase
+    .from("events")
+    .insert({ ...payload, user_id: user.id })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as EventRow;
+}
+
+export async function updateEvent(
+  id: string,
+  updates: { title: string; start_date: string; end_date: string; color: string }
+) {
+  const { error } = await supabase
+    .from("events")
+    .update(updates)
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+export async function deleteEvent(id: string) {
+  const { error } = await supabase
+    .from("events")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+}
