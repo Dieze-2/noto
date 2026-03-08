@@ -179,7 +179,12 @@
     "email": "Email",
     "password": "Contraseña",
     "login": "Iniciar sesión",
-    "loggingIn": "Conectando…"
+    "loggingIn": "Conectando…",
+    "signup": "Crear cuenta",
+    "signingUp": "Creando…",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "checkEmail": "¡Revisa tu email para confirmar tu cuenta!"
   },
   "notFound": {
     "title": "404",

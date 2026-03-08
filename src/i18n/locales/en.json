@@ -179,7 +179,12 @@
     "email": "Email",
     "password": "Password",
     "login": "Log in",
-    "loggingIn": "Logging in…"
+    "loggingIn": "Logging in…",
+    "signup": "Sign up",
+    "signingUp": "Signing up…",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "checkEmail": "Check your email to confirm your account!"
   },
   "notFound": {
     "title": "404",
