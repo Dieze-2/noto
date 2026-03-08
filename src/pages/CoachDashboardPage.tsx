@@ -19,6 +19,7 @@ import { getProfiles, displayName, Profile } from "@/db/profiles";
 export default function CoachDashboardPage() {
   const { t } = useTranslation();
   const { isCoach, loading: rolesLoading } = useRoles();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [athletes, setAthletes] = useState<CoachAthlete[]>([]);
