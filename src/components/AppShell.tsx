@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
-import { CalendarDays, Dumbbell, LayoutDashboard, BookOpen, LogOut } from "lucide-react";
+import { CalendarDays, Dumbbell, LayoutDashboard, BookOpen, Settings } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabaseClient";
 import { ReactNode } from "react";
 
 const NAV_ITEMS = [
@@ -9,6 +8,7 @@ const NAV_ITEMS = [
   { path: "/week", label: "Week", icon: CalendarDays },
   { path: "/dashboard", label: "Stats", icon: LayoutDashboard },
   { path: "/catalog", label: "Exos", icon: BookOpen },
+  { path: "/settings", label: "Réglages", icon: Settings },
 ];
 
 interface AppShellProps {
@@ -18,11 +18,6 @@ interface AppShellProps {
 export default function AppShell({ children }: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
-  };
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -47,13 +42,6 @@ export default function AppShell({ children }: AppShellProps) {
             </button>
           );
         })}
-        <button
-          onClick={handleLogout}
-          className="flex flex-col items-center gap-0.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
-        >
-          <LogOut className="h-5 w-5" />
-          <span className="text-noto-label text-[10px]">Quit</span>
-        </button>
       </nav>
     </div>
   );
