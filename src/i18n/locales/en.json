@@ -168,7 +168,11 @@
     "view_month": "Month",
     "weeklyView": "Weekly view",
     "monthlyView": "Monthly view",
-    "period": "Period"
+    "period": "Period",
+    "backToExercises": "Back to exercises",
+    "searchExercise": "Search exercise…",
+    "exercisesTracked": "exercises tracked",
+    "detailedHistory": "Detailed history"
   },
   "program": {
     "title": "Programs",
