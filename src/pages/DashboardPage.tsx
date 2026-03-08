@@ -153,6 +153,9 @@ export default function DashboardPage() {
   const [showTotal, setShowTotal] = useState(false);
   const [loadingEx, setLoadingEx] = useState(true);
 
+  /* All weight data for Total calculation (independent of weight chart range) */
+  const [allWeightData, setAllWeightData] = useState<DailyMetrics[]>([]);
+
   /* Fullscreen state */
   const [fullscreenChart, setFullscreenChart] = useState<"weight" | "exercise" | null>(null);
 
