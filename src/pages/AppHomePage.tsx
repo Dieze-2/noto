@@ -473,7 +473,7 @@ export default function AppHomePage() {
 
       {/* ── Workout section ── */}
       <div className="space-y-6">
-        <h2 className="text-noto-title text-2xl text-foreground text-center">Ma Séance</h2>
+        <h2 className="text-noto-title text-2xl text-foreground text-center">{t("today.myWorkout")}</h2>
         <div className="space-y-3">
           <AnimatePresence mode="popLayout">
             {masters.map((ex) => (
