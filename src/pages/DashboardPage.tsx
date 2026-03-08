@@ -253,32 +253,31 @@ export default function DashboardPage() {
     return { first, last, diff, pct };
   }, [weightData]);
 
-  /* Exercise stats — volume-based: volume = totalLoad × reps */
+  /* Exercise stats — e1RM-based (Epley formula): load × (1 + reps/30) */
   const exStats = useMemo(() => {
     if (exData.length < 1) return null;
     const loads = exData.map((d: any) => (d.load_g ?? 0) / 1000);
-    const reps = exData.map((d: any) => d.reps ?? 0);
     const isPDC = loads.every((l: number) => l === 0);
 
-    // Compute total loads (charge + bodyweight for PDC/PDC_PLUS)
-    const totalLoads = exData.map((d: any) => {
+    // Compute e1RM for each entry
+    const e1rms = exData.map((d: any) => {
       const load = (d.load_g ?? 0) / 1000;
       const sortedWeights = allWeightData.filter((w) => w.date <= d.workout_date && w.weight_g != null);
       const closestWeight = sortedWeights.length > 0 ? sortedWeights[sortedWeights.length - 1] : null;
       const bw = closestWeight ? (closestWeight.weight_g ?? 0) / 1000 : 0;
-      return d.load_type === "PDC" || d.load_type === "PDC_PLUS" ? load + bw : load;
+      const totalLoad = d.load_type === "PDC" || d.load_type === "PDC_PLUS" ? load + bw : load;
+      if (totalLoad <= 0) return 0;
+      return totalLoad * (1 + (d.reps ?? 0) / 30);
     });
 
-    // Volume = totalLoad × reps
-    const volumes = totalLoads.map((tl: number, i: number) => tl * reps[i]);
-    const maxVolume = Math.max(...volumes);
-    const firstVol = volumes[0];
-    const lastVol = volumes[volumes.length - 1];
-    const progression = firstVol > 0 ? ((lastVol - firstVol) / firstVol) * 100 : null;
+    const maxE1RM = Math.max(...e1rms);
+    const firstE1RM = e1rms[0];
+    const lastE1RM = e1rms[e1rms.length - 1];
+    const progression = firstE1RM > 0 ? ((lastE1RM - firstE1RM) / firstE1RM) * 100 : null;
 
-    const maxTotal = Math.max(...totalLoads);
+    const maxTotal = Math.max(...loads);
 
-    return { maxLoad: Math.max(...loads), maxTotal, maxVolume, lastLoad: loads[loads.length - 1], progression, sessions: exData.length, isPDC };
+    return { maxLoad: Math.max(...loads), maxTotal, maxE1RM, lastLoad: loads[loads.length - 1], progression, sessions: exData.length, isPDC };
   }, [exData, allWeightData]);
 
   return (
@@ -424,10 +423,10 @@ export default function DashboardPage() {
             <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="bg-muted rounded-xl p-3 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                  {t("dashboard.volumeMax")}
+                  {t("dashboard.e1rmMax")}
                 </p>
                 <p className="text-lg font-black text-foreground">
-                  {exStats.maxVolume.toFixed(0)}
+                  {exStats.maxE1RM.toFixed(1)}
                   <span className="text-xs text-muted-foreground ml-0.5">kg</span>
                 </p>
               </div>
@@ -440,7 +439,7 @@ export default function DashboardPage() {
                         <Info size={12} className="text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-[240px] text-xs">
-                        {t("dashboard.volumeExplanation")}
+                        {t("dashboard.e1rmExplanation")}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

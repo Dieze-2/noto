@@ -60,6 +60,8 @@
     "record": "Record",
     "volumeMax": "Max vol.",
     "volumeExplanation": "Progression is based on volume: total load × reps. For bodyweight exercises, total load includes your bodyweight.",
+    "e1rmMax": "e1RM max",
+    "e1rmExplanation": "Progression is based on estimated 1RM (Epley formula): total load × (1 + reps / 30). For bodyweight exercises, the load includes your bodyweight. This normalizes performance regardless of rep count.",
     "range3M": "3 months",
     "range6M": "6 months",
     "rangeAll": "All",

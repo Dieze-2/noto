@@ -66,12 +66,13 @@ function getBodyweightForDate(weights: WeightEntry[], date: string): number {
   return before[before.length - 1].weight_g / 1000;
 }
 
-/** Compute volume for a single entry: totalLoad × reps */
-function computeVolume(entry: ExerciseEntry, weights: WeightEntry[]): number {
+/** Compute estimated 1RM (Epley formula): load × (1 + reps/30) */
+function computeE1RM(entry: ExerciseEntry, weights: WeightEntry[]): number {
   const load = (entry.load_g ?? 0) / 1000;
   const isPDC = entry.load_type === "PDC" || entry.load_type === "PDC_PLUS";
   const totalLoad = isPDC ? load + getBodyweightForDate(weights, entry.workout_date) : load;
-  return totalLoad * entry.reps;
+  if (totalLoad <= 0) return 0;
+  return totalLoad * (1 + entry.reps / 30);
 }
 
 function buildExOpts(height: number): uPlot.Options {
@@ -101,7 +102,7 @@ function buildExOpts(height: number): uPlot.Options {
     series: [
       {},
       {
-        label: "Volume (kg)",
+        label: "e1RM (kg)",
         stroke: "hsl(156,100%,50%)",
         width: 2,
         fill: "hsla(156,100%,50%,0.08)",
@@ -146,7 +147,7 @@ function VolumeInfoTooltip() {
           <Info size={12} className="text-muted-foreground cursor-help" />
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[240px] text-xs">
-          {t("dashboard.volumeExplanation")}
+          {t("dashboard.e1rmExplanation")}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -202,22 +203,22 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
 
     return Array.from(map.entries())
       .map(([name, entries]) => {
-        const volumes = entries.map((e) => computeVolume(e, weightData));
-        const maxVolume = Math.max(...volumes);
+        const e1rms = entries.map((e) => computeE1RM(e, weightData));
+        const maxE1RM = Math.max(...e1rms);
         const isPDC = entries.some((e) => e.load_type === "PDC" || e.load_type === "PDC_PLUS");
-        const firstVol = volumes[0];
-        const lastVol = volumes[volumes.length - 1];
-        const trend = firstVol > 0 ? ((lastVol - firstVol) / firstVol) * 100 : 0;
+        const firstE1RM = e1rms[0];
+        const lastE1RM = e1rms[e1rms.length - 1];
+        const trend = firstE1RM > 0 ? ((lastE1RM - firstE1RM) / firstE1RM) * 100 : 0;
         const dates = [...new Set(entries.map((e) => e.workout_date))];
 
         return {
           name,
           sessions: dates.length,
-          maxVolume,
-          lastVolume: lastVol,
+          maxVolume: maxE1RM,
+          lastVolume: lastE1RM,
           lastDate: entries[entries.length - 1].workout_date,
           trend,
-          sparkData: volumes.slice(-12),
+          sparkData: e1rms.slice(-12),
           isPDC,
         };
       })
@@ -241,7 +242,7 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
   const detailChartData = useMemo<uPlot.AlignedData>(() => {
     if (detailData.length < 2) return [[], []];
     const xs = detailData.map((d) => toUnix(d.workout_date));
-    const ys = detailData.map((d) => computeVolume(d, weightData));
+    const ys = detailData.map((d) => computeE1RM(d, weightData));
     return [xs, ys];
   }, [detailData, weightData]);
 
@@ -249,13 +250,13 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
 
   const detailStats = useMemo(() => {
     if (detailData.length < 1) return null;
-    const volumes = detailData.map((d) => computeVolume(d, weightData));
-    const maxVolume = Math.max(...volumes);
-    const first = volumes[0];
-    const last = volumes[volumes.length - 1];
+    const e1rms = detailData.map((d) => computeE1RM(d, weightData));
+    const maxE1RM = Math.max(...e1rms);
+    const first = e1rms[0];
+    const last = e1rms[e1rms.length - 1];
     const trend = first > 0 ? ((last - first) / first) * 100 : null;
     const dates = [...new Set(detailData.map((d) => d.workout_date))];
-    return { maxVolume, trend, sessions: dates.length, lastVolume: last };
+    return { maxVolume: maxE1RM, trend, sessions: dates.length, lastVolume: last };
   }, [detailData, weightData]);
 
   if (loading) {
@@ -334,10 +335,10 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
             <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="bg-muted rounded-xl p-3 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                  {t("dashboard.volumeMax")}
+                  {t("dashboard.e1rmMax")}
                 </p>
                 <p className="text-lg font-black text-foreground">
-                  {detailStats.maxVolume.toFixed(0)}
+                  {detailStats.maxVolume.toFixed(1)}
                   <span className="text-xs text-muted-foreground ml-0.5">kg</span>
                 </p>
               </div>
@@ -371,7 +372,7 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
               </h3>
               <div className="max-h-60 overflow-y-auto space-y-1">
                 {[...detailData].reverse().map((d, i) => {
-                  const vol = computeVolume(d, weightData);
+                  const e1rm = computeE1RM(d, weightData);
                   return (
                     <div key={i} className="flex items-center gap-3 py-1.5 border-b border-border/20 last:border-0">
                       <span className="text-[10px] font-black text-muted-foreground w-14">
@@ -381,7 +382,7 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
                         {d.load_type === "PDC" ? "PDC" : d.load_type === "PDC_PLUS" ? `PDC+${(d.load_g ?? 0) / 1000}` : `${(d.load_g ?? 0) / 1000} kg`}
                         {" × "}{d.reps} reps
                       </span>
-                      <span className="text-xs font-black text-primary">{vol.toFixed(0)} kg</span>
+                      <span className="text-xs font-black text-primary">e1RM {e1rm.toFixed(1)} kg</span>
                     </div>
                   );
                 })}
@@ -442,7 +443,7 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] text-muted-foreground font-bold">
-                      {ex.maxVolume.toFixed(0)} kg vol. max
+                      e1RM {ex.maxVolume.toFixed(1)} kg
                     </span>
                     <span className="text-[10px] text-muted-foreground">
                       {ex.sessions} {t("dashboard.sessions").toLowerCase()}
