@@ -155,17 +155,20 @@ function SettingsDrawer({
 function SettingsSection({
   icon: Icon,
   title,
+  trailing,
   children,
 }: {
   icon: React.ElementType;
   title: string;
+  trailing?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <GlassCard className="p-5 rounded-3xl">
       <div className="flex items-center gap-2 mb-4">
         <Icon size={18} className="text-primary" />
-        <h2 className="text-noto-label text-foreground">{title}</h2>
+        <h2 className="text-noto-label text-foreground flex-1">{title}</h2>
+        {trailing}
       </div>
       {children}
     </GlassCard>
@@ -328,9 +331,8 @@ export default function SettingsPage() {
         </h1>
 
         {/* ── PROFIL ── */}
-        <SettingsSection icon={User} title="Profil">
-          <div className="relative space-y-3">
-            <img src={logo} alt="NOTO" className="absolute top-0 right-0 w-10 h-10 object-contain opacity-60" />
+        <SettingsSection icon={User} title="Profil" trailing={<img src={logo} alt="NOTO" className="w-8 h-8 object-contain opacity-50" />}>
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email</span>
               <span className="text-sm font-bold text-foreground truncate ml-4">{user?.email ?? "—"}</span>
