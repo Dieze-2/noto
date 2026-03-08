@@ -5,7 +5,7 @@ import {
   ArrowLeft, Loader2, Weight, Footprints, Flame,
   TrendingUp, TrendingDown, Minus, Dumbbell,
   ClipboardList, Plus, ChevronRight, ChevronDown, ChevronUp,
-  Calendar, Trash2,
+  Calendar, Trash2, CheckCircle2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
