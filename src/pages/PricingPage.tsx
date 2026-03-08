@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, Crown, Zap, Building2, ArrowLeft, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { createNotification } from "@/db/notifications";
 import { supabase } from "@/lib/supabaseClient";
 import { getProfile, displayName } from "@/db/profiles";
 import { useRoles } from "@/auth/RoleProvider";
+import { getCoachSubscription, CoachPlan } from "@/db/coachSubscriptions";
 
 const plans = [
   {
