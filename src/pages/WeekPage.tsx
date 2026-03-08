@@ -376,7 +376,7 @@ export default function WeekPage() {
                   {/* Handle */}
                   <div className="px-5 pt-4 pb-3 flex items-center justify-between relative">
                     <div className="w-12 h-1.5 rounded-full bg-muted mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
-                    <h2 className="text-sm font-black uppercase italic tracking-widest text-muted-foreground">Planning</h2>
+                    <h2 className="text-sm font-black uppercase italic tracking-widest text-muted-foreground">{t("week.planning")}</h2>
                     <button type="button" onClick={closeNoteDrawer} className="p-2 text-muted-foreground hover:text-foreground">
                       <X size={18} />
                     </button>
