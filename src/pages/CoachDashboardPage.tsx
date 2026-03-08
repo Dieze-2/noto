@@ -380,6 +380,54 @@ export default function CoachDashboardPage() {
           </>
         )}
       </AnimatePresence>
+
+      {/* ═══ Remove confirmation dialog ═══ */}
+      <AnimatePresence>
+        {removeTarget && (
+          <>
+            <motion.button
+              type="button" aria-label="Close" onClick={() => setRemoveTarget(null)}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-background/70 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-[70] flex items-center justify-center px-4"
+            >
+              <div className="w-full max-w-sm rounded-3xl border border-border glass shadow-xl p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive">
+                    <AlertTriangle size={18} />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+                    {removeTarget.status === "pending" ? t("coach.cancelInviteTitle") : t("coach.removeAthleteTitle")}
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground font-bold">
+                  {removeTarget.status === "pending"
+                    ? t("coach.cancelInviteConfirm", { email: removeTarget.invite_email })
+                    : t("coach.removeAthleteConfirm", { name: displayName(removeTarget.athlete_id ? profiles[removeTarget.athlete_id] : null, removeTarget.invite_email ?? undefined) })}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setRemoveTarget(null)}
+                    className="flex-1 py-2.5 rounded-xl bg-muted text-foreground text-xs font-black uppercase tracking-wider hover:bg-muted/80 transition-colors"
+                  >
+                    {t("week.cancelLbl")}
+                  </button>
+                  <button
+                    onClick={handleRemove}
+                    disabled={removing}
+                    className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {removing ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t("coach.confirmRemove")}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
