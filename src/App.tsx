@@ -16,6 +16,7 @@ import CoachDashboardPage from "@/pages/CoachDashboardPage";
 import CoachAthleteViewPage from "@/pages/CoachAthleteViewPage";
 import ProgramPage from "@/pages/ProgramPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import PricingPage from "@/pages/PricingPage";
 import NotFound from "@/pages/NotFound";
 import { Loader2 } from "lucide-react";
 
