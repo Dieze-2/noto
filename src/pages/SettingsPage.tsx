@@ -63,7 +63,7 @@ async function exportDailyMetricsCSV() {
   a.download = `noto-export-${format(new Date(), "yyyy-MM-dd")}.csv`;
   a.click();
   URL.revokeObjectURL(url);
-  toast.success("Export téléchargé !");
+  toast.success(i18n.t("settings.exportDownloaded"));
 }
 
 /* ── CSV Import ── */
