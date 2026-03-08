@@ -320,6 +320,7 @@
     "empty": "No notifications",
     "markAllRead": "Mark all read",
     "accepted": "{{email}} accepted your invitation",
-    "rejected": "{{email}} declined your invitation"
+    "rejected": "{{email}} declined your invitation",
+    "coachRequest": "{{email}} wants to become a coach"
   }
 }

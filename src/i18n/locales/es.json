@@ -309,6 +309,8 @@
     "empty": "Sin notificaciones",
     "markAllRead": "Marcar todo leído",
     "accepted": "{{email}} aceptó tu invitación",
-    "rejected": "{{email}} rechazó tu invitación"
+    "rejected": "{{email}} rechazó tu invitación",
+    "coachRequest": "{{email}} quiere convertirse en coach"
+  }
   }
 }
