@@ -443,7 +443,7 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] text-muted-foreground font-bold">
-                      {ex.maxVolume.toFixed(0)} kg vol. max
+                      e1RM {ex.maxVolume.toFixed(1)} kg
                     </span>
                     <span className="text-[10px] text-muted-foreground">
                       {ex.sessions} {t("dashboard.sessions").toLowerCase()}
