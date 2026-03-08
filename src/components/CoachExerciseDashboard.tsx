@@ -372,7 +372,7 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
               </h3>
               <div className="max-h-60 overflow-y-auto space-y-1">
                 {[...detailData].reverse().map((d, i) => {
-                  const vol = computeVolume(d, weightData);
+                  const e1rm = computeE1RM(d, weightData);
                   return (
                     <div key={i} className="flex items-center gap-3 py-1.5 border-b border-border/20 last:border-0">
                       <span className="text-[10px] font-black text-muted-foreground w-14">
@@ -382,7 +382,7 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
                         {d.load_type === "PDC" ? "PDC" : d.load_type === "PDC_PLUS" ? `PDC+${(d.load_g ?? 0) / 1000}` : `${(d.load_g ?? 0) / 1000} kg`}
                         {" × "}{d.reps} reps
                       </span>
-                      <span className="text-xs font-black text-primary">{vol.toFixed(0)} kg</span>
+                      <span className="text-xs font-black text-primary">e1RM {e1rm.toFixed(1)} kg</span>
                     </div>
                   );
                 })}
