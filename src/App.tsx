@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import AuthProvider, { useAuth } from "@/auth/AuthProvider";
+import RoleProvider from "@/auth/RoleProvider";
 import AppShell from "@/components/AppShell";
 import LoginPage from "@/pages/LoginPage";
 import AppHomePage from "@/pages/AppHomePage";
@@ -11,6 +12,9 @@ import WeekPage from "@/pages/WeekPage";
 import DashboardPage from "@/pages/DashboardPage";
 import CatalogPage from "@/pages/CatalogPage";
 import SettingsPage from "@/pages/SettingsPage";
+import CoachDashboardPage from "@/pages/CoachDashboardPage";
+import CoachAthleteViewPage from "@/pages/CoachAthleteViewPage";
+import ProgramPage from "@/pages/ProgramPage";
 import NotFound from "@/pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -32,16 +36,22 @@ function ProtectedRoutes() {
   }
 
   return (
-    <AppShell>
-      <Routes>
-        <Route path="/" element={<AppHomePage />} />
-        <Route path="/week" element={<WeekPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/catalog" element={<CatalogPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </AppShell>
+    <RoleProvider>
+      <AppShell>
+        <Routes>
+          <Route path="/" element={<AppHomePage />} />
+          <Route path="/week" element={<WeekPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/catalog" element={<CatalogPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/coach" element={<CoachDashboardPage />} />
+          <Route path="/coach/athlete/:athleteId" element={<CoachAthleteViewPage />} />
+          <Route path="/program" element={<ProgramPage />} />
+          <Route path="/program/:programId" element={<ProgramPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AppShell>
+    </RoleProvider>
   );
 }
 

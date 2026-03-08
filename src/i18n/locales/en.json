@@ -4,7 +4,9 @@
     "week": "Week",
     "stats": "Stats",
     "exercises": "Exos",
-    "settings": "Settings"
+    "settings": "Settings",
+    "coach": "Coach",
+    "program": "Program"
   },
   "today": {
     "steps": "Steps",
@@ -123,6 +125,42 @@
     "csvEmpty": "Empty or invalid CSV file",
     "steps": "steps",
     "kcal": "kcal"
+  },
+  "coach": {
+    "title": "Coach Dashboard",
+    "notCoach": "Coach access only",
+    "notCoachDesc": "Contact an administrator to get the coach role.",
+    "inviteAthlete": "Invite an athlete",
+    "inviteDesc": "Send an invitation by email",
+    "myAthletes": "My athletes",
+    "noAthletes": "No athletes yet",
+    "pendingInvites": "Pending invitations",
+    "pending": "Pending",
+    "athleteEmail": "Athlete email",
+    "sendInvite": "Send invitation",
+    "sending": "Sending…",
+    "inviteSent": "Invitation sent!",
+    "athlete": "Athlete",
+    "last30Days": "Last 30 days",
+    "noData": "No data available",
+    "programs": "Programs"
+  },
+  "program": {
+    "title": "Programs",
+    "newProgram": "New program",
+    "titlePlaceholder": "Program title…",
+    "selectAthlete": "Select an athlete…",
+    "create": "Create",
+    "creating": "Creating…",
+    "empty": "No programs",
+    "backToList": "Back to programs",
+    "blockPlaceholder": "Describe the exercise, sets, rest…",
+    "addBlock": "Add a block",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Program saved!",
+    "deleted": "Program deleted",
+    "noPrograms": "No programs"
   },
   "login": {
     "email": "Email",

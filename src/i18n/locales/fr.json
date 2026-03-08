@@ -4,7 +4,9 @@
     "week": "Semaine",
     "stats": "Stats",
     "exercises": "Exos",
-    "settings": "Réglages"
+    "settings": "Réglages",
+    "coach": "Coach",
+    "program": "Programme"
   },
   "today": {
     "steps": "Pas",
@@ -123,6 +125,42 @@
     "csvEmpty": "Fichier CSV vide ou invalide",
     "steps": "pas",
     "kcal": "kcal"
+  },
+  "coach": {
+    "title": "Espace Coach",
+    "notCoach": "Accès réservé aux coachs",
+    "notCoachDesc": "Contactez un administrateur pour obtenir le rôle coach.",
+    "inviteAthlete": "Inviter un apprenti",
+    "inviteDesc": "Envoyer une invitation par email",
+    "myAthletes": "Mes apprentis",
+    "noAthletes": "Aucun apprenti pour le moment",
+    "pendingInvites": "Invitations en attente",
+    "pending": "En attente",
+    "athleteEmail": "Email de l'apprenti",
+    "sendInvite": "Envoyer l'invitation",
+    "sending": "Envoi…",
+    "inviteSent": "Invitation envoyée !",
+    "athlete": "Apprenti",
+    "last30Days": "30 derniers jours",
+    "noData": "Aucune donnée disponible",
+    "programs": "Programmes"
+  },
+  "program": {
+    "title": "Programmes",
+    "newProgram": "Nouveau programme",
+    "titlePlaceholder": "Titre du programme…",
+    "selectAthlete": "Sélectionner un apprenti…",
+    "create": "Créer",
+    "creating": "Création…",
+    "empty": "Aucun programme",
+    "backToList": "Retour aux programmes",
+    "blockPlaceholder": "Décrivez l'exercice, les séries, les repos…",
+    "addBlock": "Ajouter un bloc",
+    "save": "Enregistrer",
+    "saving": "Sauvegarde…",
+    "saved": "Programme sauvegardé !",
+    "deleted": "Programme supprimé",
+    "noPrograms": "Aucun programme"
   },
   "login": {
     "email": "Email",

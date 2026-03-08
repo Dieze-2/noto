@@ -4,7 +4,9 @@
     "week": "Semana",
     "stats": "Stats",
     "exercises": "Ejer.",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "coach": "Coach",
+    "program": "Programa"
   },
   "today": {
     "steps": "Pasos",
@@ -123,6 +125,42 @@
     "csvEmpty": "Archivo CSV vacío o inválido",
     "steps": "pasos",
     "kcal": "kcal"
+  },
+  "coach": {
+    "title": "Panel del Coach",
+    "notCoach": "Acceso solo para coachs",
+    "notCoachDesc": "Contacte a un administrador para obtener el rol de coach.",
+    "inviteAthlete": "Invitar un atleta",
+    "inviteDesc": "Enviar una invitación por email",
+    "myAthletes": "Mis atletas",
+    "noAthletes": "Sin atletas por ahora",
+    "pendingInvites": "Invitaciones pendientes",
+    "pending": "Pendiente",
+    "athleteEmail": "Email del atleta",
+    "sendInvite": "Enviar invitación",
+    "sending": "Enviando…",
+    "inviteSent": "¡Invitación enviada!",
+    "athlete": "Atleta",
+    "last30Days": "Últimos 30 días",
+    "noData": "Sin datos disponibles",
+    "programs": "Programas"
+  },
+  "program": {
+    "title": "Programas",
+    "newProgram": "Nuevo programa",
+    "titlePlaceholder": "Título del programa…",
+    "selectAthlete": "Seleccionar un atleta…",
+    "create": "Crear",
+    "creating": "Creando…",
+    "empty": "Sin programas",
+    "backToList": "Volver a programas",
+    "blockPlaceholder": "Describe el ejercicio, series, descanso…",
+    "addBlock": "Añadir un bloque",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saved": "¡Programa guardado!",
+    "deleted": "Programa eliminado",
+    "noPrograms": "Sin programas"
   },
   "login": {
     "email": "Email",
