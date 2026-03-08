@@ -206,9 +206,9 @@ export default function CoachExerciseDashboard({ athleteId }: Props) {
         const e1rms = entries.map((e) => computeE1RM(e, weightData));
         const maxE1RM = Math.max(...e1rms);
         const isPDC = entries.some((e) => e.load_type === "PDC" || e.load_type === "PDC_PLUS");
-        const firstVol = volumes[0];
-        const lastVol = volumes[volumes.length - 1];
-        const trend = firstVol > 0 ? ((lastVol - firstVol) / firstVol) * 100 : 0;
+        const firstE1RM = e1rms[0];
+        const lastE1RM = e1rms[e1rms.length - 1];
+        const trend = firstE1RM > 0 ? ((lastE1RM - firstE1RM) / firstE1RM) * 100 : 0;
         const dates = [...new Set(entries.map((e) => e.workout_date))];
 
         return {
