@@ -9,17 +9,31 @@ import {
   rejectInvitation,
   CoachAthlete,
 } from "@/db/coachAthletes";
+import { getProfile, displayName } from "@/db/profiles";
+
+interface EnrichedInvitation extends CoachAthlete {
+  coachName: string;
+}
 
 export default function InvitationBanner() {
   const { t } = useTranslation();
-  const [invitations, setInvitations] = useState<CoachAthlete[]>([]);
+  const [invitations, setInvitations] = useState<EnrichedInvitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
 
   const refresh = async () => {
     try {
       const data = await getMyInvitations();
-      setInvitations(data);
+      const enriched = await Promise.all(
+        data.map(async (inv) => {
+          const profile = await getProfile(inv.coach_id);
+          return {
+            ...inv,
+            coachName: profile ? displayName(profile) : inv.coach_id.slice(0, 8),
+          };
+        })
+      );
+      setInvitations(enriched);
     } catch {
       // silent
     } finally {
@@ -79,7 +93,7 @@ export default function InvitationBanner() {
                 {t("invitation.coachInvite")}
               </p>
               <p className="text-[10px] text-muted-foreground font-bold truncate">
-                {t("invitation.from")} {inv.coach_id.slice(0, 8)}…
+                {t("invitation.from")} {inv.coachName}
               </p>
             </div>
             {acting === inv.id ? (
