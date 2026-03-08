@@ -198,7 +198,7 @@ export default function CoachDashboardPage() {
                     <Eye size={14} />
                   </div>
                   <span className="text-sm font-bold text-foreground flex-1 truncate">
-                    {a.invite_email ?? a.athlete_id}
+                    {a.athlete_id && athleteProfiles[a.athlete_id] ? formatName(athleteProfiles[a.athlete_id]) : a.invite_email ?? a.athlete_id}
                   </span>
                   <ChevronRight size={14} className="text-muted-foreground/40" />
                 </button>
