@@ -306,5 +306,12 @@
         "Custom billing"
       ]
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "markAllRead": "Mark all read",
+    "accepted": "{{email}} accepted your invitation",
+    "rejected": "{{email}} declined your invitation"
   }
 }

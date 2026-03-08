@@ -295,5 +295,12 @@
         "Facturación personalizada"
       ]
     }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "Sin notificaciones",
+    "markAllRead": "Marcar todo leído",
+    "accepted": "{{email}} aceptó tu invitación",
+    "rejected": "{{email}} rechazó tu invitación"
   }
 }
