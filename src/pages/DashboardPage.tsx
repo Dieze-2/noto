@@ -61,7 +61,7 @@ function buildWeightOpts(height: number): uPlot.Options {
         ticks: { stroke: "transparent" },
         font: "11px Inter",
         values: (_u: uPlot, vals: number[]) =>
-          vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: fr })),
+          vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: getDateLocale() })),
       },
       {
         stroke: "hsla(220,6%,55%,0.5)",
