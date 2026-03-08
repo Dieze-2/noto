@@ -493,7 +493,7 @@ export default function WeekPage() {
                                       <button type="button"
                                         onClick={async () => { if (!confirm("Supprimer ?")) return; await handleSwipeDeleteEvent(ev.id); }}
                                         className="text-destructive font-black text-[10px] uppercase px-2 py-2">
-                                        Suppr.
+                                        {t("week.delete")}
                                       </button>
                                     </div>
                                   </div>
