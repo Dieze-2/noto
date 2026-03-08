@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { CalendarDays, Dumbbell, LayoutDashboard, BookOpen, Settings } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
-import { ReactNode } from "react";
 
 const NAV_ITEMS = [
   { path: "/", label: "Today", icon: Dumbbell },
