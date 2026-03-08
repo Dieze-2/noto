@@ -365,8 +365,8 @@ export default function SettingsPage() {
           />
           <SettingRow
             icon={Database}
-            label="Données"
-            sublabel="Importer ou exporter en CSV"
+            label={t("settings.data")}
+            sublabel={t("settings.dataSubtitle")}
             onClick={() => setDataOpen(true)}
             iconColor="text-metric-kcal"
           />
