@@ -155,6 +155,25 @@ export default function CoachAthleteViewPage() {
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [creating, setCreating] = useState(false);
 
+  /* ── Coach notes state ── */
+  const [noteContent, setNoteContent] = useState("");
+  const [noteSaved, setNoteSaved] = useState(true);
+  const [noteSaving, setNoteSaving] = useState(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleNoteChange = useCallback((value: string) => {
+    setNoteContent(value);
+    setNoteSaved(false);
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      if (!athleteId) return;
+      setNoteSaving(true);
+      await saveCoachNote(athleteId, value);
+      setNoteSaving(false);
+      setNoteSaved(true);
+    }, 1500);
+  }, [athleteId]);
+
   /** Get or create the single program for this athlete */
   const getOrCreateProgram = async (): Promise<Program> => {
     if (athleteProgram) return athleteProgram;
