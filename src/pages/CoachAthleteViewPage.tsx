@@ -233,13 +233,11 @@ export default function CoachAthleteViewPage() {
     const thirtyDaysAgo = format(new Date(Date.now() - 30 * 86400000), "yyyy-MM-dd");
     const recentWorkouts = workoutHistory.filter((w) => w.date >= thirtyDaysAgo);
 
-    // Completion: count days with data in last 30
     const daysWithWeight = last30.filter((m) => m.weight_g != null).length;
     const daysWithSteps = last30.filter((m) => m.steps != null).length;
     const daysWithKcal = last30.filter((m) => m.kcal != null).length;
     const totalDays = Math.min(last30.length, 30);
 
-    // Training consistency: weeks with at least 1 session in last 4 weeks
     const fourWeeksAgo = format(new Date(Date.now() - 28 * 86400000), "yyyy-MM-dd");
     const last4WeeksWorkouts = workoutHistory.filter((w) => w.date >= fourWeeksAgo);
     const weeksWithTraining = new Set(
@@ -257,6 +255,94 @@ export default function CoachAthleteViewPage() {
       weeksWithTraining,
     };
   }, [metrics, workoutHistory]);
+
+  /* ── Training frequency: sessions per week (last 8 weeks) ── */
+  const frequencyByWeek = useMemo(() => {
+    const weeks: { label: string; count: number }[] = [];
+    const now = new Date();
+    for (let i = 7; i >= 0; i--) {
+      const ws = startOfWeek(new Date(now.getTime() - i * 7 * 86400000), { weekStartsOn: 1 });
+      const we = endOfWeek(ws, { weekStartsOn: 1 });
+      const from = format(ws, "yyyy-MM-dd");
+      const to = format(we, "yyyy-MM-dd");
+      const count = workoutHistory.filter((w) => w.date >= from && w.date <= to).length;
+      weeks.push({ label: format(ws, "dd/MM"), count });
+    }
+    const avgFreq = weeks.length > 0 ? weeks.reduce((s, w) => s + w.count, 0) / weeks.length : 0;
+    return { weeks, avgFreq };
+  }, [workoutHistory]);
+
+  /* ── Muscle group distribution ── */
+  const muscleGroups = useMemo(() => {
+    const categories: Record<string, string[]> = {
+      "Push": ["bench", "press", "dips", "développé", "poussée", "pompe", "push", "pec", "épaule", "tricep", "overhead"],
+      "Pull": ["pull", "row", "tirage", "traction", "curl", "bicep", "dorsaux", "dos", "chin"],
+      "Legs": ["squat", "leg", "lunge", "fente", "jambe", "cuisse", "mollet", "calf", "deadlift", "soulevé", "hip thrust", "glute", "fessier", "presse", "extension jambe", "ischio"],
+      "Core": ["plank", "gainage", "crunch", "abdo", "abdominaux", "core", "oblique", "rotary"],
+    };
+
+    const counts: Record<string, number> = { Push: 0, Pull: 0, Legs: 0, Core: 0, Autre: 0 };
+    const thirtyDaysAgo = format(new Date(Date.now() - 30 * 86400000), "yyyy-MM-dd");
+    const recentWorkouts = workoutHistory.filter((w) => w.date >= thirtyDaysAgo);
+
+    recentWorkouts.forEach((w) => {
+      w.exercises.forEach((ex) => {
+        const lower = ex.name.toLowerCase();
+        let found = false;
+        for (const [cat, keywords] of Object.entries(categories)) {
+          if (keywords.some((kw) => lower.includes(kw))) {
+            counts[cat]++;
+            found = true;
+            break;
+          }
+        }
+        if (!found) counts["Autre"]++;
+      });
+    });
+
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    return Object.entries(counts)
+      .filter(([_, v]) => v > 0)
+      .map(([name, count]) => ({ name, count, pct: total > 0 ? Math.round((count / total) * 100) : 0 }))
+      .sort((a, b) => b.count - a.count);
+  }, [workoutHistory]);
+
+  /* ── Personal records (best e1RM per exercise) ── */
+  const personalRecords = useMemo(() => {
+    const allWeights = metrics
+      .filter((m) => m.weight_g != null)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((m) => ({ date: m.date, weight_g: m.weight_g! }));
+
+    const getBW = (date: string) => {
+      const before = allWeights.filter((w) => w.date <= date);
+      return before.length > 0 ? before[before.length - 1].weight_g / 1000 : 0;
+    };
+
+    const records: { name: string; e1rm: number; date: string }[] = [];
+    const exMap = new Map<string, { bestE1RM: number; bestDate: string }>();
+
+    workoutHistory.forEach((w) => {
+      w.exercises.forEach((ex) => {
+        const load = (ex.load_g ?? 0) / 1000;
+        const isPDC = ex.load_type === "PDC" || ex.load_type === "PDC_PLUS";
+        const totalLoad = isPDC ? load + getBW(w.date) : load;
+        if (totalLoad <= 0) return;
+        const e1rm = totalLoad * (1 + ex.reps / 30);
+
+        const prev = exMap.get(ex.name);
+        if (!prev || e1rm > prev.bestE1RM) {
+          exMap.set(ex.name, { bestE1RM: e1rm, bestDate: w.date });
+        }
+      });
+    });
+
+    exMap.forEach((val, name) => {
+      records.push({ name, e1rm: val.bestE1RM, date: val.bestDate });
+    });
+
+    return records.sort((a, b) => b.e1rm - a.e1rm).slice(0, 10);
+  }, [workoutHistory, metrics]);
 
   const weeklyRows = useMemo(() => computeWeeklyRows(metrics, workoutHistory), [metrics, workoutHistory]);
   const monthlyRows = useMemo(() => computeMonthlyRows(metrics, workoutHistory), [metrics, workoutHistory]);
