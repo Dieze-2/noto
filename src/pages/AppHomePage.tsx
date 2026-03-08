@@ -493,7 +493,7 @@ export default function AppHomePage() {
       {/* ═══ DRAWERS ═══ */}
 
       {/* Add Master */}
-      <Drawer open={masterOpen} onClose={() => setMasterOpen(false)} title="Ajouter Exercice">
+      <Drawer open={masterOpen} onClose={() => setMasterOpen(false)} title={t("today.addExercise")}>
         <div className="glass rounded-[2rem] p-6 space-y-4">
           <input placeholder="Exercice..."
             className="w-full glass rounded-xl px-4 py-3 font-bold uppercase italic outline-none text-foreground focus:ring-1 focus:ring-primary"
