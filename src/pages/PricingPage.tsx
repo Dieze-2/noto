@@ -265,6 +265,20 @@ export default function PricingPage() {
           })}
         </div>
 
+        {/* Cancel subscription */}
+        {isCoach && (
+          <div className="text-center">
+            <button
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="text-xs font-bold text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50 flex items-center gap-1.5 mx-auto"
+            >
+              {cancelling && <Loader2 size={12} className="animate-spin" />}
+              {t("pricing.cancelSubscription")}
+            </button>
+          </div>
+        )}
+
         {/* Footer note */}
         <p className="text-center text-[10px] text-muted-foreground font-bold">
           {t("pricing.note")}
