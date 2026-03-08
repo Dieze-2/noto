@@ -155,17 +155,20 @@ function SettingsDrawer({
 function SettingsSection({
   icon: Icon,
   title,
+  trailing,
   children,
 }: {
   icon: React.ElementType;
   title: string;
+  trailing?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <GlassCard className="p-5 rounded-3xl">
       <div className="flex items-center gap-2 mb-4">
         <Icon size={18} className="text-primary" />
-        <h2 className="text-noto-label text-foreground">{title}</h2>
+        <h2 className="text-noto-label text-foreground flex-1">{title}</h2>
+        {trailing}
       </div>
       {children}
     </GlassCard>
