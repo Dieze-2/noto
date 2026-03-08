@@ -35,7 +35,11 @@ export default function AppShell({ children }: AppShellProps) {
   const { t } = useTranslation();
   const { isCoach, isAdmin } = useRoles();
 
-  const visibleItems = NAV_ICONS.filter((item) => !item.coachOnly || isCoach);
+  const visibleItems = NAV_ICONS.filter((item) => {
+    if (item.coachOnly && !isCoach) return false;
+    if (item.adminOnly && !isAdmin) return false;
+    return true;
+  });
 
   return (
     <div className="flex min-h-[100dvh] bg-background">
