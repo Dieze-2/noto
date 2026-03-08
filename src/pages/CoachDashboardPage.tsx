@@ -143,6 +143,12 @@ export default function CoachDashboardPage() {
                 })}
               </p>
             </div>
+            <button
+              onClick={() => navigate("/pricing")}
+              className="shrink-0 px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider hover:bg-primary/20 transition-colors"
+            >
+              {t("subscription.changePlan")}
+            </button>
           </div>
           {/* Progress bar */}
           {maxAllowed !== Infinity && (
