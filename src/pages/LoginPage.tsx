@@ -10,6 +10,8 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
@@ -33,16 +35,28 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
     } else {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: window.location.origin },
       });
-      if (error) setError(error.message);
-      else setError(t("login.checkEmail"));
+      if (error) {
+        setError(error.message);
+      } else {
+        // Save first/last name to profiles
+        if (data.user) {
+          await supabase.from("profiles").update({
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+          }).eq("id", data.user.id);
+        }
+        setError(t("login.checkEmail"));
+      }
     }
     setLoading(false);
   };
+
+  const inputClass = "w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all";
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
@@ -60,13 +74,38 @@ export default function LoginPage() {
 
         <GlassCard className="p-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {mode === "signup" && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.firstName")}</label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className={inputClass}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.lastName")}</label>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className={inputClass}
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.email")}</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                className={inputClass}
                 required
               />
             </div>
@@ -78,14 +117,14 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                  className={inputClass}
                   required
                 />
               </div>
             )}
 
             {error && (
-              <p className={`text-sm ${mode === "forgot" && error === t("login.resetEmailSent") ? "text-foreground" : "text-destructive"}`}>{error}</p>
+              <p className={`text-sm ${mode === "forgot" && error === t("login.resetEmailSent") ? "text-foreground" : mode === "signup" && error === t("login.checkEmail") ? "text-foreground" : "text-destructive"}`}>{error}</p>
             )}
 
             <Button type="submit" disabled={loading} className="mt-2 font-bold">

@@ -252,7 +252,7 @@ export default function CoachDashboardPage() {
                 <option value="">{t("program.selectAthlete")}</option>
                 {accepted.map((a) => (
                   <option key={a.id} value={a.athlete_id!}>
-                    {a.invite_email ?? a.athlete_id}
+                    {a.athlete_id && athleteProfiles[a.athlete_id] ? formatName(athleteProfiles[a.athlete_id]) : a.invite_email ?? a.athlete_id}
                   </option>
                 ))}
               </select>

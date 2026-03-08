@@ -190,6 +190,8 @@
     "resetEmailSent": "Un email de réinitialisation a été envoyé !",
     "sending": "Envoi…",
     "backToLogin": "Retour à la connexion",
+    "firstName": "Prénom",
+    "lastName": "Nom",
     "newPasswordLabel": "Choisis ton nouveau mot de passe",
     "passwordResetSuccess": "Mot de passe modifié ! Redirection…",
     "invalidResetLink": "Lien de réinitialisation invalide ou expiré."

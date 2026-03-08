@@ -9,10 +9,12 @@ import {
   rejectInvitation,
   CoachAthlete,
 } from "@/db/coachAthletes";
+import { getProfiles, formatName, Profile } from "@/db/profiles";
 
 export default function InvitationBanner() {
   const { t } = useTranslation();
   const [invitations, setInvitations] = useState<CoachAthlete[]>([]);
+  const [coachProfiles, setCoachProfiles] = useState<Record<string, Profile>>({});
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
 
@@ -20,6 +22,14 @@ export default function InvitationBanner() {
     try {
       const data = await getMyInvitations();
       setInvitations(data);
+      // Fetch coach profiles
+      const coachIds = [...new Set(data.map((i) => i.coach_id))];
+      if (coachIds.length) {
+        const profiles = await getProfiles(coachIds);
+        const map: Record<string, Profile> = {};
+        profiles.forEach((p) => { map[p.id] = p; });
+        setCoachProfiles(map);
+      }
     } catch {
       // silent
     } finally {
@@ -79,7 +89,7 @@ export default function InvitationBanner() {
                 {t("invitation.coachInvite")}
               </p>
               <p className="text-[10px] text-muted-foreground font-bold truncate">
-                {t("invitation.from")} {inv.coach_id.slice(0, 8)}…
+                {t("invitation.from")} {formatName(coachProfiles[inv.coach_id])}
               </p>
             </div>
             {acting === inv.id ? (
