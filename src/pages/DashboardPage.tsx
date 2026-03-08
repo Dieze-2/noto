@@ -381,6 +381,21 @@ export default function DashboardPage() {
             <UPlotChart options={exOpts} data={exChartData} />
           )}
         </GlassCard>
+        {/* Fullscreen overlays */}
+        <ChartFullscreen
+          open={fullscreenChart === "weight"}
+          onClose={() => setFullscreenChart(null)}
+          title="Poids"
+          options={weightOpts}
+          data={weightChartData}
+        />
+        <ChartFullscreen
+          open={fullscreenChart === "exercise"}
+          onClose={() => setFullscreenChart(null)}
+          title={selectedExercise || "Exercice"}
+          options={exOpts}
+          data={exChartData}
+        />
       </motion.div>
     </div>
   );
