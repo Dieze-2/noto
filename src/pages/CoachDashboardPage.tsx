@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/AuthProvider";
 
 import GlassCard from "@/components/GlassCard";
+import CoachNotificationBell from "@/components/CoachNotificationBell";
 import { useRoles } from "@/auth/RoleProvider";
 import {
   getCoachAthletes, inviteAthlete, removeAthlete, CoachAthlete,
