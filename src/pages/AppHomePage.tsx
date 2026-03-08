@@ -465,7 +465,7 @@ export default function AppHomePage() {
           onChange={(v) => updateMetric("kcal", v)}
           onBlur={() => flushMetricsForDate(dateISO).catch(() => {})}
           colorClass="text-metric-kcal" inputMode="numeric" />
-        <StatBubble icon={Weight} label="Kg" value={metrics.weight}
+        <StatBubble icon={Weight} label={t("today.kg")} value={metrics.weight}
           onChange={(v) => updateMetric("weight", v)}
           onBlur={() => flushMetricsForDate(dateISO).catch(() => {})}
           colorClass="text-metric-weight" inputMode="decimal" />
