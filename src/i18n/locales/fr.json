@@ -340,6 +340,12 @@
     "approve": "Approuver",
     "reject": "Refuser",
     "approved": "Demande approuvée ! Le rôle coach a été attribué.",
-    "rejected": "Demande refusée."
+    "rejected": "Demande refusée.",
+    "grantTrial": "Essai coach (30 jours)",
+    "grantTrialDesc": "Attribuer un accès coach gratuit pendant 30 jours à un utilisateur.",
+    "trialEmailPlaceholder": "Email de l'utilisateur…",
+    "startTrial": "Démarrer",
+    "trialGranted": "Essai coach de 30 jours accordé !",
+    "userNotFound": "Utilisateur introuvable avec cet email."
   }
 }
