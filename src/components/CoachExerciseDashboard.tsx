@@ -147,7 +147,7 @@ function VolumeInfoTooltip() {
           <Info size={12} className="text-muted-foreground cursor-help" />
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[240px] text-xs">
-          {t("dashboard.volumeExplanation")}
+          {t("dashboard.e1rmExplanation")}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
