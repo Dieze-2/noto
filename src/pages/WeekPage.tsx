@@ -189,7 +189,7 @@ export default function WeekPage() {
             <ChevronLeft size={28} />
           </button>
           <div className="text-center">
-            <h1 className="text-noto-title text-3xl text-primary">Semaine</h1>
+            <h1 className="text-noto-title text-3xl text-primary">{t("week.title")}</h1>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">
               {t("week.from")} {format(start, "d MMMM", { locale: getDateLocale() })}
             </p>
