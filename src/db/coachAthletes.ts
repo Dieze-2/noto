@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import { createNotification } from "@/db/notifications";
+import { syncAthleteQuantity } from "@/db/coachSubscriptions";
 
 export interface CoachAthlete {
   id: string;
