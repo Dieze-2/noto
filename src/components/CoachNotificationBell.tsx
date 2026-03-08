@@ -12,7 +12,7 @@ import { formatDistanceToNow } from "date-fns";
 import { fr, es, enUS } from "date-fns/locale";
 import i18n from "@/i18n";
 
-const dateLocales: Record<string, Locale> = { fr, es, en: enUS };
+const dateLocales: Record<string, typeof fr> = { fr, es, en: enUS };
 
 export default function CoachNotificationBell() {
   const { t } = useTranslation();
