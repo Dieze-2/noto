@@ -911,6 +911,25 @@ export default function CoachAthleteViewPage() {
                 )}
               </GlassCard>
             )}
+
+            {/* ── Coach Private Notes ── */}
+            <GlassCard className="p-5 rounded-3xl space-y-3">
+              <div className="flex items-center gap-2">
+                <StickyNote size={16} className="text-primary" />
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex-1">
+                  {t("coach.privateNotes")}
+                </h3>
+                <span className="text-[9px] font-bold text-muted-foreground">
+                  {noteSaving ? t("coach.notesSaving") : noteSaved ? t("coach.notesSaved") : t("coach.notesUnsaved")}
+                </span>
+              </div>
+              <textarea
+                value={noteContent}
+                onChange={(e) => handleNoteChange(e.target.value)}
+                placeholder={t("coach.notesPlaceholder")}
+                className="w-full min-h-[120px] bg-muted/30 border border-border/50 rounded-xl p-3 text-sm text-foreground placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:ring-1 focus:ring-primary/30"
+              />
+            </GlassCard>
           </>
         ) : activeTab === "training" ? (
           <CoachExerciseDashboard athleteId={athleteId!} />
