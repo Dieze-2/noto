@@ -402,7 +402,7 @@ export default function DashboardPage() {
                     : "bg-muted text-muted-foreground"
                 }`}
               >
-                Total
+                {t("dashboard.total")}
               </button>
             </div>
           )}
