@@ -102,7 +102,7 @@ function buildExOpts(height: number): uPlot.Options {
     series: [
       {},
       {
-        label: "Volume (kg)",
+        label: "e1RM (kg)",
         stroke: "hsl(156,100%,50%)",
         width: 2,
         fill: "hsla(156,100%,50%,0.08)",
