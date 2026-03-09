@@ -19,8 +19,9 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    const siteBase = `${window.location.origin}${window.location.pathname}`.replace(/\/$/, "");
+
     if (mode === "forgot") {
-      const siteBase = window.location.origin + window.location.pathname.replace(/\/$/, "");
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: siteBase,
       });
@@ -37,7 +38,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: window.location.origin },
+        options: { emailRedirectTo: siteBase },
       });
       if (error) setError(error.message);
       else setError(t("login.checkEmail"));
