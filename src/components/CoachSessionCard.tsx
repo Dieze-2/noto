@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { ClipboardList, ChevronDown, ChevronUp, CheckCircle2, Circle, Dumbbell } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
 import { getMyPrograms, getProgramSessions, ProgramSessionWithExercises, ProgramExercise } from "@/db/programs";
-import { getMyCoachId } from "@/db/coachAthletes";
 
 interface CoachSessionCardProps {
   /** Names of exercises already logged today */
