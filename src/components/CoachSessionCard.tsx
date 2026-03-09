@@ -43,7 +43,7 @@ export default function CoachSessionCard({ loggedExerciseNames, onLogExercise }:
     [loggedExerciseNames]
   );
 
-  if (loading || !hasCoach || sessions.length === 0) return null;
+  if (loading || sessions.length === 0) return null;
 
   return (
     <div className="space-y-3">
