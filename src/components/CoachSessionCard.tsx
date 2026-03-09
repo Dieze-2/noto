@@ -16,21 +16,15 @@ export default function CoachSessionCard({ loggedExerciseNames, onLogExercise }:
   const { t } = useTranslation();
   const [sessions, setSessions] = useState<ProgramSessionWithExercises[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hasCoach, setHasCoach] = useState(false);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     async function load() {
-      const coachId = await getMyCoachId();
-      if (!alive) return;
-      if (!coachId) { setLoading(false); return; }
-      setHasCoach(true);
-
       const programs = await getMyPrograms();
       if (!alive || programs.length === 0) { setLoading(false); return; }
 
-      // Load sessions for all programs assigned to this athlete
+      // Load sessions for all programs assigned to this user (athlete or self-coaching)
       const allSessions: ProgramSessionWithExercises[] = [];
       for (const p of programs) {
         const s = await getProgramSessions(p.id);
