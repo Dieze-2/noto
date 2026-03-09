@@ -20,8 +20,9 @@ export default function LoginPage() {
     setLoading(true);
 
     if (mode === "forgot") {
+      const siteBase = window.location.origin + window.location.pathname.replace(/\/$/, "");
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/#/reset-password`,
+        redirectTo: siteBase,
       });
       if (error) setError(error.message);
       else setError(t("login.resetEmailSent"));
