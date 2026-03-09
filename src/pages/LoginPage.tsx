@@ -19,7 +19,8 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const siteBase = `${window.location.origin}${window.location.pathname}`.replace(/\/$/, "");
+    // MUST end with trailing slash to avoid GitHub Pages 302 redirect which strips hash fragments
+    const siteBase = `${window.location.origin}${window.location.pathname}`.replace(/\/?$/, "/");
 
     if (mode === "forgot") {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
