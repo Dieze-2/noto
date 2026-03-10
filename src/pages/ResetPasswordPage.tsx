@@ -18,14 +18,15 @@ export default function ResetPasswordPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Check for recovery token in URL hash
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setReady(true);
-    }
-    // Listen for PASSWORD_RECOVERY event
+    // Check if we have a valid session (tokens were already exchanged in main.tsx)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setReady(true);
+      }
+    });
+    // Also listen for PASSWORD_RECOVERY event as fallback
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setReady(true);
       }
     });
