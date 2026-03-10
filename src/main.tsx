@@ -12,7 +12,7 @@ import "./i18n";
  * keeps them so the Supabase client can pick them up,
  * then after a tick rewrites the hash to the correct app route.
  */
-(function handleSupabaseRedirect() {
+(async function handleSupabaseRedirect() {
   const hash = window.location.hash;
   if (!hash || hash.startsWith("#/")) return; // normal HashRouter route
 
@@ -20,15 +20,15 @@ import "./i18n";
   const type = params.get("type");
 
   if (params.has("access_token") || params.has("error_description")) {
-    // Let Supabase JS client detect and consume the tokens from the current URL.
-    // After a microtask, redirect to the appropriate hash route.
+    // Import supabase client and let it exchange the tokens from the URL hash
+    const { supabase } = await import("@/lib/supabaseClient");
+    // This forces Supabase to detect & consume the hash tokens
+    await supabase.auth.getSession();
+
     const targetRoute =
       type === "recovery" ? "#/reset-password" : "#/";
 
-    // Use setTimeout so supabase client can read hash first
-    setTimeout(() => {
-      window.location.hash = targetRoute;
-    }, 0);
+    window.location.hash = targetRoute;
   }
 })();
 
