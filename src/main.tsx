@@ -5,31 +5,43 @@ import "./i18n";
 
 /**
  * Supabase redirects append auth tokens as a URL hash fragment:
- *   #access_token=xxx&type=recovery
+ *   #access_token=xxx&type=recovery&refresh_token=yyy
  * But HashRouter also uses the hash (#/route). They conflict.
  *
- * This handler detects Supabase auth params in the hash,
- * keeps them so the Supabase client can pick them up,
- * then after a tick rewrites the hash to the correct app route.
+ * This handler:
+ * 1. Detects Supabase auth params in the hash
+ * 2. Manually calls setSession() so Supabase establishes the session
+ * 3. Rewrites the hash to the correct app route
+ * 4. THEN renders the app
  */
-(async function handleSupabaseRedirect() {
+async function handleSupabaseRedirect() {
   const hash = window.location.hash;
   if (!hash || hash.startsWith("#/")) return; // normal HashRouter route
 
   const params = new URLSearchParams(hash.substring(1)); // remove leading #
+  const accessToken = params.get("access_token");
+  const refreshToken = params.get("refresh_token");
   const type = params.get("type");
 
-  if (params.has("access_token") || params.has("error_description")) {
-    // Import supabase client and let it exchange the tokens from the URL hash
+  if (accessToken && refreshToken) {
+    // Dynamically import to avoid circular issues
     const { supabase } = await import("@/lib/supabaseClient");
-    // This forces Supabase to detect & consume the hash tokens
-    await supabase.auth.getSession();
 
-    const targetRoute =
-      type === "recovery" ? "#/reset-password" : "#/";
+    // Manually set the session from the URL tokens
+    await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
 
+    // Redirect to the appropriate hash route
+    const targetRoute = type === "recovery" ? "#/reset-password" : "#/";
     window.location.hash = targetRoute;
+  } else if (params.has("error_description")) {
+    window.location.hash = "#/login";
   }
-})();
+}
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Wait for redirect handling to complete BEFORE rendering the app
+handleSupabaseRedirect().finally(() => {
+  createRoot(document.getElementById("root")!).render(<App />);
+});
