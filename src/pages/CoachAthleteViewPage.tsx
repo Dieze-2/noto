@@ -611,7 +611,10 @@ export default function CoachAthleteViewPage() {
                   {stats.currentWeight != null && <TrendIcon value={stats.weightTrend} />}
                 </div>
                 {stats.weightTrend !== 0 && stats.currentWeight != null && (
-                  <p className="text-[10px] text-muted-foreground">{stats.weightTrend > 0 ? "+" : ""}{stats.weightTrend.toFixed(1)} kg</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {stats.weightTrend > 0 ? "+" : ""}{stats.weightTrend.toFixed(1)} kg
+                    <span className="text-muted-foreground/50 ml-1">{t("coach.sinceFirstEntry", "depuis 1ère saisie")}</span>
+                  </p>
                 )}
               </GlassCard>
 
