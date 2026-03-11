@@ -736,7 +736,63 @@ export default function CoachAthleteViewPage() {
               </div>
             </GlassCard>
 
-            {/* ── Muscle Group Distribution ── */}
+            {/* ── Recent Workouts Detail ── */}
+            {workoutHistory.length > 0 && (
+              <GlassCard className="p-5 rounded-3xl space-y-3">
+                <div className="flex items-center gap-2">
+                  <Dumbbell size={16} className="text-primary" />
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex-1">
+                    {t("coach.workoutDetail", "Détail des entraînements")}
+                  </h3>
+                  <span className="text-[10px] font-bold text-muted-foreground">
+                    {workoutHistory.length} {t("coach.totalSessions")}
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  {workoutHistory.slice(0, 15).map((w) => (
+                    <div key={w.date}>
+                      <button
+                        onClick={() => setExpandedWorkoutDate(expandedWorkoutDate === w.date ? null : w.date)}
+                        className="w-full flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-muted/50 transition-colors text-left"
+                      >
+                        <Calendar size={14} className="text-primary shrink-0" />
+                        <span className="text-xs font-bold text-foreground flex-1 capitalize">
+                          {format(parseISO(w.date), "EEEE d MMMM", { locale: fr })}
+                        </span>
+                        <span className="text-[10px] font-bold text-muted-foreground">
+                          {w.exercises.length} ex.
+                        </span>
+                        {expandedWorkoutDate === w.date ? (
+                          <ChevronUp size={14} className="text-muted-foreground" />
+                        ) : (
+                          <ChevronDown size={14} className="text-muted-foreground" />
+                        )}
+                      </button>
+                      {expandedWorkoutDate === w.date && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="pl-8 pr-3 pb-2 space-y-1.5"
+                        >
+                          {w.exercises.map((ex, i) => (
+                            <div key={`${ex.name}-${i}`} className="flex items-center gap-2 py-1.5 border-b border-border/20 last:border-0">
+                              <span className="text-xs font-bold text-foreground flex-1 truncate">{ex.name}</span>
+                              <span className="text-[10px] font-bold text-muted-foreground">
+                                {loadDisplay(ex.load_type, ex.load_g)} {ex.load_type !== "TEXT" && ex.load_type !== "PDC" ? "kg" : ""}
+                              </span>
+                              <span className="text-[10px] font-bold text-primary">
+                                {ex.reps} reps
+                              </span>
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
+
             {muscleGroups.length > 0 && (
               <GlassCard className="p-5 rounded-3xl space-y-3">
                 <div className="flex items-center gap-2">
