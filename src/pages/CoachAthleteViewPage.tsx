@@ -148,6 +148,7 @@ export default function CoachAthleteViewPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [metricsView, setMetricsView] = useState<MetricsView>("week");
   const [metricsExpanded, setMetricsExpanded] = useState(false);
+  const [expandedWorkoutDate, setExpandedWorkoutDate] = useState<string | null>(null);
 
   /* ── Program/Sessions state ── */
   const [athleteProgram, setAthleteProgram] = useState<Program | null>(null);
@@ -256,26 +257,31 @@ export default function CoachAthleteViewPage() {
     const kcalList = last30.filter((m) => m.kcal != null).map((m) => m.kcal!);
     const avg = (arr: number[]) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
     const latest = (arr: number[]) => arr.length > 0 ? arr[0] : null;
-    const trend = (arr: number[]) => { if (arr.length < 2) return 0; return arr[0] - arr[arr.length - 1]; };
     const thirtyDaysAgo = format(new Date(Date.now() - 30 * 86400000), "yyyy-MM-dd");
     const recentWorkouts = workoutHistory.filter((w) => w.date >= thirtyDaysAgo);
+
+    // Weight variation since first ever entry (metrics sorted desc: [0]=latest, [last]=oldest)
+    const allWeightsData = metrics.filter((m) => m.weight_g != null).map((m) => m.weight_g! / 1000);
+    const weightTrendSinceFirst = allWeightsData.length >= 2
+      ? allWeightsData[0] - allWeightsData[allWeightsData.length - 1]
+      : 0;
 
     const daysWithWeight = last30.filter((m) => m.weight_g != null).length;
     const daysWithSteps = last30.filter((m) => m.steps != null).length;
     const daysWithKcal = last30.filter((m) => m.kcal != null).length;
-    const totalDays = Math.min(last30.length, 30);
+    const totalDays = 30; // Fixed: always 30 calendar days
 
     const fourWeeksAgo = format(new Date(Date.now() - 28 * 86400000), "yyyy-MM-dd");
     const last4WeeksWorkouts = workoutHistory.filter((w) => w.date >= fourWeeksAgo);
-    const weeksWithTraining = new Set(
+    const weeksWithTraining = Math.min(new Set(
       last4WeeksWorkouts.map((w) => {
         const d = parseISO(w.date);
         return format(startOfWeek(d, { weekStartsOn: 1 }), "yyyy-MM-dd");
       })
-    ).size;
+    ).size, 4); // Cap at 4 weeks
 
     return {
-      currentWeight: latest(weights), weightTrend: trend(weights),
+      currentWeight: latest(weights), weightTrend: weightTrendSinceFirst,
       avgSteps: avg(stepsList), avgKcal: avg(kcalList),
       workoutCount: recentWorkouts.length, totalWorkouts: workoutHistory.length,
       completion: { daysWithWeight, daysWithSteps, daysWithKcal, totalDays },
@@ -605,7 +611,10 @@ export default function CoachAthleteViewPage() {
                   {stats.currentWeight != null && <TrendIcon value={stats.weightTrend} />}
                 </div>
                 {stats.weightTrend !== 0 && stats.currentWeight != null && (
-                  <p className="text-[10px] text-muted-foreground">{stats.weightTrend > 0 ? "+" : ""}{stats.weightTrend.toFixed(1)} kg</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {stats.weightTrend > 0 ? "+" : ""}{stats.weightTrend.toFixed(1)} kg
+                    <span className="text-muted-foreground/50 ml-1">{t("coach.sinceFirstEntry", "depuis 1ère saisie")}</span>
+                  </p>
                 )}
               </GlassCard>
 
@@ -727,7 +736,63 @@ export default function CoachAthleteViewPage() {
               </div>
             </GlassCard>
 
-            {/* ── Muscle Group Distribution ── */}
+            {/* ── Recent Workouts Detail ── */}
+            {workoutHistory.length > 0 && (
+              <GlassCard className="p-5 rounded-3xl space-y-3">
+                <div className="flex items-center gap-2">
+                  <Dumbbell size={16} className="text-primary" />
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex-1">
+                    {t("coach.workoutDetail", "Détail des entraînements")}
+                  </h3>
+                  <span className="text-[10px] font-bold text-muted-foreground">
+                    {workoutHistory.length} {t("coach.totalSessions")}
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  {workoutHistory.slice(0, 15).map((w) => (
+                    <div key={w.date}>
+                      <button
+                        onClick={() => setExpandedWorkoutDate(expandedWorkoutDate === w.date ? null : w.date)}
+                        className="w-full flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-muted/50 transition-colors text-left"
+                      >
+                        <Calendar size={14} className="text-primary shrink-0" />
+                        <span className="text-xs font-bold text-foreground flex-1 capitalize">
+                          {format(parseISO(w.date), "EEEE d MMMM", { locale: fr })}
+                        </span>
+                        <span className="text-[10px] font-bold text-muted-foreground">
+                          {w.exercises.length} ex.
+                        </span>
+                        {expandedWorkoutDate === w.date ? (
+                          <ChevronUp size={14} className="text-muted-foreground" />
+                        ) : (
+                          <ChevronDown size={14} className="text-muted-foreground" />
+                        )}
+                      </button>
+                      {expandedWorkoutDate === w.date && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="pl-8 pr-3 pb-2 space-y-1.5"
+                        >
+                          {w.exercises.map((ex, i) => (
+                            <div key={`${ex.name}-${i}`} className="flex items-center gap-2 py-1.5 border-b border-border/20 last:border-0">
+                              <span className="text-xs font-bold text-foreground flex-1 truncate">{ex.name}</span>
+                              <span className="text-[10px] font-bold text-muted-foreground">
+                                {loadDisplay(ex.load_type, ex.load_g)} {ex.load_type !== "TEXT" && ex.load_type !== "PDC" ? "kg" : ""}
+                              </span>
+                              <span className="text-[10px] font-bold text-primary">
+                                {ex.reps} reps
+                              </span>
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
+
             {muscleGroups.length > 0 && (
               <GlassCard className="p-5 rounded-3xl space-y-3">
                 <div className="flex items-center gap-2">

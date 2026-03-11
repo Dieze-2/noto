@@ -209,7 +209,7 @@ export default function WeekPage() {
             {stats.weight ? stats.weight.toFixed(1) : "--"}kg
           </p>
           <div className={`mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-tight ${
-            stats.variation > 0 ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"
+            stats.variation > 0 ? "bg-muted text-destructive" : "bg-muted text-primary"
           }`}>
             {stats.variation > 0 ? "▲" : "▼"} {stats.variation > 0 ? "+" : ""}{stats.variation.toFixed(2)}%
           </div>

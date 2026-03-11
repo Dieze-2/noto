@@ -92,6 +92,13 @@ export default function CoachDashboardPage() {
 
   useEffect(() => { if (isCoach) refresh(); }, [isCoach]);
 
+  // Refresh data when page gains focus (fixes stale status/notifications)
+  useEffect(() => {
+    const handler = () => { if (document.visibilityState === "visible" && isCoach) refresh(); };
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [isCoach]);
+
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return;
     setSending(true);
