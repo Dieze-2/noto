@@ -877,7 +877,7 @@ export default function CoachAthleteViewPage() {
                                 <div className="ml-4 mt-1 space-y-0.5">
                                   {ex.sets.map((s, si) => (
                                     <div key={si} className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                                      <span className="font-bold w-8">Set {si + 1}</span>
+                                      <span className="font-bold w-8">Set {si + 2}</span>
                                       <span>{loadDisplay(s.load_type, s.load_g)} {s.load_type !== "TEXT" && s.load_type !== "PDC" ? "kg" : ""}</span>
                                       <span className="text-primary font-bold">{s.reps} reps</span>
                                     </div>

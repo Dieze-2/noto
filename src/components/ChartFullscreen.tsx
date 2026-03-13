@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Maximize2 } from "lucide-react";
 import UPlotChart from "./UPlotChart";
 import uPlot from "uplot";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 
 interface ChartFullscreenProps {
   open: boolean;
@@ -32,14 +32,43 @@ export default function ChartFullscreen({
   options,
   data,
 }: ChartFullscreenProps) {
-  // Build fullscreen options with larger height
+  // Track orientation to force re-key the chart
+  const [orientationKey, setOrientationKey] = useState(0);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleChange = () => {
+      // Force chart recreation by changing key
+      setTimeout(() => setOrientationKey((k) => k + 1), 350);
+    };
+
+    window.addEventListener("orientationchange", handleChange);
+    const mql = window.matchMedia("(orientation: landscape)");
+    mql.addEventListener("change", handleChange);
+
+    return () => {
+      window.removeEventListener("orientationchange", handleChange);
+      mql.removeEventListener("change", handleChange);
+    };
+  }, [open]);
+
+  // Compute height dynamically based on current orientation
   const fullOpts = useMemo<uPlot.Options>(() => {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const h = isLandscape ? Math.max(window.innerHeight - 120, 200) : 400;
     return {
       ...options,
-      width: 300, // will be overridden by container
-      height: 400,
+      width: 300, // overridden by container
+      height: h,
     };
-  }, [options]);
+    // orientationKey forces recompute
+  }, [options, orientationKey]);
+
+  // Reset key when opening
+  useEffect(() => {
+    if (open) setOrientationKey((k) => k + 1);
+  }, [open]);
 
   return (
     <AnimatePresence>
@@ -75,6 +104,7 @@ export default function ChartFullscreen({
             {/* Chart area – fills remaining space */}
             <div className="flex-1 min-h-0">
               <UPlotChart
+                key={orientationKey}
                 options={fullOpts}
                 data={data}
                 className="w-full h-full"
