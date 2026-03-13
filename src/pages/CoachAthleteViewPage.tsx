@@ -608,6 +608,7 @@ export default function CoachAthleteViewPage() {
               {t("coach.fullHistory")}
             </p>
           </div>
+          <CoachNotificationBell />
           <button
             onClick={() => {
               generateAthletePDF({
