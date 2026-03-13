@@ -546,7 +546,7 @@ export default function SettingsPage() {
           <h1 className="text-noto-title text-3xl text-primary text-center">
             {t("settings.title")}
           </h1>
-          {roles.includes("coach") && <CoachNotificationBell />}
+          {isCoach && <CoachNotificationBell />}
         </div>
 
         {/* ── PROFIL ── */}
