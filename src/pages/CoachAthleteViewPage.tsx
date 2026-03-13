@@ -181,6 +181,7 @@ export default function CoachAthleteViewPage() {
   const [metricsView, setMetricsView] = useState<MetricsView>("week");
   const [metricsExpanded, setMetricsExpanded] = useState(false);
   const [expandedWorkoutDate, setExpandedWorkoutDate] = useState<string | null>(null);
+  const [workoutDetails, setWorkoutDetails] = useState<Record<string, WorkoutDetail>>({});
 
   /* ── Program/Sessions state ── */
   const [athleteProgram, setAthleteProgram] = useState<Program | null>(null);
