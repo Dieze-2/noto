@@ -554,15 +554,14 @@ export default function CoachAthleteViewPage() {
       }
     }
 
-    // 3. PR beaten in last 7 days
-    const recentPRs = personalRecords.filter((pr) => pr.date >= sevenDaysAgo);
-    if (recentPRs.length > 0) {
+    // 3. PR truly beaten this week (compared to all history before this week)
+    if (prsBeatenThisWeek.length > 0) {
       result.push({
         type: "pr",
         icon: Trophy,
         color: "text-[hsl(156,100%,50%)]",
         bgColor: "border-[hsl(156,100%,50%)]/30 bg-[hsl(156,100%,50%)]/10",
-        message: t("coach.alertPR", { count: recentPRs.length, exercise: recentPRs[0].name }),
+        message: t("coach.alertPR", { count: prsBeatenThisWeek.length, exercise: prsBeatenThisWeek[0].name }),
       });
     }
 
