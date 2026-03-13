@@ -283,6 +283,56 @@ export default function CoachAthleteViewPage() {
 
   useEffect(() => { refresh(); }, [athleteId]);
 
+  /** Load full workout detail with sets for a specific date */
+  const loadWorkoutDetail = async (date: string) => {
+    if (workoutDetails[date] || !athleteId) return;
+    // Get workout for this athlete and date
+    const { data: workout } = await supabase
+      .from("workouts")
+      .select("id")
+      .eq("user_id", athleteId)
+      .eq("date", date)
+      .maybeSingle();
+    if (!workout) return;
+
+    const { data: exercises } = await supabase
+      .from("workout_exercises")
+      .select("id, exercise_name, load_type, load_g, reps, sort_order")
+      .eq("workout_id", workout.id)
+      .order("sort_order");
+
+    if (!exercises) return;
+
+    const exerciseIds = exercises.map(e => e.id);
+    const { data: sets } = exerciseIds.length > 0
+      ? await supabase
+          .from("workout_exercise_sets")
+          .select("workout_exercise_id, reps, load_type, load_g, sort_order")
+          .in("workout_exercise_id", exerciseIds)
+          .order("sort_order")
+      : { data: [] };
+
+    const setsMap = new Map<string, WorkoutDetailSet[]>();
+    (sets ?? []).forEach((s: any) => {
+      const list = setsMap.get(s.workout_exercise_id) ?? [];
+      list.push({ reps: s.reps, load_type: s.load_type, load_g: s.load_g });
+      setsMap.set(s.workout_exercise_id, list);
+    });
+
+    const detail: WorkoutDetail = {
+      date,
+      exercises: exercises.map((ex: any) => ({
+        name: ex.exercise_name,
+        load_type: ex.load_type,
+        load_g: ex.load_g,
+        reps: ex.reps,
+        sets: setsMap.get(ex.id) ?? [],
+      })),
+    };
+
+    setWorkoutDetails(prev => ({ ...prev, [date]: detail }));
+  };
+
   const stats = useMemo(() => {
     const last30 = metrics.slice(0, 30);
     const weights = last30.filter((m) => m.weight_g != null).map((m) => m.weight_g! / 1000);
