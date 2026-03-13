@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Check, CheckCheck, X, UserCheck, UserX, Crown } from "lucide-react";
+import { Bell, Check, CheckCheck, X, UserCheck, UserX, Crown, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   getCoachNotifications,
   markNotificationRead,
   markAllNotificationsRead,
+  deleteNotification,
+  deleteAllReadNotifications,
   CoachNotification,
 } from "@/db/notifications";
 import { formatDistanceToNow } from "date-fns";
@@ -26,11 +28,12 @@ export default function CoachNotificationBell() {
 
   useEffect(() => {
     refresh();
-    const interval = setInterval(refresh, 30_000); // poll every 30s
+    const interval = setInterval(refresh, 30_000);
     return () => clearInterval(interval);
   }, []);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const readCount = notifications.filter((n) => n.read).length;
 
   const handleMarkAll = async () => {
     await markAllNotificationsRead();
@@ -42,6 +45,17 @@ export default function CoachNotificationBell() {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
+  };
+
+  const handleDeleteOne = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await deleteNotification(id);
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const handleClearRead = async () => {
+    await deleteAllReadNotifications();
+    setNotifications((prev) => prev.filter((n) => !n.read));
   };
 
   const lang = i18n.language?.slice(0, 2) ?? "fr";
@@ -83,15 +97,26 @@ export default function CoachNotificationBell() {
                 <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
                   {t("notifications.title")}
                 </h3>
-                {unreadCount > 0 && (
-                  <button
-                    onClick={handleMarkAll}
-                    className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
-                  >
-                    <CheckCheck size={12} />
-                    {t("notifications.markAllRead")}
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {readCount > 0 && (
+                    <button
+                      onClick={handleClearRead}
+                      className="text-[10px] font-bold text-muted-foreground hover:text-destructive flex items-center gap-1"
+                      title={t("notifications.clearRead", "Supprimer les lues")}
+                    >
+                      <Trash2 size={11} />
+                    </button>
+                  )}
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAll}
+                      className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
+                    >
+                      <CheckCheck size={12} />
+                      {t("notifications.markAllRead")}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {notifications.length === 0 ? (
@@ -103,10 +128,10 @@ export default function CoachNotificationBell() {
               ) : (
                 <div className="divide-y divide-border">
                   {notifications.map((n) => (
-                    <button
+                    <div
                       key={n.id}
                       onClick={() => !n.read && handleMarkOne(n.id)}
-                      className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30 ${
+                      className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30 cursor-pointer ${
                         !n.read ? "bg-primary/5" : ""
                       }`}
                     >
@@ -152,10 +177,19 @@ export default function CoachNotificationBell() {
                           })}
                         </p>
                       </div>
-                      {!n.read && (
-                        <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />
-                      )}
-                    </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {!n.read && (
+                          <div className="w-2 h-2 rounded-full bg-primary mt-1.5" />
+                        )}
+                        <button
+                          onClick={(e) => handleDeleteOne(n.id, e)}
+                          className="p-1 rounded-md text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          title={t("notifications.delete", "Supprimer")}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}

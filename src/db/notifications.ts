@@ -76,3 +76,27 @@ export async function markAllNotificationsRead() {
 
   if (error) console.error("markAllNotificationsRead:", error);
 }
+
+/** Delete a single notification */
+export async function deleteNotification(id: string) {
+  const { error } = await supabase
+    .from("coach_notifications")
+    .delete()
+    .eq("id", id);
+
+  if (error) console.error("deleteNotification:", error);
+}
+
+/** Delete all read notifications for the current coach */
+export async function deleteAllReadNotifications() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { error } = await supabase
+    .from("coach_notifications")
+    .delete()
+    .eq("coach_id", user.id)
+    .eq("read", true);
+
+  if (error) console.error("deleteAllReadNotifications:", error);
+}
