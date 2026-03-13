@@ -117,10 +117,19 @@
     @apply border-border;
   }
 
+  :root {
+    --font-scale: 1;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
+    font-size: calc(16px * var(--font-scale));
   }
+
+  body.font-small { --font-scale: 0.85; }
+  body.font-normal { --font-scale: 1; }
+  body.font-large { --font-scale: 1.18; }
 }
 
 @layer components {
