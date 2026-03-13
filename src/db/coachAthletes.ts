@@ -113,8 +113,25 @@ export async function rejectInvitation(invitationId: string) {
   }
 }
 
-/** Coach: remove an athlete (delete the coach_athletes row) */
+/** Coach: remove an athlete (delete the coach_athletes row + their programs) */
 export async function removeAthlete(relationId: string) {
+  // First get the relation to know coach_id and athlete_id
+  const { data: rel } = await supabase
+    .from("coach_athletes")
+    .select("coach_id, athlete_id")
+    .eq("id", relationId)
+    .single();
+
+  if (rel?.athlete_id) {
+    // Delete all programs this coach created for this athlete
+    const { error: progErr } = await supabase
+      .from("programs")
+      .delete()
+      .eq("coach_id", rel.coach_id)
+      .eq("athlete_id", rel.athlete_id);
+    if (progErr) console.error("removeAthlete programs cleanup:", progErr);
+  }
+
   const { error } = await supabase
     .from("coach_athletes")
     .delete()
