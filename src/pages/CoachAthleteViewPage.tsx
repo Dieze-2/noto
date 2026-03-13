@@ -460,6 +460,59 @@ export default function CoachAthleteViewPage() {
     return records.sort((a, b) => b.e1rm - a.e1rm).slice(0, 10);
   }, [workoutHistory, metrics]);
 
+  /* ── PRs truly beaten this week (new best vs all history before this week) ── */
+  const prsBeatenThisWeek = useMemo(() => {
+    const sevenDaysAgo = format(new Date(Date.now() - 7 * 86400000), "yyyy-MM-dd");
+
+    const allWeights = metrics
+      .filter((m) => m.weight_g != null)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((m) => ({ date: m.date, weight_g: m.weight_g! }));
+
+    const getBW = (date: string) => {
+      const before = allWeights.filter((w) => w.date <= date);
+      return before.length > 0 ? before[before.length - 1].weight_g / 1000 : 0;
+    };
+
+    // Build best e1RM per exercise BEFORE this week
+    const bestBefore = new Map<string, number>();
+    workoutHistory.forEach((w) => {
+      if (w.date >= sevenDaysAgo) return; // skip this week
+      w.exercises.forEach((ex) => {
+        const load = (ex.load_g ?? 0) / 1000;
+        const isPDC = ex.load_type === "PDC" || ex.load_type === "PDC_PLUS";
+        const totalLoad = isPDC ? load + getBW(w.date) : load;
+        if (totalLoad <= 0) return;
+        const e1rm = totalLoad * (1 + ex.reps / 30);
+        const prev = bestBefore.get(ex.name) ?? 0;
+        if (e1rm > prev) bestBefore.set(ex.name, e1rm);
+      });
+    });
+
+    // Check this week's exercises against historical bests
+    const beaten: { name: string; e1rm: number; date: string }[] = [];
+    const alreadyCounted = new Set<string>();
+
+    workoutHistory.forEach((w) => {
+      if (w.date < sevenDaysAgo) return; // only this week
+      w.exercises.forEach((ex) => {
+        if (alreadyCounted.has(ex.name)) return;
+        const load = (ex.load_g ?? 0) / 1000;
+        const isPDC = ex.load_type === "PDC" || ex.load_type === "PDC_PLUS";
+        const totalLoad = isPDC ? load + getBW(w.date) : load;
+        if (totalLoad <= 0) return;
+        const e1rm = totalLoad * (1 + ex.reps / 30);
+        const prevBest = bestBefore.get(ex.name) ?? 0;
+        if (prevBest > 0 && e1rm > prevBest) {
+          beaten.push({ name: ex.name, e1rm, date: w.date });
+          alreadyCounted.add(ex.name);
+        }
+      });
+    });
+
+    return beaten;
+  }, [workoutHistory, metrics]);
+
   /* ── Coach alerts (client-side) ── */
   const alerts = useMemo(() => {
     const result: { type: "inactive" | "weightLoss" | "pr"; icon: typeof AlertTriangle; color: string; bgColor: string; message: string }[] = [];
@@ -501,20 +554,19 @@ export default function CoachAthleteViewPage() {
       }
     }
 
-    // 3. PR beaten in last 7 days
-    const recentPRs = personalRecords.filter((pr) => pr.date >= sevenDaysAgo);
-    if (recentPRs.length > 0) {
+    // 3. PR truly beaten this week (compared to all history before this week)
+    if (prsBeatenThisWeek.length > 0) {
       result.push({
         type: "pr",
         icon: Trophy,
         color: "text-[hsl(156,100%,50%)]",
         bgColor: "border-[hsl(156,100%,50%)]/30 bg-[hsl(156,100%,50%)]/10",
-        message: t("coach.alertPR", { count: recentPRs.length, exercise: recentPRs[0].name }),
+        message: t("coach.alertPR", { count: prsBeatenThisWeek.length, exercise: prsBeatenThisWeek[0].name }),
       });
     }
 
     return result;
-  }, [workoutHistory, metrics, personalRecords, t]);
+  }, [workoutHistory, metrics, prsBeatenThisWeek, t]);
 
   const weeklyRows = useMemo(() => computeWeeklyRows(metrics, workoutHistory), [metrics, workoutHistory]);
   const monthlyRows = useMemo(() => computeMonthlyRows(metrics, workoutHistory), [metrics, workoutHistory]);
