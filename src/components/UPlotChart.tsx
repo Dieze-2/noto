@@ -11,49 +11,27 @@ interface UPlotChartProps {
 export default function UPlotChart({ options, data, className }: UPlotChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<uPlot | null>(null);
-
   // Keep latest options/data in refs to avoid stale closures
   const optionsRef = useRef(options);
   const dataRef = useRef(data);
   optionsRef.current = options;
   dataRef.current = data;
 
-  const getChartSize = useCallback(() => {
-    const container = containerRef.current;
-    const fallbackHeight = optionsRef.current.height ?? 220;
-
-    if (!container) return { width: 1, height: fallbackHeight };
-
-    const rect = container.getBoundingClientRect();
-    const width = Math.max(1, Math.round(container.clientWidth || rect.width));
-    const containerHeight = Math.round(container.clientHeight || rect.height);
-
-    // In fullscreen/layout-driven containers, always trust real container height
-    if (containerHeight > 40) {
-      return { width, height: containerHeight };
-    }
-
-    // Fallback for inline charts without explicit container height
-    const viewportHeight = Math.round(window.visualViewport?.height ?? window.innerHeight);
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const fallbackLandscapeHeight = Math.max(220, viewportHeight - 120);
-
-    return {
-      width,
-      height: isLandscape ? fallbackLandscapeHeight : fallbackHeight,
-    };
+  const getHeight = useCallback(() => {
+    const isLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 500;
+    return isLandscape ? Math.min(window.innerHeight - 80, 300) : (optionsRef.current.height ?? 220);
   }, []);
 
   const createChart = useCallback(() => {
     if (!containerRef.current) return;
-
     chartRef.current?.destroy();
     chartRef.current = null;
 
-    const { width, height } = getChartSize();
+    const width = containerRef.current.clientWidth;
+    const height = getHeight();
     const opts: uPlot.Options = { ...optionsRef.current, width, height };
     chartRef.current = new uPlot(opts, dataRef.current, containerRef.current);
-  }, [getChartSize]);
+  }, [getHeight]);
 
   // Create on mount & recreate on options change
   useEffect(() => {
@@ -62,7 +40,7 @@ export default function UPlotChart({ options, data, className }: UPlotChartProps
       chartRef.current?.destroy();
       chartRef.current = null;
     };
-  }, [options, createChart]);
+  }, [options]);
 
   // Update data when it changes
   useEffect(() => {
@@ -71,47 +49,42 @@ export default function UPlotChart({ options, data, className }: UPlotChartProps
     }
   }, [data]);
 
-  // Resize + orientation handling
+  // Resize handler + orientation change
   useEffect(() => {
-    let rafId: number | null = null;
-
-    const applySize = () => {
-      if (!chartRef.current) return;
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        if (!chartRef.current) return;
-        const { width, height } = getChartSize();
-        chartRef.current.setSize({ width, height });
+    const handleResize = () => {
+      if (!containerRef.current || !chartRef.current) return;
+      chartRef.current.setSize({
+        width: containerRef.current.clientWidth,
+        height: getHeight(),
       });
     };
 
-    const recreateAfterRotate = () => {
-      window.setTimeout(() => {
+    const handleOrientation = () => {
+      // Delay to let the browser finish rotating
+      setTimeout(() => {
+        // Recreate chart entirely on orientation change for clean layout
         createChart();
-      }, 350);
+      }, 300);
     };
 
-    const obs = new ResizeObserver(applySize);
+    const obs = new ResizeObserver(handleResize);
     if (containerRef.current) obs.observe(containerRef.current);
 
-    window.addEventListener("resize", applySize);
-    window.addEventListener("orientationchange", recreateAfterRotate);
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleOrientation);
 
+    // Also detect orientation via matchMedia for browsers that don't fire orientationchange
     const mql = window.matchMedia("(orientation: landscape)");
-    mql.addEventListener("change", recreateAfterRotate);
-
-    const visualViewport = window.visualViewport;
-    visualViewport?.addEventListener("resize", applySize);
+    const mqlHandler = () => setTimeout(handleResize, 200);
+    mql.addEventListener("change", mqlHandler);
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
       obs.disconnect();
-      window.removeEventListener("resize", applySize);
-      window.removeEventListener("orientationchange", recreateAfterRotate);
-      mql.removeEventListener("change", recreateAfterRotate);
-      visualViewport?.removeEventListener("resize", applySize);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleOrientation);
+      mql.removeEventListener("change", mqlHandler);
     };
-  }, [createChart, getChartSize]);
+  }, [createChart, getHeight]);
 
   return <div ref={containerRef} className={className} />;
 }
