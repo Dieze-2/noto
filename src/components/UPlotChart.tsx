@@ -12,19 +12,21 @@ export default function UPlotChart({ options, data, className }: UPlotChartProps
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<uPlot | null>(null);
 
-  useEffect(() => {
+  const createChart = () => {
     if (!containerRef.current) return;
+    chartRef.current?.destroy();
 
-    // Measure container width
     const width = containerRef.current.clientWidth;
-    const opts: uPlot.Options = {
-      ...options,
-      width,
-      height: options.height ?? 220,
-    };
+    // In landscape on mobile, use more height
+    const isLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 500;
+    const height = isLandscape ? Math.min(window.innerHeight - 80, 300) : (options.height ?? 220);
 
+    const opts: uPlot.Options = { ...options, width, height };
     chartRef.current = new uPlot(opts, data, containerRef.current);
+  };
 
+  useEffect(() => {
+    createChart();
     return () => {
       chartRef.current?.destroy();
       chartRef.current = null;
@@ -41,17 +43,7 @@ export default function UPlotChart({ options, data, className }: UPlotChartProps
 
   // Re-create on options change (range switch)
   useEffect(() => {
-    if (!containerRef.current) return;
-    chartRef.current?.destroy();
-
-    const width = containerRef.current.clientWidth;
-    const opts: uPlot.Options = {
-      ...options,
-      width,
-      height: options.height ?? 220,
-    };
-    chartRef.current = new uPlot(opts, data, containerRef.current);
-
+    createChart();
     return () => {
       chartRef.current?.destroy();
       chartRef.current = null;
@@ -59,18 +51,29 @@ export default function UPlotChart({ options, data, className }: UPlotChartProps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options]);
 
-  // Resize handler
+  // Resize handler + orientation change
   useEffect(() => {
-    const obs = new ResizeObserver(() => {
-      if (containerRef.current && chartRef.current) {
-        chartRef.current.setSize({
-          width: containerRef.current.clientWidth,
-          height: options.height ?? 220,
-        });
-      }
-    });
+    const handleResize = () => {
+      if (!containerRef.current || !chartRef.current) return;
+      const isLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 500;
+      const height = isLandscape ? Math.min(window.innerHeight - 80, 300) : (options.height ?? 220);
+      chartRef.current.setSize({
+        width: containerRef.current.clientWidth,
+        height,
+      });
+    };
+
+    const obs = new ResizeObserver(handleResize);
     if (containerRef.current) obs.observe(containerRef.current);
-    return () => obs.disconnect();
+
+    // Also listen for orientation change
+    window.addEventListener("orientationchange", () => setTimeout(handleResize, 200));
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      obs.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
   }, [options.height]);
 
   return <div ref={containerRef} className={className} />;
