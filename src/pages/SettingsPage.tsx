@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Target, LogOut, Download, Upload, Check, Weight,
   Footprints, Flame, X, Lock, ChevronRight, Database, Sun, Moon, Globe,
-  Shield, Crown, Loader2,
+  Shield, Crown, Loader2, Type,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -618,6 +618,44 @@ export default function SettingsPage() {
               />
             </div>
           </button>
+
+          {/* Font size toggle — inline */}
+          {(() => {
+            const sizes = ["small", "normal", "large"] as const;
+            const labels = { small: "A", normal: "A", large: "A" };
+            const stored = localStorage.getItem("fontScale") || "normal";
+            const cycleFontSize = () => {
+              const idx = sizes.indexOf(stored as any);
+              const next = sizes[(idx + 1) % sizes.length];
+              localStorage.setItem("fontScale", next);
+              document.body.classList.remove("font-small", "font-normal", "font-large");
+              document.body.classList.add(`font-${next}`);
+              // Force re-render
+              window.dispatchEvent(new Event("fontsizechange"));
+            };
+            return (
+              <button
+                type="button"
+                onClick={cycleFontSize}
+                className="w-full flex items-center gap-3 p-4 rounded-2xl glass hover:bg-muted/50 transition-colors text-left"
+              >
+                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary">
+                  <Type size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black uppercase tracking-wider text-foreground">{t("settings.fontSize")}</p>
+                  <p className="text-[10px] text-muted-foreground font-bold">{t(`settings.fontSize_${stored}`)}</p>
+                </div>
+                <div className="flex gap-1 items-end">
+                  {sizes.map((s) => (
+                    <span key={s} className={`font-black transition-colors ${s === "small" ? "text-[11px]" : s === "normal" ? "text-[14px]" : "text-[18px]"} ${stored === s ? "text-primary" : "text-muted-foreground/30"}`}>
+                      A
+                    </span>
+                  ))}
+                </div>
+              </button>
+            );
+          })()}
         </div>
 
         {/* ── LANGUAGE ── */}

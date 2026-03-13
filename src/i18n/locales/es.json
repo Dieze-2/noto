@@ -135,7 +135,11 @@
     "coachRequestPendingDesc": "Tu solicitud está siendo revisada por un administrador.",
     "coachRequestRejected": "Solicitud rechazada",
     "coachRequestRejectedDesc": "Tu solicitud fue rechazada. Contacta a un administrador para más información.",
-    "dismissRejection": "Reintentar"
+    "dismissRejection": "Reintentar",
+    "fontSize": "Tamaño de fuente",
+    "fontSize_small": "Pequeña",
+    "fontSize_normal": "Normal",
+    "fontSize_large": "Grande"
   },
   "coach": {
     "title": "Panel del Coach",

@@ -3,6 +3,10 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 
+// Apply saved font size
+const savedFont = localStorage.getItem("fontScale") || "normal";
+document.body.classList.add(`font-${savedFont}`);
+
 /**
  * Supabase redirects append auth tokens as a URL hash fragment:
  *   #access_token=xxx&type=recovery&refresh_token=yyy

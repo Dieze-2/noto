@@ -19,7 +19,7 @@ import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import PricingPage from "@/pages/PricingPage";
 import AdminDashboardPage from "@/pages/AdminDashboardPage";
 import NotFound from "@/pages/NotFound";
-import { Loader2 } from "lucide-react";
+import NotoLoader from "@/components/NotoLoader";
 
 const queryClient = new QueryClient();
 
@@ -27,11 +27,7 @@ function ProtectedRoutes() {
   const { session, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <NotoLoader />;
   }
 
   if (!session) {
@@ -63,11 +59,7 @@ function AppRoutes() {
   const { session, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <NotoLoader />;
   }
 
   return (

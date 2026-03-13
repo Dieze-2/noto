@@ -142,7 +142,11 @@
     "coachRequestPendingDesc": "Your request is being reviewed by an administrator.",
     "coachRequestRejected": "Request rejected",
     "coachRequestRejectedDesc": "Your request was rejected. Contact an administrator for more information.",
-    "dismissRejection": "Try again"
+    "dismissRejection": "Try again",
+    "fontSize": "Font size",
+    "fontSize_small": "Small",
+    "fontSize_normal": "Normal",
+    "fontSize_large": "Large"
   },
   "coach": {
     "title": "Coach Dashboard",
