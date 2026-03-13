@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Maximize2 } from "lucide-react";
 import UPlotChart from "./UPlotChart";
 import uPlot from "uplot";
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 
 interface ChartFullscreenProps {
   open: boolean;
@@ -32,43 +32,13 @@ export default function ChartFullscreen({
   options,
   data,
 }: ChartFullscreenProps) {
-  // Track orientation to force re-key the chart
-  const [orientationKey, setOrientationKey] = useState(0);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const handleChange = () => {
-      // Force chart recreation by changing key
-      setTimeout(() => setOrientationKey((k) => k + 1), 350);
-    };
-
-    window.addEventListener("orientationchange", handleChange);
-    const mql = window.matchMedia("(orientation: landscape)");
-    mql.addEventListener("change", handleChange);
-
-    return () => {
-      window.removeEventListener("orientationchange", handleChange);
-      mql.removeEventListener("change", handleChange);
-    };
-  }, [open]);
-
-  // Compute height dynamically based on current orientation
   const fullOpts = useMemo<uPlot.Options>(() => {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const h = isLandscape ? Math.max(window.innerHeight - 120, 200) : 400;
     return {
       ...options,
       width: 300, // overridden by container
-      height: h,
+      height: 400,
     };
-    // orientationKey forces recompute
-  }, [options, orientationKey]);
-
-  // Reset key when opening
-  useEffect(() => {
-    if (open) setOrientationKey((k) => k + 1);
-  }, [open]);
+  }, [options]);
 
   return (
     <AnimatePresence>
@@ -85,9 +55,8 @@ export default function ChartFullscreen({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed inset-0 z-[81] flex flex-col p-4"
+            className="fixed inset-0 z-[81] flex h-dvh flex-col p-4"
           >
-            {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-black uppercase tracking-wide text-foreground">
                 {title}
@@ -101,17 +70,14 @@ export default function ChartFullscreen({
               </button>
             </div>
 
-            {/* Chart area – fills remaining space */}
             <div className="flex-1 min-h-0">
               <UPlotChart
-                key={orientationKey}
                 options={fullOpts}
                 data={data}
                 className="w-full h-full"
               />
             </div>
 
-            {/* Hint */}
             <p className="text-center text-[10px] text-muted-foreground mt-3 font-bold uppercase tracking-widest">
               Tournez l'écran pour le mode paysage
             </p>
