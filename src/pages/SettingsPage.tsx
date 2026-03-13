@@ -628,8 +628,8 @@ export default function SettingsPage() {
               const idx = sizes.indexOf(stored as any);
               const next = sizes[(idx + 1) % sizes.length];
               localStorage.setItem("fontScale", next);
-              document.body.classList.remove("font-small", "font-normal", "font-large");
-              document.body.classList.add(`font-${next}`);
+              document.documentElement.classList.remove("font-small", "font-normal", "font-large");
+              document.documentElement.classList.add(`font-${next}`);
               // Force re-render
               window.dispatchEvent(new Event("fontsizechange"));
             };
