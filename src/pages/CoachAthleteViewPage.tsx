@@ -13,6 +13,7 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addWeeks, add
 import { fr } from "date-fns/locale";
 
 import GlassCard from "@/components/GlassCard";
+import CoachNotificationBell from "@/components/CoachNotificationBell";
 import { supabase } from "@/lib/supabaseClient";
 import { getProfile, displayName, Profile } from "@/db/profiles";
 import {
@@ -25,6 +26,37 @@ import CoachExerciseDashboard from "@/components/CoachExerciseDashboard";
 import { toast } from "sonner";
 import { generateAthletePDF } from "@/lib/generateAthletePDF";
 import { getCoachNote, saveCoachNote } from "@/db/coachNotes";
+
+interface DailyMetric {
+  date: string;
+  weight_g: number | null;
+  steps: number | null;
+  kcal: number | null;
+}
+
+interface WorkoutDay {
+  date: string;
+  exercises: { name: string; load_type: string; load_g: number | null; reps: number }[];
+}
+
+interface WorkoutDetailSet {
+  reps: number;
+  load_type: string;
+  load_g: number | null;
+}
+
+interface WorkoutDetailExercise {
+  name: string;
+  load_type: string;
+  load_g: number | null;
+  reps: number;
+  sets: WorkoutDetailSet[];
+}
+
+interface WorkoutDetail {
+  date: string;
+  exercises: WorkoutDetailExercise[];
+}
 
 interface DailyMetric {
   date: string;
@@ -149,6 +181,7 @@ export default function CoachAthleteViewPage() {
   const [metricsView, setMetricsView] = useState<MetricsView>("week");
   const [metricsExpanded, setMetricsExpanded] = useState(false);
   const [expandedWorkoutDate, setExpandedWorkoutDate] = useState<string | null>(null);
+  const [workoutDetails, setWorkoutDetails] = useState<Record<string, WorkoutDetail>>({});
 
   /* ── Program/Sessions state ── */
   const [athleteProgram, setAthleteProgram] = useState<Program | null>(null);
@@ -249,6 +282,56 @@ export default function CoachAthleteViewPage() {
   };
 
   useEffect(() => { refresh(); }, [athleteId]);
+
+  /** Load full workout detail with sets for a specific date */
+  const loadWorkoutDetail = async (date: string) => {
+    if (workoutDetails[date] || !athleteId) return;
+    // Get workout for this athlete and date
+    const { data: workout } = await supabase
+      .from("workouts")
+      .select("id")
+      .eq("user_id", athleteId)
+      .eq("date", date)
+      .maybeSingle();
+    if (!workout) return;
+
+    const { data: exercises } = await supabase
+      .from("workout_exercises")
+      .select("id, exercise_name, load_type, load_g, reps, sort_order")
+      .eq("workout_id", workout.id)
+      .order("sort_order");
+
+    if (!exercises) return;
+
+    const exerciseIds = exercises.map(e => e.id);
+    const { data: sets } = exerciseIds.length > 0
+      ? await supabase
+          .from("workout_exercise_sets")
+          .select("workout_exercise_id, reps, load_type, load_g, sort_order")
+          .in("workout_exercise_id", exerciseIds)
+          .order("sort_order")
+      : { data: [] };
+
+    const setsMap = new Map<string, WorkoutDetailSet[]>();
+    (sets ?? []).forEach((s: any) => {
+      const list = setsMap.get(s.workout_exercise_id) ?? [];
+      list.push({ reps: s.reps, load_type: s.load_type, load_g: s.load_g });
+      setsMap.set(s.workout_exercise_id, list);
+    });
+
+    const detail: WorkoutDetail = {
+      date,
+      exercises: exercises.map((ex: any) => ({
+        name: ex.exercise_name,
+        load_type: ex.load_type,
+        load_g: ex.load_g,
+        reps: ex.reps,
+        sets: setsMap.get(ex.id) ?? [],
+      })),
+    };
+
+    setWorkoutDetails(prev => ({ ...prev, [date]: detail }));
+  };
 
   const stats = useMemo(() => {
     const last30 = metrics.slice(0, 30);
@@ -525,6 +608,7 @@ export default function CoachAthleteViewPage() {
               {t("coach.fullHistory")}
             </p>
           </div>
+          <CoachNotificationBell />
           <button
             onClick={() => {
               generateAthletePDF({
@@ -752,7 +836,11 @@ export default function CoachAthleteViewPage() {
                   {workoutHistory.slice(0, 15).map((w) => (
                     <div key={w.date}>
                       <button
-                        onClick={() => setExpandedWorkoutDate(expandedWorkoutDate === w.date ? null : w.date)}
+                        onClick={() => {
+                          const next = expandedWorkoutDate === w.date ? null : w.date;
+                          setExpandedWorkoutDate(next);
+                          if (next) loadWorkoutDetail(next);
+                        }}
                         className="w-full flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-muted/50 transition-colors text-left"
                       >
                         <Calendar size={14} className="text-primary shrink-0" />
@@ -774,15 +862,28 @@ export default function CoachAthleteViewPage() {
                           animate={{ opacity: 1 }}
                           className="pl-8 pr-3 pb-2 space-y-1.5"
                         >
-                          {w.exercises.map((ex, i) => (
-                            <div key={`${ex.name}-${i}`} className="flex items-center gap-2 py-1.5 border-b border-border/20 last:border-0">
-                              <span className="text-xs font-bold text-foreground flex-1 truncate">{ex.name}</span>
-                              <span className="text-[10px] font-bold text-muted-foreground">
-                                {loadDisplay(ex.load_type, ex.load_g)} {ex.load_type !== "TEXT" && ex.load_type !== "PDC" ? "kg" : ""}
-                              </span>
-                              <span className="text-[10px] font-bold text-primary">
-                                {ex.reps} reps
-                              </span>
+                          {(workoutDetails[w.date]?.exercises ?? w.exercises.map(ex => ({ ...ex, sets: [] as WorkoutDetailSet[] }))).map((ex, i) => (
+                            <div key={`${ex.name}-${i}`} className="py-1.5 border-b border-border/20 last:border-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-foreground flex-1 truncate">{ex.name}</span>
+                                <span className="text-[10px] font-bold text-muted-foreground">
+                                  {loadDisplay(ex.load_type, ex.load_g)} {ex.load_type !== "TEXT" && ex.load_type !== "PDC" ? "kg" : ""}
+                                </span>
+                                <span className="text-[10px] font-bold text-primary">
+                                  {ex.reps} reps
+                                </span>
+                              </div>
+                              {ex.sets.length > 0 && (
+                                <div className="ml-4 mt-1 space-y-0.5">
+                                  {ex.sets.map((s, si) => (
+                                    <div key={si} className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                                      <span className="font-bold w-8">Set {si + 1}</span>
+                                      <span>{loadDisplay(s.load_type, s.load_g)} {s.load_type !== "TEXT" && s.load_type !== "PDC" ? "kg" : ""}</span>
+                                      <span className="text-primary font-bold">{s.reps} reps</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           ))}
                         </motion.div>
