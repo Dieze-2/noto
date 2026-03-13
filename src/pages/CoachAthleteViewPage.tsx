@@ -15,12 +15,6 @@ import { fr } from "date-fns/locale";
 import GlassCard from "@/components/GlassCard";
 import CoachNotificationBell from "@/components/CoachNotificationBell";
 import { supabase } from "@/lib/supabaseClient";
-import { useTranslation } from "react-i18next";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
-
-import GlassCard from "@/components/GlassCard";
-import { supabase } from "@/lib/supabaseClient";
 import { getProfile, displayName, Profile } from "@/db/profiles";
 import {
   getCoachPrograms, Program, ProgramSessionWithExercises,
@@ -32,6 +26,37 @@ import CoachExerciseDashboard from "@/components/CoachExerciseDashboard";
 import { toast } from "sonner";
 import { generateAthletePDF } from "@/lib/generateAthletePDF";
 import { getCoachNote, saveCoachNote } from "@/db/coachNotes";
+
+interface DailyMetric {
+  date: string;
+  weight_g: number | null;
+  steps: number | null;
+  kcal: number | null;
+}
+
+interface WorkoutDay {
+  date: string;
+  exercises: { name: string; load_type: string; load_g: number | null; reps: number }[];
+}
+
+interface WorkoutDetailSet {
+  reps: number;
+  load_type: string;
+  load_g: number | null;
+}
+
+interface WorkoutDetailExercise {
+  name: string;
+  load_type: string;
+  load_g: number | null;
+  reps: number;
+  sets: WorkoutDetailSet[];
+}
+
+interface WorkoutDetail {
+  date: string;
+  exercises: WorkoutDetailExercise[];
+}
 
 interface DailyMetric {
   date: string;
