@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 
 import GlassCard from "@/components/GlassCard";
+import CoachNotificationBell from "@/components/CoachNotificationBell";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/lib/supabaseClient";
 import logo from "@/assets/logo.png";
