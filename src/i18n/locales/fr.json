@@ -184,7 +184,7 @@
     "sessionDeleted": "Séance supprimée",
     "overview": "Aperçu",
     "training": "Entraînements",
-    "workouts": "Séances",
+    "workouts": "Programme",
     "avgSteps": "Moy. pas",
     "avgKcal": "Moy. kcal",
     "metricsHistory": "Historique métriques",
@@ -361,12 +361,7 @@
       "name": "Club",
       "tagline": "Pour les structures",
       "extra": "+ {{price}}€/mois par athlète au-delà de 50",
-      "features": [
-        "Athlètes illimités",
-        "Tout le forfait Pro",
-        "Accompagnement dédié",
-        "Facturation personnalisée"
-      ]
+      "features": ["Athlètes illimités", "Tout le forfait Pro", "Accompagnement dédié", "Facturation personnalisée"]
     }
   },
   "notifications": {
