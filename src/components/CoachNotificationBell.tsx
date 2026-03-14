@@ -38,8 +38,15 @@ export default function CoachNotificationBell() {
     return () => clearInterval(interval);
   }, []);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-  const readCount = notifications.filter((n) => n.read).length;
+  // Filter out dismissed notifications
+  const visibleNotifications = notifications.filter((n) => !dismissedIds.has(n.id));
+
+  const unreadCount = visibleNotifications.filter((n) => !n.read).length;
+  const readCount = visibleNotifications.filter((n) => n.read).length;
+
+  const persistDismissed = (ids: Set<string>) => {
+    localStorage.setItem("dismissedNotifications", JSON.stringify([...ids]));
+  };
 
   const handleMarkAll = async () => {
     await markAllNotificationsRead();
