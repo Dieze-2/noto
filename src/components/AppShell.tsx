@@ -71,7 +71,7 @@ export default function AppShell({ children }: AppShellProps) {
       </div>
 
       {/* ── Mobile bottom nav ── */}
-      <nav className="lg:hidden fixed inset-x-0 bottom-4 z-50 mx-auto w-[92%] max-w-md items-center justify-around rounded-2xl glass px-2 flex flex-row border-none py-[24px]">
+      <nav className="lg:hidden fixed inset-x-0 bottom-4 z-50 mx-auto w-[92%] max-w-md items-center justify-around rounded-2xl glass px-2 flex flex-row border-none py-[12px]">
         {visibleItems.map((item) => {
           const active = location.pathname === item.path ||
           item.path === "/coach" && location.pathname.startsWith("/coach") ||
@@ -85,7 +85,7 @@ export default function AppShell({ children }: AppShellProps) {
                 active ? "text-primary" : "text-muted-foreground hover:text-foreground"
               )}>
               
-              <item.icon className="h-5 w-5" />
+              <item.icon className="w-5 py-0 my-0 h-[20px]" />
             </button>);
 
         })}
