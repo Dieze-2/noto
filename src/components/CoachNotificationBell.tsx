@@ -140,7 +140,7 @@ export default function CoachNotificationBell() {
                 </div>
               </div>
 
-              {notifications.length === 0 ? (
+              {visibleNotifications.length === 0 ? (
                 <div className="px-4 py-8 text-center">
                   <p className="text-xs text-muted-foreground font-bold">
                     {t("notifications.empty")}
@@ -148,7 +148,7 @@ export default function CoachNotificationBell() {
                 </div>
               ) : (
                 <div className="divide-y divide-border">
-                  {notifications.map((n) => (
+                  {visibleNotifications.map((n) => (
                     <div
                       key={n.id}
                       onClick={() => !n.read && handleMarkOne(n.id)}
