@@ -20,6 +20,12 @@ export default function CoachNotificationBell() {
   const { t } = useTranslation();
   const [notifications, setNotifications] = useState<CoachNotification[]>([]);
   const [open, setOpen] = useState(false);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("dismissedNotifications");
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
 
   const refresh = async () => {
     const data = await getCoachNotifications();
@@ -32,8 +38,15 @@ export default function CoachNotificationBell() {
     return () => clearInterval(interval);
   }, []);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-  const readCount = notifications.filter((n) => n.read).length;
+  // Filter out dismissed notifications
+  const visibleNotifications = notifications.filter((n) => !dismissedIds.has(n.id));
+
+  const unreadCount = visibleNotifications.filter((n) => !n.read).length;
+  const readCount = visibleNotifications.filter((n) => n.read).length;
+
+  const persistDismissed = (ids: Set<string>) => {
+    localStorage.setItem("dismissedNotifications", JSON.stringify([...ids]));
+  };
 
   const handleMarkAll = async () => {
     await markAllNotificationsRead();
@@ -49,13 +62,21 @@ export default function CoachNotificationBell() {
 
   const handleDeleteOne = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    // Try DB delete, but also persist locally in case RLS blocks it
     await deleteNotification(id);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    const newDismissed = new Set(dismissedIds);
+    newDismissed.add(id);
+    setDismissedIds(newDismissed);
+    persistDismissed(newDismissed);
   };
 
   const handleClearRead = async () => {
     await deleteAllReadNotifications();
-    setNotifications((prev) => prev.filter((n) => !n.read));
+    // Also dismiss locally
+    const newDismissed = new Set(dismissedIds);
+    visibleNotifications.filter((n) => n.read).forEach((n) => newDismissed.add(n.id));
+    setDismissedIds(newDismissed);
+    persistDismissed(newDismissed);
   };
 
   const lang = i18n.language?.slice(0, 2) ?? "fr";
@@ -119,7 +140,7 @@ export default function CoachNotificationBell() {
                 </div>
               </div>
 
-              {notifications.length === 0 ? (
+              {visibleNotifications.length === 0 ? (
                 <div className="px-4 py-8 text-center">
                   <p className="text-xs text-muted-foreground font-bold">
                     {t("notifications.empty")}
@@ -127,7 +148,7 @@ export default function CoachNotificationBell() {
                 </div>
               ) : (
                 <div className="divide-y divide-border">
-                  {notifications.map((n) => (
+                  {visibleNotifications.map((n) => (
                     <div
                       key={n.id}
                       onClick={() => !n.read && handleMarkOne(n.id)}

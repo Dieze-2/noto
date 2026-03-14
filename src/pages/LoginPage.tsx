@@ -10,6 +10,9 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
@@ -36,13 +39,30 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
     } else {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: siteBase },
+        options: {
+          emailRedirectTo: siteBase,
+          data: {
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            date_of_birth: birthDate || null,
+          },
+        },
       });
       if (error) setError(error.message);
-      else setError(t("login.checkEmail"));
+      else {
+        // Update profile with name + birth date
+        if (data?.user) {
+          await supabase.from("profiles").update({
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            date_of_birth: birthDate || null,
+          }).eq("id", data.user.id);
+        }
+        setError(t("login.checkEmail"));
+      }
     }
     setLoading(false);
   };
@@ -85,6 +105,42 @@ export default function LoginPage() {
                   required
                 />
               </div>
+            )}
+
+            {mode === "signup" && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.firstName")}</label>
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.lastName")}</label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.birthDate")}</label>
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                  />
+                </div>
+              </>
             )}
 
             {error && (

@@ -561,7 +561,7 @@ export default function CoachAthleteViewPage() {
         icon: Trophy,
         color: "text-[hsl(156,100%,50%)]",
         bgColor: "border-[hsl(156,100%,50%)]/30 bg-[hsl(156,100%,50%)]/10",
-        message: t("coach.alertPR", { count: prsBeatenThisWeek.length, exercise: prsBeatenThisWeek[0].name }),
+        message: t("coach.alertPR", { count: prsBeatenThisWeek.length, exercise: prsBeatenThisWeek.map(p => p.name).join(", ") }),
       });
     }
 

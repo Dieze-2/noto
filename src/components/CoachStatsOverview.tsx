@@ -5,7 +5,7 @@ import {
   Loader2, Trophy, Flame, User,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { subDays, format, differenceInCalendarWeeks, parseISO } from "date-fns";
+import { subDays, format, differenceInCalendarWeeks, parseISO, differenceInYears } from "date-fns";
 
 import GlassCard from "@/components/GlassCard";
 import { supabase } from "@/lib/supabaseClient";
@@ -89,6 +89,13 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
     const avgFrequency = perAthlete.length > 0
       ? perAthlete.reduce((s, a) => s + a.sessionsLast30, 0) / perAthlete.length / (30 / 7)
       : 0;
+
+    // Average age of athletes
+    const ages = athleteIds
+      .map((id) => profiles[id]?.date_of_birth)
+      .filter((dob): dob is string => !!dob)
+      .map((dob) => differenceInYears(new Date(), parseISO(dob)));
+    const avgAge = ages.length > 0 ? Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : null;
 
     // --- Consistency: % of athletes who trained this week ---
     const trainedThisWeek = perAthlete.filter((a) =>
@@ -187,8 +194,9 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
       bestAthlete,
       worstAthlete,
       topExercises: exerciseProgressions.slice(0, 5),
+      avgAge,
     };
-  }, [recentWorkouts, allWorkouts, acceptedAthletes.length]);
+  }, [recentWorkouts, allWorkouts, acceptedAthletes.length, profiles]);
 
   if (acceptedAthletes.length === 0) return null;
 
@@ -234,11 +242,11 @@ export default function CoachStatsOverview({ athletes, profiles }: Props) {
 
         <GlassCard className="p-4 rounded-2xl text-center">
           <div className="flex items-center justify-center gap-1 mb-1">
-            <Calendar size={14} className="text-primary" />
+            <Users size={14} className="text-primary" />
           </div>
-          <div className="text-2xl font-black text-foreground">{stats.totalSessions}</div>
+          <div className="text-2xl font-black text-foreground">{stats.avgAge !== null ? `${stats.avgAge} ${t("coachStats.years")}` : "—"}</div>
           <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            {t("coachStats.totalSessions30d")}
+            {t("coachStats.avgAge")}
           </div>
         </GlassCard>
 

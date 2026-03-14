@@ -86,7 +86,6 @@ export default function AppShell({ children }: AppShellProps) {
               )}
             >
               <item.icon className="h-5 w-5" />
-              <span className="text-noto-label text-[10px]">{t(`nav.${item.key}`)}</span>
             </button>
           );
         })}
