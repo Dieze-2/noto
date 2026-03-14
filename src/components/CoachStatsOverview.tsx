@@ -5,7 +5,7 @@ import {
   Loader2, Trophy, Flame, User,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { subDays, format, differenceInCalendarWeeks, parseISO } from "date-fns";
+import { subDays, format, differenceInCalendarWeeks, parseISO, differenceInYears } from "date-fns";
 
 import GlassCard from "@/components/GlassCard";
 import { supabase } from "@/lib/supabaseClient";
