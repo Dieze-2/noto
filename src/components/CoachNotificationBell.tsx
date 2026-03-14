@@ -62,13 +62,21 @@ export default function CoachNotificationBell() {
 
   const handleDeleteOne = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    // Try DB delete, but also persist locally in case RLS blocks it
     await deleteNotification(id);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    const newDismissed = new Set(dismissedIds);
+    newDismissed.add(id);
+    setDismissedIds(newDismissed);
+    persistDismissed(newDismissed);
   };
 
   const handleClearRead = async () => {
     await deleteAllReadNotifications();
-    setNotifications((prev) => prev.filter((n) => !n.read));
+    // Also dismiss locally
+    const newDismissed = new Set(dismissedIds);
+    visibleNotifications.filter((n) => n.read).forEach((n) => newDismissed.add(n.id));
+    setDismissedIds(newDismissed);
+    persistDismissed(newDismissed);
   };
 
   const lang = i18n.language?.slice(0, 2) ?? "fr";
