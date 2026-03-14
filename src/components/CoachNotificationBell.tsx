@@ -20,6 +20,12 @@ export default function CoachNotificationBell() {
   const { t } = useTranslation();
   const [notifications, setNotifications] = useState<CoachNotification[]>([]);
   const [open, setOpen] = useState(false);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("dismissedNotifications");
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
 
   const refresh = async () => {
     const data = await getCoachNotifications();
