@@ -25,13 +25,7 @@ export function ChartExpandButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-export default function ChartFullscreen({
-  open,
-  onClose,
-  title,
-  options,
-  data,
-}: ChartFullscreenProps) {
+export default function ChartFullscreen({ open, onClose, title, options, data }: ChartFullscreenProps) {
   // Track orientation to force re-key the chart
   const [orientationKey, setOrientationKey] = useState(0);
 
@@ -89,9 +83,7 @@ export default function ChartFullscreen({
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-black uppercase tracking-wide text-foreground">
-                {title}
-              </h2>
+              <h2 className="text-lg font-black uppercase tracking-wide text-foreground">{title}</h2>
               <button
                 type="button"
                 onClick={onClose}
@@ -103,18 +95,10 @@ export default function ChartFullscreen({
 
             {/* Chart area – fills remaining space */}
             <div className="flex-1 min-h-0">
-              <UPlotChart
-                key={orientationKey}
-                options={fullOpts}
-                data={data}
-                className="w-full h-full"
-              />
+              <UPlotChart key={orientationKey} options={fullOpts} data={data} className="w-full h-full" />
             </div>
 
             {/* Hint */}
-            <p className="text-center text-[10px] text-muted-foreground mt-3 font-bold uppercase tracking-widest">
-              Tournez l'écran pour le mode paysage
-            </p>
           </motion.div>
         </>
       )}
