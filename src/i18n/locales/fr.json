@@ -284,7 +284,10 @@
     "backToLogin": "Retour à la connexion",
     "newPasswordLabel": "Choisis ton nouveau mot de passe",
     "passwordResetSuccess": "Mot de passe modifié ! Redirection…",
-    "invalidResetLink": "Lien de réinitialisation invalide ou expiré."
+    "invalidResetLink": "Lien de réinitialisation invalide ou expiré.",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "birthDate": "Date de naissance"
   },
   "notFound": {
     "title": "404",

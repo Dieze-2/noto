@@ -266,7 +266,10 @@
     "backToLogin": "Back to login",
     "newPasswordLabel": "Choose your new password",
     "passwordResetSuccess": "Password changed! Redirecting…",
-    "invalidResetLink": "Invalid or expired reset link."
+    "invalidResetLink": "Invalid or expired reset link.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "birthDate": "Date of birth"
   },
   "notFound": {
     "title": "404",

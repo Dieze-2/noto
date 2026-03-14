@@ -240,7 +240,10 @@
     "backToLogin": "Volver al inicio de sesión",
     "newPasswordLabel": "Elige tu nueva contraseña",
     "passwordResetSuccess": "¡Contraseña cambiada! Redirigiendo…",
-    "invalidResetLink": "Enlace de restablecimiento inválido o expirado."
+    "invalidResetLink": "Enlace de restablecimiento inválido o expirado.",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "birthDate": "Fecha de nacimiento"
   },
   "notFound": {
     "title": "404",
