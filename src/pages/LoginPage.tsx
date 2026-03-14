@@ -107,6 +107,42 @@ export default function LoginPage() {
               </div>
             )}
 
+            {mode === "signup" && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.firstName")}</label>
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.lastName")}</label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-noto-label text-muted-foreground mb-1 block">{t("login.birthDate")}</label>
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full rounded-lg bg-muted/50 px-3 py-2.5 text-foreground outline-none ring-1 ring-border focus:ring-primary transition-all"
+                  />
+                </div>
+              </>
+            )}
+
             {error && (
               <p className={`text-sm ${mode === "forgot" && error === t("login.resetEmailSent") ? "text-foreground" : "text-destructive"}`}>{error}</p>
             )}
