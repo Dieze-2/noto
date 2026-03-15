@@ -67,7 +67,7 @@ export default function AppShell({ children }: AppShellProps) {
 
       <div className="flex-1 flex flex-col lg:ml-20">
         <InvitationBanner />
-        <main className="flex-1 overflow-y-auto pb-24 lg:pb-8 bg-secondary">{children}</main>
+        <main className="flex-1 overflow-y-auto pb-24 lg:pb-8">{children}</main>
       </div>
 
       {/* ── Mobile bottom nav ── */}

@@ -15,8 +15,8 @@ import { getDailyMetricsRange, getFirstWeightDate, DailyMetrics } from "@/db/dai
 import {
   listTrackedExercises,
   getFirstExerciseDate,
-  getExerciseMasterHistory } from
-"@/db/workouts";
+  getExerciseMasterHistory,
+} from "@/db/workouts";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /* ── Types ── */
@@ -47,36 +47,36 @@ function buildWeightOpts(height: number): uPlot.Options {
     cursor: { show: true, drag: { x: false, y: false } },
     scales: {
       x: { time: true },
-      y: { auto: true }
+      y: { auto: true },
     },
     axes: [
-    {
-      stroke: "hsl(0,0%,95%)",
-      grid: { stroke: "hsla(220,6%,55%,0.25)", width: 1 },
-      ticks: { stroke: "hsla(220,6%,55%,0.3)", width: 1 },
-      font: "12px Inter",
-      values: (_u: uPlot, vals: number[]) =>
-      vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: getDateLocale() }))
-    },
-    {
-      stroke: "hsl(0,0%,95%)",
-      grid: { stroke: "hsla(220,6%,55%,0.25)", width: 1 },
-      ticks: { stroke: "hsla(220,6%,55%,0.3)", width: 1 },
-      font: "12px Inter",
-      values: (_u: uPlot, vals: number[]) => vals.map((v) => v.toFixed(1)),
-      size: 50
-    }],
-
+      {
+        stroke: "hsl(0,0%,95%)",
+        grid: { stroke: "hsla(220,6%,55%,0.25)", width: 1 },
+        ticks: { stroke: "hsla(220,6%,55%,0.3)", width: 1 },
+        font: "12px Inter",
+        values: (_u: uPlot, vals: number[]) =>
+          vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: getDateLocale() })),
+      },
+      {
+        stroke: "hsl(0,0%,95%)",
+        grid: { stroke: "hsla(220,6%,55%,0.25)", width: 1 },
+        ticks: { stroke: "hsla(220,6%,55%,0.3)", width: 1 },
+        font: "12px Inter",
+        values: (_u: uPlot, vals: number[]) => vals.map((v) => v.toFixed(1)),
+        size: 50,
+      },
+    ],
     series: [
-    {},
-    {
-      label: "Poids (kg)",
-      stroke: "hsl(270,60%,65%)",
-      width: 2,
-      fill: "hsla(270,60%,65%,0.08)",
-      points: { size: 4, fill: "hsl(270,60%,65%)" }
-    }]
-
+      {},
+      {
+        label: "Poids (kg)",
+        stroke: "hsl(270,60%,65%)",
+        width: 2,
+        fill: "hsla(270,60%,65%,0.08)",
+        points: { size: 4, fill: "hsl(270,60%,65%)" },
+      },
+    ],
   };
 }
 
@@ -87,54 +87,54 @@ function buildExerciseOpts(height: number): uPlot.Options {
     cursor: { show: true, drag: { x: false, y: false } },
     scales: {
       x: { time: true },
-      y: { auto: true }
+      y: { auto: true },
     },
     axes: [
-    {
-      stroke: "hsl(0,0%,95%)",
-      grid: { stroke: "hsla(220,6%,55%,0.25)", width: 1 },
-      ticks: { stroke: "hsla(220,6%,55%,0.3)", width: 1 },
-      font: "12px Inter",
-      values: (_u: uPlot, vals: number[]) =>
-      vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: getDateLocale() }))
-    },
-    {
-      stroke: "hsl(0,0%,95%)",
-      grid: { stroke: "hsla(220,6%,55%,0.25)", width: 1 },
-      ticks: { stroke: "hsla(220,6%,55%,0.3)", width: 1 },
-      font: "12px Inter",
-      values: (_u: uPlot, vals: number[]) => vals.map((v) => v.toFixed(1)),
-      size: 50
-    }],
-
+      {
+        stroke: "hsl(0,0%,95%)",
+        grid: { stroke: "hsla(220,6%,55%,0.25)", width: 1 },
+        ticks: { stroke: "hsla(220,6%,55%,0.3)", width: 1 },
+        font: "12px Inter",
+        values: (_u: uPlot, vals: number[]) =>
+          vals.map((v) => format(new Date(v * 1000), "d MMM", { locale: getDateLocale() })),
+      },
+      {
+        stroke: "hsl(0,0%,95%)",
+        grid: { stroke: "hsla(220,6%,55%,0.25)", width: 1 },
+        ticks: { stroke: "hsla(220,6%,55%,0.3)", width: 1 },
+        font: "12px Inter",
+        values: (_u: uPlot, vals: number[]) => vals.map((v) => v.toFixed(1)),
+        size: 50,
+      },
+    ],
     series: [
-    {},
-    {
-      label: "e1RM (kg)",
-      stroke: "hsl(156,100%,50%)",
-      width: 2,
-      fill: "hsla(156,100%,50%,0.08)",
-      points: { size: 4, fill: "hsl(156,100%,50%)" }
-    },
-    {
-      label: "Charge (kg)",
-      stroke: "hsl(36,100%,55%)",
-      width: 1.5,
-      dash: [6, 4],
-      points: { size: 3, fill: "hsl(36,100%,55%)" }
-    }]
-
+      {},
+      {
+        label: "e1RM (kg)",
+        stroke: "hsl(156,100%,50%)",
+        width: 2,
+        fill: "hsla(156,100%,50%,0.08)",
+        points: { size: 4, fill: "hsl(156,100%,50%)" },
+      },
+      {
+        label: "Charge (kg)",
+        stroke: "hsl(36,100%,55%)",
+        width: 1.5,
+        dash: [6, 4],
+        points: { size: 3, fill: "hsl(36,100%,55%)" },
+      },
+    ],
   };
 }
 
 /* ── Main Component ── */
 export default function DashboardPage() {
   const { t } = useTranslation();
-  const RANGE_LABELS: {key: RangeKey;label: string;}[] = [
-  { key: "3M", label: t("dashboard.range3M") },
-  { key: "6M", label: t("dashboard.range6M") },
-  { key: "ALL", label: t("dashboard.rangeAll") }];
-
+  const RANGE_LABELS: { key: RangeKey; label: string }[] = [
+    { key: "3M", label: t("dashboard.range3M") },
+    { key: "6M", label: t("dashboard.range6M") },
+    { key: "ALL", label: t("dashboard.rangeAll") },
+  ];
   /* Weight state */
   const [weightRange, setWeightRange] = useState<RangeKey>("3M");
   const [weightData, setWeightData] = useState<DailyMetrics[]>([]);
@@ -246,7 +246,7 @@ export default function DashboardPage() {
     const first = (weightData[0].weight_g ?? 0) / 1000;
     const last = (weightData[weightData.length - 1].weight_g ?? 0) / 1000;
     const diff = last - first;
-    const pct = first > 0 ? diff / first * 100 : 0;
+    const pct = first > 0 ? (diff / first) * 100 : 0;
     return { first, last, diff, pct };
   }, [weightData]);
 
@@ -270,7 +270,7 @@ export default function DashboardPage() {
     const maxE1RM = Math.max(...e1rms);
     const firstE1RM = e1rms[0];
     const lastE1RM = e1rms[e1rms.length - 1];
-    const progression = firstE1RM > 0 ? (lastE1RM - firstE1RM) / firstE1RM * 100 : null;
+    const progression = firstE1RM > 0 ? ((lastE1RM - firstE1RM) / firstE1RM) * 100 : null;
 
     const maxTotal = Math.max(...loads);
 
@@ -278,7 +278,7 @@ export default function DashboardPage() {
   }, [exData, allWeightData]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8 bg-secondary">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-noto-title text-3xl text-primary text-center mb-6">{t("dashboard.title")}</h1>
 
@@ -291,52 +291,52 @@ export default function DashboardPage() {
               <ChartExpandButton onClick={() => setFullscreenChart("weight")} />
             </div>
             <div className="flex gap-1">
-              {RANGE_LABELS.map(({ key, label }) =>
-              <button
-                key={key}
-                onClick={() => setWeightRange(key)}
-                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                weightRange === key ?
-                "bg-primary text-primary-foreground" :
-                "bg-muted text-muted-foreground hover:text-foreground"}`
-                }>
-                
+              {RANGE_LABELS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setWeightRange(key)}
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                    weightRange === key
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
                   {label}
                 </button>
-              )}
+              ))}
             </div>
           </div>
 
           {/* Stats row */}
-          {weightStats &&
-          <div className="flex items-center gap-3 mb-3">
+          {weightStats && (
+            <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl font-black text-foreground">
                 {weightStats.last.toFixed(1)}
                 <span className="text-sm text-muted-foreground ml-1">kg</span>
               </span>
               <span
-              className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              weightStats.diff > 0 ?
-              "bg-destructive/10 text-destructive" :
-              "bg-primary/10 text-primary"}`
-              }>
-              
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  weightStats.diff > 0
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-primary/10 text-primary"
+                }`}
+              >
                 {weightStats.diff > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                 {weightStats.diff > 0 ? "+" : ""}
                 {weightStats.pct.toFixed(1)}%
               </span>
             </div>
-          }
+          )}
 
-          {loadingWeight ?
-          <Skeleton className="h-[220px] w-full rounded-2xl" /> :
-          weightData.length < 2 ?
-          <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
+          {loadingWeight ? (
+            <Skeleton className="h-[220px] w-full rounded-2xl" />
+          ) : weightData.length < 2 ? (
+            <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
               {t("dashboard.notEnoughData")}
-            </div> :
-
-          <UPlotChart options={weightOpts} data={weightChartData} />
-          }
+            </div>
+          ) : (
+            <UPlotChart options={weightOpts} data={weightChartData} />
+          )}
         </GlassCard>
 
         {/* ── EXERCISE CHART ── */}
@@ -348,52 +348,52 @@ export default function DashboardPage() {
               <ChartExpandButton onClick={() => setFullscreenChart("exercise")} />
             </div>
             <div className="flex gap-1">
-              {RANGE_LABELS.map(({ key, label }) =>
-              <button
-                key={key}
-                onClick={() => setExRange(key)}
-                className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                exRange === key ?
-                "bg-primary text-primary-foreground" :
-                "bg-muted text-muted-foreground hover:text-foreground"}`
-                }>
-                
+              {RANGE_LABELS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setExRange(key)}
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                    exRange === key
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
                   {label}
                 </button>
-              )}
+              ))}
             </div>
           </div>
 
           {/* Exercise selector — bottom sheet */}
-          {exercises.length > 0 &&
-          <div className="mb-3">
+          {exercises.length > 0 && (
+            <div className="mb-3">
               <ExercisePickerSheet
-              exercises={exercises}
-              selected={selectedExercise}
-              onSelect={setSelectedExercise} />
-            
+                exercises={exercises}
+                selected={selectedExercise}
+                onSelect={setSelectedExercise}
+              />
             </div>
-          }
+          )}
 
 
 
-          {loadingEx && exercises.length === 0 ?
-          <Skeleton className="h-[220px] w-full rounded-2xl" /> :
-          exercises.length === 0 ?
-          <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
+          {loadingEx && exercises.length === 0 ? (
+            <Skeleton className="h-[220px] w-full rounded-2xl" />
+          ) : exercises.length === 0 ? (
+            <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
               {t("dashboard.noExercise")}
-            </div> :
-          exData.length < 2 ?
-          <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
+            </div>
+          ) : exData.length < 2 ? (
+            <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
               {t("dashboard.notEnoughDataFor", { name: selectedExercise })}
-            </div> :
-
-          <UPlotChart options={exOpts} data={exChartData} />
-          }
+            </div>
+          ) : (
+            <UPlotChart options={exOpts} data={exChartData} />
+          )}
 
           {/* Exercise stats summary */}
-          {exStats &&
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          {exStats && (
+            <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="bg-muted rounded-xl p-3 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                   {t("dashboard.e1rmMax")}
@@ -418,21 +418,21 @@ export default function DashboardPage() {
                   </TooltipProvider>
                 </div>
                 {(() => {
-                const prog = exStats.progression;
-                if (prog === null) return <p className="text-lg font-black text-muted-foreground">—</p>;
-                return (
-                  <p className={`text-lg font-black ${prog >= 0 ? "text-primary" : "text-destructive"}`}>
+                  const prog = exStats.progression;
+                  if (prog === null) return <p className="text-lg font-black text-muted-foreground">—</p>;
+                  return (
+                    <p className={`text-lg font-black ${prog >= 0 ? "text-primary" : "text-destructive"}`}>
                       {prog > 0 ? "+" : ""}{prog.toFixed(0)}<span className="text-xs">%</span>
-                    </p>);
-
-              })()}
+                    </p>
+                  );
+                })()}
               </div>
               <div className="bg-muted rounded-xl p-3 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">{t("dashboard.sessions")}</p>
                 <p className="text-lg font-black text-foreground">{exStats.sessions}</p>
               </div>
             </div>
-          }
+          )}
         </GlassCard>
         {/* Fullscreen overlays */}
         <ChartFullscreen
@@ -440,16 +440,16 @@ export default function DashboardPage() {
           onClose={() => setFullscreenChart(null)}
           title={t("dashboard.weight")}
           options={weightOpts}
-          data={weightChartData} />
-        
+          data={weightChartData}
+        />
         <ChartFullscreen
           open={fullscreenChart === "exercise"}
           onClose={() => setFullscreenChart(null)}
           title={selectedExercise || "Exercice"}
           options={exOpts}
-          data={exChartData} />
-        
+          data={exChartData}
+        />
       </motion.div>
-    </div>);
-
+    </div>
+  );
 }
