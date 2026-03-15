@@ -13,8 +13,8 @@ import { getProfile, displayName } from "@/db/profiles";
 import { getAdminStats, AdminStats, CoachRow } from "@/db/adminStats";
 import { supabase } from "@/lib/supabaseClient";
 import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-} from "@/components/ui/table";
+  Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from
+"@/components/ui/table";
 
 interface EnrichedCancellation {
   coach_id: string;
@@ -36,9 +36,9 @@ export default function AdminDashboardPage() {
   const fetchData = async () => {
     setLoading(true);
     const [pendingCancels, adminStats] = await Promise.all([
-      getPendingCancellations(),
-      getAdminStats(),
-    ]);
+    getPendingCancellations(),
+    getAdminStats()]
+    );
 
     const enrichedCancels = await Promise.all(
       pendingCancels.map(async (c) => {
@@ -66,7 +66,7 @@ export default function AdminDashboardPage() {
         coach_id: coachId,
         type: "cancellation_approved",
         athlete_email: name,
-        athlete_id: coachId,
+        athlete_id: coachId
       });
       toast.success(t("admin.cancellationApproved"));
       setCancellations((prev) => prev.filter((c) => c.coach_id !== coachId));
@@ -81,8 +81,8 @@ export default function AdminDashboardPage() {
     if (!trialEmail.trim()) return;
     setGrantingTrial(true);
     try {
-      const { data: userId } = await supabase
-        .rpc("get_user_id_by_email", { email_input: trialEmail.trim().toLowerCase() });
+      const { data: userId } = await supabase.
+      rpc("get_user_id_by_email", { email_input: trialEmail.trim().toLowerCase() });
 
       if (!userId) {
         toast.error(t("admin.userNotFound"));
@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const getCoachStatus = (c: CoachRow): { label: string; className: string } => {
+  const getCoachStatus = (c: CoachRow): {label: string;className: string;} => {
     const now = new Date();
     if (c.pending_cancellation) {
       return { label: t("admin.pendingCancel"), className: "bg-destructive/10 text-destructive" };
@@ -109,7 +109,7 @@ export default function AdminDashboardPage() {
     if (c.cancel_at) {
       return {
         label: t("admin.cancelScheduled", { date: format(new Date(c.cancel_at), "dd/MM", { locale: fr }) }),
-        className: "bg-destructive/10 text-destructive",
+        className: "bg-destructive/10 text-destructive"
       };
     }
     if (c.trial_end) {
@@ -129,8 +129,8 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex min-h-[50dvh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (!isAdmin) {
@@ -138,12 +138,12 @@ export default function AdminDashboardPage() {
       <div className="mx-auto max-w-lg px-4 pt-20 text-center space-y-4">
         <Shield size={48} className="mx-auto text-muted-foreground/40" />
         <p className="text-sm font-bold text-muted-foreground">{t("admin.notAdmin")}</p>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pt-6 pb-32 lg:pb-8">
+    <div className="mx-auto max-w-4xl px-4 pt-6 pb-32 lg:pb-8 bg-primary-foreground">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -155,12 +155,12 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Stats Overview */}
-        {loading ? (
-          <div className="flex justify-center py-12">
+        {loading ?
+        <div className="flex justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : stats && (
-          <>
+          </div> :
+        stats &&
+        <>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <BarChart3 size={16} className="text-primary" />
@@ -179,12 +179,12 @@ export default function AdminDashboardPage() {
                 </GlassCard>
                 <GlassCard className="p-4 rounded-2xl text-center col-span-2">
                   <div className="flex items-center justify-center gap-4">
-                    {(["classic", "pro", "club"] as CoachPlan[]).map((plan) => (
-                      <div key={plan} className="text-center">
+                    {(["classic", "pro", "club"] as CoachPlan[]).map((plan) =>
+                  <div key={plan} className="text-center">
                         <div className="text-lg font-black text-foreground">{stats.planBreakdown[plan]}</div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase">{PLAN_CONFIG[plan].label}</div>
                       </div>
-                    ))}
+                  )}
                   </div>
                   <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-1">{t("admin.planBreakdown")}</div>
                 </GlassCard>
@@ -192,8 +192,8 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Expiring Trials */}
-            {stats.expiringTrials.length > 0 && (
-              <div className="space-y-3">
+            {stats.expiringTrials.length > 0 &&
+          <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <AlertTriangle size={16} className="text-orange-500" />
                   <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
@@ -204,8 +204,8 @@ export default function AdminDashboardPage() {
                   </span>
                 </div>
                 <div className="space-y-2">
-                  {stats.expiringTrials.map((c) => (
-                    <GlassCard key={c.coach_id} className="p-3 rounded-2xl">
+                  {stats.expiringTrials.map((c) =>
+              <GlassCard key={c.coach_id} className="p-3 rounded-2xl">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 font-black text-xs">
                           {c.profileName.charAt(0).toUpperCase()}
@@ -219,10 +219,10 @@ export default function AdminDashboardPage() {
                         <Clock size={14} className="text-orange-500" />
                       </div>
                     </GlassCard>
-                  ))}
+              )}
                 </div>
               </div>
-            )}
+          }
 
             {/* Coaches Table */}
             <div className="space-y-3">
@@ -232,12 +232,12 @@ export default function AdminDashboardPage() {
                   {t("admin.coachList")}
                 </h2>
               </div>
-              {stats.coaches.length === 0 ? (
-                <GlassCard className="p-8 rounded-2xl text-center">
+              {stats.coaches.length === 0 ?
+            <GlassCard className="p-8 rounded-2xl text-center">
                   <p className="text-sm font-bold text-muted-foreground">{t("admin.noCoaches")}</p>
-                </GlassCard>
-              ) : (
-                <GlassCard className="rounded-2xl overflow-hidden">
+                </GlassCard> :
+
+            <GlassCard className="rounded-2xl overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -249,9 +249,9 @@ export default function AdminDashboardPage() {
                     </TableHeader>
                     <TableBody>
                       {stats.coaches.map((c) => {
-                        const status = getCoachStatus(c);
-                        return (
-                          <TableRow key={c.coach_id}>
+                    const status = getCoachStatus(c);
+                    return (
+                      <TableRow key={c.coach_id}>
                             <TableCell className="font-bold text-sm">{c.profileName}</TableCell>
                             <TableCell>
                               <span className="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-lg bg-primary/5 text-primary">
@@ -264,16 +264,16 @@ export default function AdminDashboardPage() {
                                 {status.label}
                               </span>
                             </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                          </TableRow>);
+
+                  })}
                     </TableBody>
                   </Table>
                 </GlassCard>
-              )}
+            }
             </div>
           </>
-        )}
+        }
 
         {/* Cancellation Requests */}
         <div className="space-y-3">
@@ -282,25 +282,25 @@ export default function AdminDashboardPage() {
             <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
               {t("admin.cancellationRequests")}
             </h2>
-            {cancellations.length > 0 && (
-              <span className="text-[10px] font-bold bg-destructive text-destructive-foreground px-2 py-0.5 rounded-full">
+            {cancellations.length > 0 &&
+            <span className="text-[10px] font-bold bg-destructive text-destructive-foreground px-2 py-0.5 rounded-full">
                 {cancellations.length}
               </span>
-            )}
+            }
           </div>
 
-          {loading ? (
-            <div className="flex justify-center py-12">
+          {loading ?
+          <div className="flex justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            </div>
-          ) : cancellations.length === 0 ? (
-            <GlassCard className="p-8 rounded-2xl text-center">
+            </div> :
+          cancellations.length === 0 ?
+          <GlassCard className="p-8 rounded-2xl text-center">
               <p className="text-sm font-bold text-muted-foreground">{t("admin.noCancellations", "Aucune demande de résiliation en attente")}</p>
-            </GlassCard>
-          ) : (
-            <div className="space-y-3">
-              {cancellations.map((c, i) => (
-                <motion.div key={c.coach_id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+            </GlassCard> :
+
+          <div className="space-y-3">
+              {cancellations.map((c, i) =>
+            <motion.div key={c.coach_id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                   <GlassCard className="p-4 rounded-2xl">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive font-black text-sm">
@@ -313,16 +313,16 @@ export default function AdminDashboardPage() {
                         </p>
                       </div>
                       <button onClick={() => handleApproveCancellation(c.coach_id)} disabled={!!actionId}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-destructive/10 text-destructive text-[10px] font-black uppercase tracking-wider hover:bg-destructive/20 transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-destructive/10 text-destructive text-[10px] font-black uppercase tracking-wider hover:bg-destructive/20 transition-colors disabled:opacity-50">
                         {actionId === c.coach_id ? <Loader2 size={12} className="animate-spin" /> : <UserCheck size={12} />}
                         {t("admin.approveCancellation")}
                       </button>
                     </div>
                   </GlassCard>
                 </motion.div>
-              ))}
+            )}
             </div>
-          )}
+          }
         </div>
 
         {/* Grant Trial */}
@@ -337,10 +337,10 @@ export default function AdminDashboardPage() {
             <p className="text-[10px] text-muted-foreground font-bold mb-3">{t("admin.grantTrialDesc")}</p>
             <div className="flex gap-2">
               <input type="email" value={trialEmail} onChange={(e) => setTrialEmail(e.target.value)}
-                placeholder={t("admin.trialEmailPlaceholder")}
-                className="flex-1 glass rounded-xl px-4 py-2.5 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40" />
+              placeholder={t("admin.trialEmailPlaceholder")}
+              className="flex-1 glass rounded-xl px-4 py-2.5 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40" />
               <button onClick={handleGrantTrial} disabled={grantingTrial || !trialEmail.trim()}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50">
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50">
                 {grantingTrial ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
                 {t("admin.startTrial")}
               </button>
@@ -348,6 +348,6 @@ export default function AdminDashboardPage() {
           </GlassCard>
         </div>
       </motion.div>
-    </div>
-  );
+    </div>);
+
 }
