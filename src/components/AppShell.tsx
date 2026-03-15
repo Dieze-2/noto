@@ -7,8 +7,8 @@ import {
   Settings,
   Users,
   ClipboardList,
-  Shield,
-} from "lucide-react";
+  Shield } from
+"lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,15 +24,15 @@ interface NavItem {
 }
 
 const NAV_ICONS: NavItem[] = [
-  { path: "/", key: "today", icon: Dumbbell },
-  { path: "/week", key: "week", icon: CalendarDays },
-  { path: "/dashboard", key: "stats", icon: LayoutDashboard },
-  { path: "/program", key: "program", icon: ClipboardList },
-  { path: "/coach", key: "coach", icon: Users, coachOnly: true },
-  { path: "/admin", key: "admin", icon: Shield, adminOnly: true },
-  { path: "/catalog", key: "exercises", icon: BookOpen },
-  { path: "/settings", key: "settings", icon: Settings },
-];
+{ path: "/", key: "today", icon: Dumbbell },
+{ path: "/week", key: "week", icon: CalendarDays },
+{ path: "/dashboard", key: "stats", icon: LayoutDashboard },
+{ path: "/program", key: "program", icon: ClipboardList },
+{ path: "/coach", key: "coach", icon: Users, coachOnly: true },
+{ path: "/admin", key: "admin", icon: Shield, adminOnly: true },
+{ path: "/catalog", key: "exercises", icon: BookOpen },
+{ path: "/settings", key: "settings", icon: Settings }];
+
 
 interface AppShellProps {
   children: ReactNode;
@@ -56,51 +56,51 @@ export default function AppShell({ children }: AppShellProps) {
       <nav className="hidden lg:flex fixed inset-y-0 left-0 z-50 w-20 flex-col items-center gap-2 pt-6 pb-4 border-r border-border bg-background/80 backdrop-blur-xl">
         {visibleItems.map((item) => {
           const active =
-            location.pathname === item.path ||
-            (item.path === "/coach" && location.pathname.startsWith("/coach")) ||
-            (item.path === "/program" && location.pathname.startsWith("/program"));
+          location.pathname === item.path ||
+          item.path === "/coach" && location.pathname.startsWith("/coach") ||
+          item.path === "/program" && location.pathname.startsWith("/program");
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
               className={cn(
                 "flex flex-col items-center gap-0.5 text-xs transition-colors w-full py-3 rounded-xl",
-                active ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-              )}
-            >
+                active ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              )}>
+              
               <item.icon className="h-5 w-5" />
               <span className="text-noto-label text-[10px]">{t(`nav.${item.key}`)}</span>
-            </button>
-          );
+            </button>);
+
         })}
       </nav>
 
       <div className="flex-1 flex flex-col lg:ml-20">
         <InvitationBanner />
-        <main className="flex-1 overflow-y-auto pb-24 lg:pb-8 bg-secondary">{children}</main>
+        <main className="flex-1 overflow-y-auto pb-24 lg:pb-8 bg-primary-foreground">{children}</main>
       </div>
 
       {/* ── Mobile bottom nav ── */}
       <nav className="lg:hidden fixed inset-x-0 bottom-4 z-50 mx-auto w-[92%] max-w-md items-center justify-around rounded-2xl glass px-2 flex flex-row border-none py-[24px]">
         {visibleItems.map((item) => {
           const active =
-            location.pathname === item.path ||
-            (item.path === "/coach" && location.pathname.startsWith("/coach")) ||
-            (item.path === "/program" && location.pathname.startsWith("/program"));
+          location.pathname === item.path ||
+          item.path === "/coach" && location.pathname.startsWith("/coach") ||
+          item.path === "/program" && location.pathname.startsWith("/program");
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
               className={cn(
                 "flex flex-col items-center gap-0.5 text-xs transition-colors",
-                active ? "text-primary" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
+                active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}>
+              
               <item.icon className="w-6 h-6 py-0 my-0 h-[20px]" />
-            </button>
-          );
+            </button>);
+
         })}
       </nav>
-    </div>
-  );
+    </div>);
+
 }
