@@ -6,8 +6,8 @@ import {
   TrendingUp, TrendingDown, Minus, Dumbbell,
   ClipboardList, Plus, ChevronRight, ChevronDown, ChevronUp,
   Calendar, Trash2, CheckCircle2, AlertTriangle, Trophy, Moon,
-  FileDown, StickyNote, Save,
-} from "lucide-react";
+  FileDown, StickyNote, Save } from
+"lucide-react";
 import { useTranslation } from "react-i18next";
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -19,8 +19,8 @@ import { getProfile, displayName, Profile } from "@/db/profiles";
 import {
   getCoachPrograms, Program, ProgramSessionWithExercises,
   createProgram, deleteProgram, createSession, deleteSession,
-  getProgramSessions,
-} from "@/db/programs";
+  getProgramSessions } from
+"@/db/programs";
 import ProgramEditor from "@/components/ProgramEditor";
 import CoachExerciseDashboard from "@/components/CoachExerciseDashboard";
 import { toast } from "sonner";
@@ -36,7 +36,7 @@ interface DailyMetric {
 
 interface WorkoutDay {
   date: string;
-  exercises: { name: string; load_type: string; load_g: number | null; reps: number }[];
+  exercises: {name: string;load_type: string;load_g: number | null;reps: number;}[];
 }
 
 interface WorkoutDetailSet {
@@ -67,7 +67,7 @@ interface DailyMetric {
 
 interface WorkoutDay {
   date: string;
-  exercises: { name: string; load_type: string; load_g: number | null; reps: number }[];
+  exercises: {name: string;load_type: string;load_g: number | null;reps: number;}[];
 }
 
 type Tab = "overview" | "training" | "sessions";
@@ -99,7 +99,7 @@ function computeWeeklyRows(metrics: DailyMetric[], workouts: WorkoutDay[]): Week
   const sorted = [...metrics].sort((a, b) => a.date.localeCompare(b.date));
   const firstDate = parseISO(sorted[0].date);
   const lastDate = parseISO(sorted[sorted.length - 1].date);
-  const workoutDates = new Set(workouts.map(w => w.date));
+  const workoutDates = new Set(workouts.map((w) => w.date));
   const rows: WeeklyRow[] = [];
   let weekStart = startOfWeek(firstDate, { weekStartsOn: 1 });
 
@@ -107,11 +107,11 @@ function computeWeeklyRows(metrics: DailyMetric[], workouts: WorkoutDay[]): Week
     const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
     const from = format(weekStart, "yyyy-MM-dd");
     const to = format(weekEnd, "yyyy-MM-dd");
-    const days = sorted.filter(m => m.date >= from && m.date <= to);
+    const days = sorted.filter((m) => m.date >= from && m.date <= to);
     if (days.length > 0) {
-      const weights = days.filter(d => d.weight_g != null).map(d => d.weight_g! / 1000);
-      const steps = days.filter(d => d.steps != null).map(d => d.steps!);
-      const kcals = days.filter(d => d.kcal != null).map(d => d.kcal!);
+      const weights = days.filter((d) => d.weight_g != null).map((d) => d.weight_g! / 1000);
+      const steps = days.filter((d) => d.steps != null).map((d) => d.steps!);
+      const kcals = days.filter((d) => d.kcal != null).map((d) => d.kcal!);
       const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
       let sessCount = 0;
       let d = new Date(weekStart);
@@ -125,7 +125,7 @@ function computeWeeklyRows(metrics: DailyMetric[], workouts: WorkoutDay[]): Week
   }
   for (let i = 1; i < rows.length; i++) {
     if (rows[i].avgWeight != null && rows[i - 1].avgWeight != null) {
-      rows[i].weightVariation = ((rows[i].avgWeight! - rows[i - 1].avgWeight!) / rows[i - 1].avgWeight!) * 100;
+      rows[i].weightVariation = (rows[i].avgWeight! - rows[i - 1].avgWeight!) / rows[i - 1].avgWeight! * 100;
     }
   }
   return rows.reverse();
@@ -136,7 +136,7 @@ function computeMonthlyRows(metrics: DailyMetric[], workouts: WorkoutDay[]): Mon
   const sorted = [...metrics].sort((a, b) => a.date.localeCompare(b.date));
   const firstDate = parseISO(sorted[0].date);
   const lastDate = parseISO(sorted[sorted.length - 1].date);
-  const workoutDates = new Set(workouts.map(w => w.date));
+  const workoutDates = new Set(workouts.map((w) => w.date));
   const rows: MonthlyRow[] = [];
   let monthStart = startOfMonth(firstDate);
 
@@ -144,11 +144,11 @@ function computeMonthlyRows(metrics: DailyMetric[], workouts: WorkoutDay[]): Mon
     const monthEnd = endOfMonth(monthStart);
     const from = format(monthStart, "yyyy-MM-dd");
     const to = format(monthEnd, "yyyy-MM-dd");
-    const days = sorted.filter(m => m.date >= from && m.date <= to);
+    const days = sorted.filter((m) => m.date >= from && m.date <= to);
     if (days.length > 0) {
-      const weights = days.filter(d => d.weight_g != null).map(d => d.weight_g! / 1000);
-      const steps = days.filter(d => d.steps != null).map(d => d.steps!);
-      const kcals = days.filter(d => d.kcal != null).map(d => d.kcal!);
+      const weights = days.filter((d) => d.weight_g != null).map((d) => d.weight_g! / 1000);
+      const steps = days.filter((d) => d.steps != null).map((d) => d.steps!);
+      const kcals = days.filter((d) => d.kcal != null).map((d) => d.kcal!);
       const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
       let sessCount = 0;
       let d = new Date(monthStart);
@@ -162,14 +162,14 @@ function computeMonthlyRows(metrics: DailyMetric[], workouts: WorkoutDay[]): Mon
   }
   for (let i = 1; i < rows.length; i++) {
     if (rows[i].avgWeight != null && rows[i - 1].avgWeight != null) {
-      rows[i].weightVariation = ((rows[i].avgWeight! - rows[i - 1].avgWeight!) / rows[i - 1].avgWeight!) * 100;
+      rows[i].weightVariation = (rows[i].avgWeight! - rows[i - 1].avgWeight!) / rows[i - 1].avgWeight! * 100;
     }
   }
   return rows.reverse();
 }
 
 export default function CoachAthleteViewPage() {
-  const { athleteId } = useParams<{ athleteId: string }>();
+  const { athleteId } = useParams<{athleteId: string;}>();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -245,18 +245,18 @@ export default function CoachAthleteViewPage() {
 
     await refreshSessions();
 
-    const { data: metricsData } = await supabase
-      .from("daily_metrics")
-      .select("date, weight_g, steps, kcal")
-      .eq("user_id", athleteId)
-      .order("date", { ascending: false });
+    const { data: metricsData } = await supabase.
+    from("daily_metrics").
+    select("date, weight_g, steps, kcal").
+    eq("user_id", athleteId).
+    order("date", { ascending: false });
     setMetrics(metricsData ?? []);
 
-    const { data: flatExercises } = await supabase
-      .from("v_workout_exercises_flat")
-      .select("workout_date, exercise_name, load_type, load_g, reps")
-      .eq("user_id", athleteId)
-      .order("workout_date", { ascending: false });
+    const { data: flatExercises } = await supabase.
+    from("v_workout_exercises_flat").
+    select("workout_date, exercise_name, load_type, load_g, reps").
+    eq("user_id", athleteId).
+    order("workout_date", { ascending: false });
 
     if (flatExercises) {
       const byDate = new Map<string, WorkoutDay>();
@@ -267,7 +267,7 @@ export default function CoachAthleteViewPage() {
           name: row.exercise_name,
           load_type: row.load_type,
           load_g: row.load_g,
-          reps: row.reps,
+          reps: row.reps
         });
       });
       setWorkoutHistory(Array.from(byDate.values()));
@@ -281,36 +281,36 @@ export default function CoachAthleteViewPage() {
     setLoading(false);
   };
 
-  useEffect(() => { refresh(); }, [athleteId]);
+  useEffect(() => {refresh();}, [athleteId]);
 
   /** Load full workout detail with sets for a specific date */
   const loadWorkoutDetail = async (date: string) => {
     if (workoutDetails[date] || !athleteId) return;
     // Get workout for this athlete and date
-    const { data: workout } = await supabase
-      .from("workouts")
-      .select("id")
-      .eq("user_id", athleteId)
-      .eq("date", date)
-      .maybeSingle();
+    const { data: workout } = await supabase.
+    from("workouts").
+    select("id").
+    eq("user_id", athleteId).
+    eq("date", date).
+    maybeSingle();
     if (!workout) return;
 
-    const { data: exercises } = await supabase
-      .from("workout_exercises")
-      .select("id, exercise_name, load_type, load_g, reps, sort_order")
-      .eq("workout_id", workout.id)
-      .order("sort_order");
+    const { data: exercises } = await supabase.
+    from("workout_exercises").
+    select("id, exercise_name, load_type, load_g, reps, sort_order").
+    eq("workout_id", workout.id).
+    order("sort_order");
 
     if (!exercises) return;
 
-    const exerciseIds = exercises.map(e => e.id);
-    const { data: sets } = exerciseIds.length > 0
-      ? await supabase
-          .from("workout_exercise_sets")
-          .select("workout_exercise_id, reps, load_type, load_g, sort_order")
-          .in("workout_exercise_id", exerciseIds)
-          .order("sort_order")
-      : { data: [] };
+    const exerciseIds = exercises.map((e) => e.id);
+    const { data: sets } = exerciseIds.length > 0 ?
+    await supabase.
+    from("workout_exercise_sets").
+    select("workout_exercise_id, reps, load_type, load_g, sort_order").
+    in("workout_exercise_id", exerciseIds).
+    order("sort_order") :
+    { data: [] };
 
     const setsMap = new Map<string, WorkoutDetailSet[]>();
     (sets ?? []).forEach((s: any) => {
@@ -326,11 +326,11 @@ export default function CoachAthleteViewPage() {
         load_type: ex.load_type,
         load_g: ex.load_g,
         reps: ex.reps,
-        sets: setsMap.get(ex.id) ?? [],
-      })),
+        sets: setsMap.get(ex.id) ?? []
+      }))
     };
 
-    setWorkoutDetails(prev => ({ ...prev, [date]: detail }));
+    setWorkoutDetails((prev) => ({ ...prev, [date]: detail }));
   };
 
   const stats = useMemo(() => {
@@ -345,9 +345,9 @@ export default function CoachAthleteViewPage() {
 
     // Weight variation since first ever entry (metrics sorted desc: [0]=latest, [last]=oldest)
     const allWeightsData = metrics.filter((m) => m.weight_g != null).map((m) => m.weight_g! / 1000);
-    const weightTrendSinceFirst = allWeightsData.length >= 2
-      ? allWeightsData[0] - allWeightsData[allWeightsData.length - 1]
-      : 0;
+    const weightTrendSinceFirst = allWeightsData.length >= 2 ?
+    allWeightsData[0] - allWeightsData[allWeightsData.length - 1] :
+    0;
 
     const daysWithWeight = last30.filter((m) => m.weight_g != null).length;
     const daysWithSteps = last30.filter((m) => m.steps != null).length;
@@ -368,13 +368,13 @@ export default function CoachAthleteViewPage() {
       avgSteps: avg(stepsList), avgKcal: avg(kcalList),
       workoutCount: recentWorkouts.length, totalWorkouts: workoutHistory.length,
       completion: { daysWithWeight, daysWithSteps, daysWithKcal, totalDays },
-      weeksWithTraining,
+      weeksWithTraining
     };
   }, [metrics, workoutHistory]);
 
   /* ── Training frequency: sessions per week (last 8 weeks) ── */
   const frequencyByWeek = useMemo(() => {
-    const weeks: { label: string; count: number }[] = [];
+    const weeks: {label: string;count: number;}[] = [];
     const now = new Date();
     for (let i = 7; i >= 0; i--) {
       const ws = startOfWeek(new Date(now.getTime() - i * 7 * 86400000), { weekStartsOn: 1 });
@@ -394,7 +394,7 @@ export default function CoachAthleteViewPage() {
       "Push": ["bench", "press", "dips", "développé", "poussée", "pompe", "push", "pec", "épaule", "tricep", "overhead"],
       "Pull": ["pull", "row", "tirage", "traction", "curl", "bicep", "dorsaux", "dos", "chin"],
       "Legs": ["squat", "leg", "lunge", "fente", "jambe", "cuisse", "mollet", "calf", "deadlift", "soulevé", "hip thrust", "glute", "fessier", "presse", "extension jambe", "ischio"],
-      "Core": ["plank", "gainage", "crunch", "abdo", "abdominaux", "core", "oblique", "rotary"],
+      "Core": ["plank", "gainage", "crunch", "abdo", "abdominaux", "core", "oblique", "rotary"]
     };
 
     const counts: Record<string, number> = { Push: 0, Pull: 0, Legs: 0, Core: 0, Autre: 0 };
@@ -417,26 +417,26 @@ export default function CoachAthleteViewPage() {
     });
 
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    return Object.entries(counts)
-      .filter(([_, v]) => v > 0)
-      .map(([name, count]) => ({ name, count, pct: total > 0 ? Math.round((count / total) * 100) : 0 }))
-      .sort((a, b) => b.count - a.count);
+    return Object.entries(counts).
+    filter(([_, v]) => v > 0).
+    map(([name, count]) => ({ name, count, pct: total > 0 ? Math.round(count / total * 100) : 0 })).
+    sort((a, b) => b.count - a.count);
   }, [workoutHistory]);
 
   /* ── Personal records (best e1RM per exercise) ── */
   const personalRecords = useMemo(() => {
-    const allWeights = metrics
-      .filter((m) => m.weight_g != null)
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .map((m) => ({ date: m.date, weight_g: m.weight_g! }));
+    const allWeights = metrics.
+    filter((m) => m.weight_g != null).
+    sort((a, b) => a.date.localeCompare(b.date)).
+    map((m) => ({ date: m.date, weight_g: m.weight_g! }));
 
     const getBW = (date: string) => {
       const before = allWeights.filter((w) => w.date <= date);
       return before.length > 0 ? before[before.length - 1].weight_g / 1000 : 0;
     };
 
-    const records: { name: string; e1rm: number; date: string }[] = [];
-    const exMap = new Map<string, { bestE1RM: number; bestDate: string }>();
+    const records: {name: string;e1rm: number;date: string;}[] = [];
+    const exMap = new Map<string, {bestE1RM: number;bestDate: string;}>();
 
     workoutHistory.forEach((w) => {
       w.exercises.forEach((ex) => {
@@ -464,10 +464,10 @@ export default function CoachAthleteViewPage() {
   const prsBeatenThisWeek = useMemo(() => {
     const sevenDaysAgo = format(new Date(Date.now() - 7 * 86400000), "yyyy-MM-dd");
 
-    const allWeights = metrics
-      .filter((m) => m.weight_g != null)
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .map((m) => ({ date: m.date, weight_g: m.weight_g! }));
+    const allWeights = metrics.
+    filter((m) => m.weight_g != null).
+    sort((a, b) => a.date.localeCompare(b.date)).
+    map((m) => ({ date: m.date, weight_g: m.weight_g! }));
 
     const getBW = (date: string) => {
       const before = allWeights.filter((w) => w.date <= date);
@@ -490,7 +490,7 @@ export default function CoachAthleteViewPage() {
     });
 
     // Check this week's exercises against historical bests
-    const beaten: { name: string; e1rm: number; date: string }[] = [];
+    const beaten: {name: string;e1rm: number;date: string;}[] = [];
     const alreadyCounted = new Set<string>();
 
     workoutHistory.forEach((w) => {
@@ -515,24 +515,24 @@ export default function CoachAthleteViewPage() {
 
   /* ── Coach alerts (client-side) ── */
   const alerts = useMemo(() => {
-    const result: { type: "inactive" | "weightLoss" | "pr"; icon: typeof AlertTriangle; color: string; bgColor: string; message: string }[] = [];
+    const result: {type: "inactive" | "weightLoss" | "pr";icon: typeof AlertTriangle;color: string;bgColor: string;message: string;}[] = [];
     const today = format(new Date(), "yyyy-MM-dd");
     const sevenDaysAgo = format(new Date(Date.now() - 7 * 86400000), "yyyy-MM-dd");
 
     // 1. Inactivity > 7 days
     const lastWorkoutDate = workoutHistory.length > 0 ? workoutHistory[0].date : null;
     if (!lastWorkoutDate || lastWorkoutDate < sevenDaysAgo) {
-      const daysSince = lastWorkoutDate
-        ? Math.floor((Date.now() - parseISO(lastWorkoutDate).getTime()) / 86400000)
-        : null;
+      const daysSince = lastWorkoutDate ?
+      Math.floor((Date.now() - parseISO(lastWorkoutDate).getTime()) / 86400000) :
+      null;
       result.push({
         type: "inactive",
         icon: Moon,
         color: "text-[hsl(36,100%,55%)]",
         bgColor: "border-[hsl(36,100%,55%)]/30 bg-[hsl(36,100%,55%)]/10",
-        message: daysSince != null
-          ? t("coach.alertInactive", { days: daysSince })
-          : t("coach.alertNoWorkout"),
+        message: daysSince != null ?
+        t("coach.alertInactive", { days: daysSince }) :
+        t("coach.alertNoWorkout")
       });
     }
 
@@ -549,7 +549,7 @@ export default function CoachAthleteViewPage() {
           icon: AlertTriangle,
           color: "text-[hsl(0,85%,60%)]",
           bgColor: "border-[hsl(0,85%,60%)]/30 bg-[hsl(0,85%,60%)]/10",
-          message: t("coach.alertWeightLoss", { kg: Math.abs(diff).toFixed(1) }),
+          message: t("coach.alertWeightLoss", { kg: Math.abs(diff).toFixed(1) })
         });
       }
     }
@@ -561,7 +561,7 @@ export default function CoachAthleteViewPage() {
         icon: Trophy,
         color: "text-[hsl(156,100%,50%)]",
         bgColor: "border-[hsl(156,100%,50%)]/30 bg-[hsl(156,100%,50%)]/10",
-        message: t("coach.alertPR", { count: prsBeatenThisWeek.length, exercise: prsBeatenThisWeek.map(p => p.name).join(", ") }),
+        message: t("coach.alertPR", { count: prsBeatenThisWeek.length, exercise: prsBeatenThisWeek.map((p) => p.name).join(", ") })
       });
     }
 
@@ -604,8 +604,8 @@ export default function CoachAthleteViewPage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>);
+
   }
 
   /* ── Program editor view (editing sessions) ── */
@@ -614,18 +614,18 @@ export default function CoachAthleteViewPage() {
       <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
           <button
-            onClick={() => { setEditingProgram(null); refreshSessions(); }}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-          >
+            onClick={() => {setEditingProgram(null);refreshSessions();}}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+            
             <ArrowLeft size={16} /> {t("program.backToList")}
           </button>
-          <ProgramEditor program={editingProgram} onBack={() => { setEditingProgram(null); refreshSessions(); }} hideTitle />
+          <ProgramEditor program={editingProgram} onBack={() => {setEditingProgram(null);refreshSessions();}} hideTitle />
         </motion.div>
-      </div>
-    );
+      </div>);
+
   }
 
-  const TrendIcon = ({ value }: { value: number }) => {
+  const TrendIcon = ({ value }: {value: number;}) => {
     if (value > 0.3) return <TrendingUp size={14} className="text-primary" />;
     if (value < -0.3) return <TrendingDown size={14} className="text-destructive" />;
     return <Minus size={14} className="text-muted-foreground" />;
@@ -637,7 +637,7 @@ export default function CoachAthleteViewPage() {
     return `${(lg ?? 0) / 1000}`;
   }
 
-  function VariationBadge({ value }: { value: number | null }) {
+  function VariationBadge({ value }: {value: number | null;}) {
     if (value == null) return <span className="text-muted-foreground">—</span>;
     const positive = value > 0;
     const color = positive ? "text-destructive" : value < 0 ? "text-primary" : "text-muted-foreground";
@@ -647,7 +647,7 @@ export default function CoachAthleteViewPage() {
   const visibleMetrics = metricsExpanded ? metrics : metrics.slice(0, 14);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8 bg-secondary">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -677,62 +677,62 @@ export default function CoachAthleteViewPage() {
                     reps: ex.reps,
                     rest: ex.rest,
                     work_type: ex.work_type,
-                    note: ex.note,
-                  })),
+                    note: ex.note
+                  }))
                 })),
                 frequencyAvg: frequencyByWeek.avgFreq,
-                t,
+                t
               });
               toast.success(t("pdf.downloaded"));
             }}
             className="p-2.5 rounded-xl glass hover:bg-muted/50 text-primary"
-            title={t("pdf.export")}
-          >
+            title={t("pdf.export")}>
+            
             <FileDown size={18} />
           </button>
         </div>
 
         {/* Tabs */}
         <div className="flex glass rounded-xl p-1">
-          {(["overview", "training", "sessions"] as Tab[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-colors ${
-                activeTab === tab
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
+          {(["overview", "training", "sessions"] as Tab[]).map((tab) =>
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-colors ${
+            activeTab === tab ?
+            "bg-primary text-primary-foreground" :
+            "text-muted-foreground hover:text-foreground"}`
+            }>
+            
               {tab === "overview" ? t("coach.overview") : tab === "training" ? t("coach.training") : t("coach.sessionsTab")}
             </button>
-          ))}
+          )}
         </div>
 
-        {activeTab === "overview" ? (
-          <>
+        {activeTab === "overview" ?
+        <>
             {/* ── Coach Alerts ── */}
-            {alerts.length > 0 && (
-              <div className="space-y-2">
+            {alerts.length > 0 &&
+          <div className="space-y-2">
                 {alerts.map((alert, i) => {
-                  const Icon = alert.icon;
-                  return (
-                    <motion.div
-                      key={alert.type}
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className={`flex items-center gap-3 p-3 rounded-2xl border ${alert.bgColor}`}
-                    >
+              const Icon = alert.icon;
+              return (
+                <motion.div
+                  key={alert.type}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`flex items-center gap-3 p-3 rounded-2xl border ${alert.bgColor}`}>
+                  
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${alert.color} bg-background/50`}>
                         <Icon size={16} />
                       </div>
                       <p className="text-xs font-bold text-foreground flex-1">{alert.message}</p>
-                    </motion.div>
-                  );
-                })}
+                    </motion.div>);
+
+            })}
               </div>
-            )}
+          }
 
             {/* Summary cards */}
             <div className="grid grid-cols-2 gap-3">
@@ -746,12 +746,12 @@ export default function CoachAthleteViewPage() {
                   <span className="text-xs text-muted-foreground">kg</span>
                   {stats.currentWeight != null && <TrendIcon value={stats.weightTrend} />}
                 </div>
-                {stats.weightTrend !== 0 && stats.currentWeight != null && (
-                  <p className="text-[10px] text-muted-foreground">
+                {stats.weightTrend !== 0 && stats.currentWeight != null &&
+              <p className="text-[10px] text-muted-foreground">
                     {stats.weightTrend > 0 ? "+" : ""}{stats.weightTrend.toFixed(1)} kg
                     <span className="text-muted-foreground/50 ml-1">{t("coach.sinceFirstEntry", "depuis 1ère saisie")}</span>
                   </p>
-                )}
+              }
               </GlassCard>
 
               <GlassCard className="p-4 rounded-2xl space-y-1">
@@ -800,13 +800,13 @@ export default function CoachAthleteViewPage() {
               </div>
 
               {[
-                { label: t("dashboard.weight"), count: stats.completion.daysWithWeight, total: stats.completion.totalDays, color: "bg-[hsl(var(--metric-weight))]" },
-                { label: t("coach.avgSteps"), count: stats.completion.daysWithSteps, total: stats.completion.totalDays, color: "bg-[hsl(var(--metric-steps))]" },
-                { label: t("coach.avgKcal"), count: stats.completion.daysWithKcal, total: stats.completion.totalDays, color: "bg-[hsl(var(--metric-kcal))]" },
-              ].map(({ label, count, total, color }) => {
-                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                return (
-                  <div key={label} className="space-y-1">
+            { label: t("dashboard.weight"), count: stats.completion.daysWithWeight, total: stats.completion.totalDays, color: "bg-[hsl(var(--metric-weight))]" },
+            { label: t("coach.avgSteps"), count: stats.completion.daysWithSteps, total: stats.completion.totalDays, color: "bg-[hsl(var(--metric-steps))]" },
+            { label: t("coach.avgKcal"), count: stats.completion.daysWithKcal, total: stats.completion.totalDays, color: "bg-[hsl(var(--metric-kcal))]" }].
+            map(({ label, count, total, color }) => {
+              const pct = total > 0 ? Math.round(count / total * 100) : 0;
+              return (
+                <div key={label} className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-foreground">{label}</span>
                       <span className={`text-xs font-black ${pct >= 70 ? "text-primary" : pct >= 40 ? "text-warning" : "text-destructive"}`}>
@@ -815,13 +815,13 @@ export default function CoachAthleteViewPage() {
                     </div>
                     <div className="h-2 rounded-full bg-muted overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${color}`}
-                        style={{ width: `${pct}%` }}
-                      />
+                      className={`h-full rounded-full transition-all duration-500 ${color}`}
+                      style={{ width: `${pct}%` }} />
+                    
                     </div>
-                  </div>
-                );
-              })}
+                  </div>);
+
+            })}
 
               <div className="pt-2 border-t border-border space-y-1">
                 <div className="flex items-center justify-between">
@@ -831,14 +831,14 @@ export default function CoachAthleteViewPage() {
                   </span>
                 </div>
                 <div className="flex gap-1.5">
-                  {[0, 1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className={`flex-1 h-3 rounded-full transition-colors ${
-                        i < stats.weeksWithTraining ? "bg-primary" : "bg-muted"
-                      }`}
-                    />
-                  ))}
+                  {[0, 1, 2, 3].map((i) =>
+                <div
+                  key={i}
+                  className={`flex-1 h-3 rounded-full transition-colors ${
+                  i < stats.weeksWithTraining ? "bg-primary" : "bg-muted"}`
+                  } />
+
+                )}
                 </div>
               </div>
             </GlassCard>
@@ -856,25 +856,25 @@ export default function CoachAthleteViewPage() {
               </div>
               <div className="flex items-end gap-1 h-16">
                 {frequencyByWeek.weeks.map((w, i) => {
-                  const maxCount = Math.max(...frequencyByWeek.weeks.map((x) => x.count), 1);
-                  const h = w.count > 0 ? Math.max((w.count / maxCount) * 100, 12) : 4;
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                const maxCount = Math.max(...frequencyByWeek.weeks.map((x) => x.count), 1);
+                const h = w.count > 0 ? Math.max(w.count / maxCount * 100, 12) : 4;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       <span className="text-[9px] font-black text-foreground">{w.count || ""}</span>
                       <div
-                        className={`w-full rounded-t-md transition-all ${w.count > 0 ? "bg-primary" : "bg-muted"}`}
-                        style={{ height: `${h}%` }}
-                      />
+                      className={`w-full rounded-t-md transition-all ${w.count > 0 ? "bg-primary" : "bg-muted"}`}
+                      style={{ height: `${h}%` }} />
+                    
                       <span className="text-[8px] text-muted-foreground">{w.label}</span>
-                    </div>
-                  );
-                })}
+                    </div>);
+
+              })}
               </div>
             </GlassCard>
 
             {/* ── Recent Workouts Detail ── */}
-            {workoutHistory.length > 0 && (
-              <GlassCard className="p-5 rounded-3xl space-y-3">
+            {workoutHistory.length > 0 &&
+          <GlassCard className="p-5 rounded-3xl space-y-3">
                 <div className="flex items-center gap-2">
                   <Dumbbell size={16} className="text-primary" />
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex-1">
@@ -885,16 +885,16 @@ export default function CoachAthleteViewPage() {
                   </span>
                 </div>
                 <div className="space-y-1">
-                  {workoutHistory.slice(0, 15).map((w) => (
-                    <div key={w.date}>
+                  {workoutHistory.slice(0, 15).map((w) =>
+              <div key={w.date}>
                       <button
-                        onClick={() => {
-                          const next = expandedWorkoutDate === w.date ? null : w.date;
-                          setExpandedWorkoutDate(next);
-                          if (next) loadWorkoutDetail(next);
-                        }}
-                        className="w-full flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-muted/50 transition-colors text-left"
-                      >
+                  onClick={() => {
+                    const next = expandedWorkoutDate === w.date ? null : w.date;
+                    setExpandedWorkoutDate(next);
+                    if (next) loadWorkoutDetail(next);
+                  }}
+                  className="w-full flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-muted/50 transition-colors text-left">
+                  
                         <Calendar size={14} className="text-primary shrink-0" />
                         <span className="text-xs font-bold text-foreground flex-1 capitalize">
                           {format(parseISO(w.date), "EEEE d MMMM", { locale: fr })}
@@ -902,20 +902,20 @@ export default function CoachAthleteViewPage() {
                         <span className="text-[10px] font-bold text-muted-foreground">
                           {w.exercises.length} ex.
                         </span>
-                        {expandedWorkoutDate === w.date ? (
-                          <ChevronUp size={14} className="text-muted-foreground" />
-                        ) : (
-                          <ChevronDown size={14} className="text-muted-foreground" />
-                        )}
+                        {expandedWorkoutDate === w.date ?
+                  <ChevronUp size={14} className="text-muted-foreground" /> :
+
+                  <ChevronDown size={14} className="text-muted-foreground" />
+                  }
                       </button>
-                      {expandedWorkoutDate === w.date && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="pl-8 pr-3 pb-2 space-y-1.5"
-                        >
-                          {(workoutDetails[w.date]?.exercises ?? w.exercises.map(ex => ({ ...ex, sets: [] as WorkoutDetailSet[] }))).map((ex, i) => (
-                            <div key={`${ex.name}-${i}`} className="py-1.5 border-b border-border/20 last:border-0">
+                      {expandedWorkoutDate === w.date &&
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="pl-8 pr-3 pb-2 space-y-1.5">
+                  
+                          {(workoutDetails[w.date]?.exercises ?? w.exercises.map((ex) => ({ ...ex, sets: [] as WorkoutDetailSet[] }))).map((ex, i) =>
+                  <div key={`${ex.name}-${i}`} className="py-1.5 border-b border-border/20 last:border-0">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-bold text-foreground flex-1 truncate">{ex.name}</span>
                                 <span className="text-[10px] font-bold text-muted-foreground">
@@ -925,29 +925,29 @@ export default function CoachAthleteViewPage() {
                                   {ex.reps} reps
                                 </span>
                               </div>
-                              {ex.sets.length > 0 && (
-                                <div className="ml-4 mt-1 space-y-0.5">
-                                  {ex.sets.map((s, si) => (
-                                    <div key={si} className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                              {ex.sets.length > 0 &&
+                    <div className="ml-4 mt-1 space-y-0.5">
+                                  {ex.sets.map((s, si) =>
+                      <div key={si} className="flex items-center gap-2 text-[10px] text-muted-foreground">
                                       <span className="font-bold w-8">Set {si + 2}</span>
                                       <span>{loadDisplay(s.load_type, s.load_g)} {s.load_type !== "TEXT" && s.load_type !== "PDC" ? "kg" : ""}</span>
                                       <span className="text-primary font-bold">{s.reps} reps</span>
                                     </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </motion.div>
                       )}
+                                </div>
+                    }
+                            </div>
+                  )}
+                        </motion.div>
+                }
                     </div>
-                  ))}
+              )}
                 </div>
               </GlassCard>
-            )}
+          }
 
-            {muscleGroups.length > 0 && (
-              <GlassCard className="p-5 rounded-3xl space-y-3">
+            {muscleGroups.length > 0 &&
+          <GlassCard className="p-5 rounded-3xl space-y-3">
                 <div className="flex items-center gap-2">
                   <Dumbbell size={16} className="text-primary" />
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex-1">
@@ -958,34 +958,34 @@ export default function CoachAthleteViewPage() {
                   </span>
                 </div>
                 {muscleGroups.map((mg) => {
-                  const colors: Record<string, string> = {
-                    Push: "bg-[hsl(220,70%,55%)]",
-                    Pull: "bg-[hsl(156,100%,45%)]",
-                    Legs: "bg-[hsl(36,100%,55%)]",
-                    Core: "bg-[hsl(270,60%,60%)]",
-                    Autre: "bg-muted-foreground",
-                  };
-                  return (
-                    <div key={mg.name} className="space-y-1">
+              const colors: Record<string, string> = {
+                Push: "bg-[hsl(220,70%,55%)]",
+                Pull: "bg-[hsl(156,100%,45%)]",
+                Legs: "bg-[hsl(36,100%,55%)]",
+                Core: "bg-[hsl(270,60%,60%)]",
+                Autre: "bg-muted-foreground"
+              };
+              return (
+                <div key={mg.name} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-foreground">{mg.name}</span>
                         <span className="text-xs font-black text-muted-foreground">{mg.count} · {mg.pct}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-muted overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${colors[mg.name] ?? "bg-muted-foreground"}`}
-                          style={{ width: `${mg.pct}%` }}
-                        />
+                      className={`h-full rounded-full transition-all duration-500 ${colors[mg.name] ?? "bg-muted-foreground"}`}
+                      style={{ width: `${mg.pct}%` }} />
+                    
                       </div>
-                    </div>
-                  );
-                })}
+                    </div>);
+
+            })}
               </GlassCard>
-            )}
+          }
 
             {/* ── Personal Records ── */}
-            {personalRecords.length > 0 && (
-              <GlassCard className="p-5 rounded-3xl space-y-3">
+            {personalRecords.length > 0 &&
+          <GlassCard className="p-5 rounded-3xl space-y-3">
                 <div className="flex items-center gap-2">
                   <TrendingUp size={16} className="text-primary" />
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex-1">
@@ -993,45 +993,45 @@ export default function CoachAthleteViewPage() {
                   </h3>
                 </div>
                 <div className="space-y-1">
-                  {personalRecords.map((pr, i) => (
-                    <div key={pr.name} className="flex items-center gap-3 py-2 border-b border-border/20 last:border-0">
+                  {personalRecords.map((pr, i) =>
+              <div key={pr.name} className="flex items-center gap-3 py-2 border-b border-border/20 last:border-0">
                       <span className="text-[10px] font-black text-muted-foreground w-5 text-right">{i + 1}</span>
                       <span className="text-xs font-bold text-foreground flex-1 truncate">{pr.name}</span>
                       <span className="text-xs font-black text-primary">{pr.e1rm.toFixed(1)} kg</span>
                       <span className="text-[10px] text-muted-foreground">{format(parseISO(pr.date), "dd/MM/yy")}</span>
                     </div>
-                  ))}
+              )}
                 </div>
               </GlassCard>
-            )}
+          }
 
             <div className="flex glass rounded-xl p-1">
-              {(["day", "week", "month"] as MetricsView[]).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => { setMetricsView(v); setMetricsExpanded(false); }}
-                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors ${
-                    metricsView === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
+              {(["day", "week", "month"] as MetricsView[]).map((v) =>
+            <button
+              key={v}
+              onClick={() => {setMetricsView(v);setMetricsExpanded(false);}}
+              className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors ${
+              metricsView === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`
+              }>
+              
                   {t(`coach.view_${v}`)}
                 </button>
-              ))}
+            )}
             </div>
 
             {/* Day view */}
-            {metricsView === "day" && (
-              <GlassCard className="p-5 rounded-3xl">
+            {metricsView === "day" &&
+          <GlassCard className="p-5 rounded-3xl">
                 <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">
                   {t("coach.metricsHistory")} ({metrics.length})
                 </h3>
-                {metrics.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p>
-                ) : (
-                  <>
+                {metrics.length === 0 ?
+            <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p> :
+
+            <>
                     <div className="space-y-1">
-                      {visibleMetrics.map((m) => (
-                        <div key={m.date} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
+                      {visibleMetrics.map((m) =>
+                <div key={m.date} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
                           <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground w-16">{format(new Date(m.date), "dd/MM")}</span>
                           <div className="flex items-center gap-4 flex-1">
                             {m.weight_g != null && <div className="flex items-center gap-1 text-xs font-bold text-foreground"><Weight size={10} className="text-metric-weight" />{(m.weight_g / 1000).toFixed(1)}</div>}
@@ -1039,26 +1039,26 @@ export default function CoachAthleteViewPage() {
                             {m.kcal != null && <div className="flex items-center gap-1 text-xs font-bold text-foreground"><Flame size={10} className="text-metric-kcal" />{m.kcal.toLocaleString()}</div>}
                           </div>
                         </div>
-                      ))}
+                )}
                     </div>
-                    {metrics.length > 14 && (
-                      <button onClick={() => setMetricsExpanded(!metricsExpanded)} className="w-full flex items-center justify-center gap-1 mt-3 text-[10px] font-black uppercase tracking-widest text-primary">
+                    {metrics.length > 14 &&
+              <button onClick={() => setMetricsExpanded(!metricsExpanded)} className="w-full flex items-center justify-center gap-1 mt-3 text-[10px] font-black uppercase tracking-widest text-primary">
                         {metricsExpanded ? <><ChevronUp size={12} /> {t("coach.showLess")}</> : <><ChevronDown size={12} /> {t("coach.showAll")} ({metrics.length})</>}
                       </button>
-                    )}
+              }
                   </>
-                )}
+            }
               </GlassCard>
-            )}
+          }
 
             {/* Week view */}
-            {metricsView === "week" && (
-              <GlassCard className="p-4 rounded-3xl">
+            {metricsView === "week" &&
+          <GlassCard className="p-4 rounded-3xl">
                 <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">{t("coach.weeklyView")} ({weeklyRows.length})</h3>
-                {weeklyRows.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p>
-                ) : (
-                  <div className="overflow-x-auto -mx-2">
+                {weeklyRows.length === 0 ?
+            <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p> :
+
+            <div className="overflow-x-auto -mx-2">
                     <table className="w-full text-[11px]">
                       <thead>
                         <tr className="border-b border-border">
@@ -1071,8 +1071,8 @@ export default function CoachAthleteViewPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {(metricsExpanded ? weeklyRows : weeklyRows.slice(0, 8)).map((row, i) => (
-                          <tr key={row.startDate} className={i % 2 === 0 ? "" : "bg-muted/20"}>
+                        {(metricsExpanded ? weeklyRows : weeklyRows.slice(0, 8)).map((row, i) =>
+                  <tr key={row.startDate} className={i % 2 === 0 ? "" : "bg-muted/20"}>
                             <td className="px-2 py-2 font-bold text-foreground whitespace-nowrap">{row.label}</td>
                             <td className="text-center px-1 py-2 font-bold text-foreground">{row.avgSteps != null ? Math.round(row.avgSteps).toLocaleString() : "—"}</td>
                             <td className="text-center px-1 py-2 font-bold text-foreground">{row.avgKcal != null ? Math.round(row.avgKcal) : "—"}</td>
@@ -1080,27 +1080,27 @@ export default function CoachAthleteViewPage() {
                             <td className="text-center px-1 py-2"><VariationBadge value={row.weightVariation} /></td>
                             <td className="text-center px-1 py-2 font-black text-primary">{row.sessionsCount}</td>
                           </tr>
-                        ))}
+                  )}
                       </tbody>
                     </table>
-                    {weeklyRows.length > 8 && (
-                      <button onClick={() => setMetricsExpanded(!metricsExpanded)} className="w-full flex items-center justify-center gap-1 mt-3 text-[10px] font-black uppercase tracking-widest text-primary">
+                    {weeklyRows.length > 8 &&
+              <button onClick={() => setMetricsExpanded(!metricsExpanded)} className="w-full flex items-center justify-center gap-1 mt-3 text-[10px] font-black uppercase tracking-widest text-primary">
                         {metricsExpanded ? <><ChevronUp size={12} /> {t("coach.showLess")}</> : <><ChevronDown size={12} /> {t("coach.showAll")} ({weeklyRows.length})</>}
                       </button>
-                    )}
+              }
                   </div>
-                )}
+            }
               </GlassCard>
-            )}
+          }
 
             {/* Month view */}
-            {metricsView === "month" && (
-              <GlassCard className="p-4 rounded-3xl">
+            {metricsView === "month" &&
+          <GlassCard className="p-4 rounded-3xl">
                 <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">{t("coach.monthlyView")} ({monthlyRows.length})</h3>
-                {monthlyRows.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p>
-                ) : (
-                  <div className="overflow-x-auto -mx-2">
+                {monthlyRows.length === 0 ?
+            <p className="text-sm text-muted-foreground text-center py-4">{t("coach.noData")}</p> :
+
+            <div className="overflow-x-auto -mx-2">
                     <table className="w-full text-[11px]">
                       <thead>
                         <tr className="border-b border-border">
@@ -1113,8 +1113,8 @@ export default function CoachAthleteViewPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {monthlyRows.map((row, i) => (
-                          <tr key={row.label} className={i % 2 === 0 ? "" : "bg-muted/20"}>
+                        {monthlyRows.map((row, i) =>
+                  <tr key={row.label} className={i % 2 === 0 ? "" : "bg-muted/20"}>
                             <td className="px-2 py-2 font-bold text-foreground capitalize whitespace-nowrap">{row.label}</td>
                             <td className="text-center px-1 py-2 font-bold text-foreground">{row.avgSteps != null ? Math.round(row.avgSteps).toLocaleString() : "—"}</td>
                             <td className="text-center px-1 py-2 font-bold text-foreground">{row.avgKcal != null ? Math.round(row.avgKcal) : "—"}</td>
@@ -1122,13 +1122,13 @@ export default function CoachAthleteViewPage() {
                             <td className="text-center px-1 py-2"><VariationBadge value={row.weightVariation} /></td>
                             <td className="text-center px-1 py-2 font-black text-primary">{row.sessionsCount}</td>
                           </tr>
-                        ))}
+                  )}
                       </tbody>
                     </table>
                   </div>
-                )}
+            }
               </GlassCard>
-            )}
+          }
 
             {/* ── Coach Private Notes ── */}
             <GlassCard className="p-5 rounded-3xl space-y-3">
@@ -1142,40 +1142,40 @@ export default function CoachAthleteViewPage() {
                 </span>
               </div>
               <textarea
-                value={noteContent}
-                onChange={(e) => handleNoteChange(e.target.value)}
-                placeholder={t("coach.notesPlaceholder")}
-                className="w-full min-h-[120px] bg-muted/30 border border-border/50 rounded-xl p-3 text-sm text-foreground placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:ring-1 focus:ring-primary/30"
-              />
+              value={noteContent}
+              onChange={(e) => handleNoteChange(e.target.value)}
+              placeholder={t("coach.notesPlaceholder")}
+              className="w-full min-h-[120px] bg-muted/30 border border-border/50 rounded-xl p-3 text-sm text-foreground placeholder:text-muted-foreground/50 resize-y focus:outline-none focus:ring-1 focus:ring-primary/30" />
+            
             </GlassCard>
-          </>
-        ) : activeTab === "training" ? (
-          <CoachExerciseDashboard athleteId={athleteId!} />
-        ) : (
-          /* ── Sessions tab ── */
-          <div className="space-y-4">
+          </> :
+        activeTab === "training" ?
+        <CoachExerciseDashboard athleteId={athleteId!} /> : (
+
+        /* ── Sessions tab ── */
+        <div className="space-y-4">
             <button
-              onClick={handleAddSession}
-              disabled={creating}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 disabled:opacity-50"
-            >
+            onClick={handleAddSession}
+            disabled={creating}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-xs font-black uppercase tracking-wider hover:opacity-90 disabled:opacity-50">
+            
               <Plus size={16} />
               {creating ? t("program.creating") : t("coach.addSession")}
             </button>
 
-            {sessions.length === 0 ? (
-              <div className="text-center py-8 space-y-2">
+            {sessions.length === 0 ?
+          <div className="text-center py-8 space-y-2">
                 <ClipboardList className="mx-auto h-10 w-10 text-muted-foreground/30" />
                 <p className="text-sm text-muted-foreground">{t("coach.noSessions")}</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {sessions.map((s) => (
-                  <div key={s.id} className="flex items-center gap-2">
+              </div> :
+
+          <div className="space-y-2">
+                {sessions.map((s) =>
+            <div key={s.id} className="flex items-center gap-2">
                     <button
-                      onClick={() => athleteProgram && setEditingProgram(athleteProgram)}
-                      className="flex-1 flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left"
-                    >
+                onClick={() => athleteProgram && setEditingProgram(athleteProgram)}
+                className="flex-1 flex items-center gap-3 p-3 rounded-xl glass hover:bg-muted/50 transition-colors text-left">
+                
                       <ClipboardList size={16} className="text-primary" />
                       <div className="flex-1 min-w-0">
                         <span className="text-sm font-bold text-foreground truncate block">{s.name}</span>
@@ -1186,28 +1186,28 @@ export default function CoachAthleteViewPage() {
                       <ChevronRight size={14} className="text-muted-foreground/40" />
                     </button>
                     <button
-                      onClick={() => handleDeleteSession(s.id)}
-                      className="p-2 text-destructive/40 hover:text-destructive"
-                    >
+                onClick={() => handleDeleteSession(s.id)}
+                className="p-2 text-destructive/40 hover:text-destructive">
+                
                       <Trash2 size={14} />
                     </button>
                   </div>
-                ))}
+            )}
 
                 {/* Edit all sessions button */}
-                {athleteProgram && (
-                  <button
-                    onClick={() => setEditingProgram(athleteProgram)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/30 text-primary text-[10px] font-black uppercase tracking-wider hover:bg-primary/10 transition-colors mt-2"
-                  >
+                {athleteProgram &&
+            <button
+              onClick={() => setEditingProgram(athleteProgram)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-primary/30 text-primary text-[10px] font-black uppercase tracking-wider hover:bg-primary/10 transition-colors mt-2">
+              
                     {t("coach.editSessions")}
                   </button>
-                )}
+            }
               </div>
-            )}
-          </div>
-        )}
+          }
+          </div>)
+        }
       </motion.div>
-    </div>
-  );
+    </div>);
+
 }
