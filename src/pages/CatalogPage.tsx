@@ -15,12 +15,12 @@ export default function CatalogPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listCatalogExercises()
-      .then((data) => {
-        setAllExercises(data);
-        setFiltered(data);
-      })
-      .finally(() => setLoading(false));
+    listCatalogExercises().
+    then((data) => {
+      setAllExercises(data);
+      setFiltered(data);
+    }).
+    finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function CatalogPage() {
   }, [search, allExercises]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-32 lg:pb-8 bg-primary-foreground">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-noto-title text-3xl text-primary text-center mb-6">{t("catalog.title")}</h1>
 
@@ -39,89 +39,89 @@ export default function CatalogPage() {
             placeholder={t("catalog.search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent w-full text-sm text-foreground outline-none placeholder:text-muted-foreground font-bold"
-          />
+            className="bg-transparent w-full text-sm text-foreground outline-none placeholder:text-muted-foreground font-bold" />
+          
         </div>
 
-        {loading ? (
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full rounded-2xl" />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center text-muted-foreground text-sm py-16">
+        {loading ?
+        <div className="space-y-3">
+            {[...Array(5)].map((_, i) =>
+          <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+          )}
+          </div> :
+        filtered.length === 0 ?
+        <div className="text-center text-muted-foreground text-sm py-16">
             {search ? t("catalog.noResult") : t("catalog.empty")}
-          </div>
-        ) : (
-          <div className="space-y-3">
+          </div> :
+
+        <div className="space-y-3">
             <AnimatePresence mode="popLayout">
               {filtered.map((ex) => {
-                const isExpanded = expandedId === ex.id;
-                return (
-                  <motion.div
-                    key={ex.id}
-                    layout
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                  >
+              const isExpanded = expandedId === ex.id;
+              return (
+                <motion.div
+                  key={ex.id}
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}>
+                  
                     <GlassCard className="overflow-hidden">
                       <div className="p-5 flex items-center justify-between">
                         <h3 className="font-black text-lg uppercase text-foreground tracking-tight">
                           {ex.name}
                         </h3>
                         <div className="flex gap-2">
-                          {ex.note && (
-                          <button
-                              type="button"
-                              onClick={() => setExpandedId(isExpanded ? null : ex.id)}
-                              className={`w-12 h-12 rounded-full flex items-center justify-center text-[9px] font-black uppercase tracking-wider transition-colors ${
-                                isExpanded
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted-foreground/20 text-muted-foreground hover:text-foreground"
-                              }`}
-                              aria-label={t("catalog.seeNote")}
-                            >
+                          {ex.note &&
+                        <button
+                          type="button"
+                          onClick={() => setExpandedId(isExpanded ? null : ex.id)}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center text-[9px] font-black uppercase tracking-wider transition-colors ${
+                          isExpanded ?
+                          "bg-primary text-primary-foreground" :
+                          "bg-muted-foreground/20 text-muted-foreground hover:text-foreground"}`
+                          }
+                          aria-label={t("catalog.seeNote")}>
+                          
                               {t("catalog.seeNote")}
                             </button>
-                          )}
-                          {ex.youtube_url && (
-                            <a
-                              href={ex.youtube_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-lg hover:opacity-90 transition-opacity"
-                              aria-label={t("catalog.seeVideo")}
-                            >
+                        }
+                          {ex.youtube_url &&
+                        <a
+                          href={ex.youtube_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-lg hover:opacity-90 transition-opacity"
+                          aria-label={t("catalog.seeVideo")}>
+                          
                               <Play size={18} fill="currentColor" />
                             </a>
-                          )}
+                        }
                         </div>
                       </div>
                       <AnimatePresence>
-                        {isExpanded && ex.note && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="overflow-hidden"
-                          >
+                        {isExpanded && ex.note &&
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden">
+                        
                             <div className="px-5 pb-5 text-xs text-muted-foreground leading-relaxed">
                               {ex.note}
                             </div>
                           </motion.div>
-                        )}
+                      }
                       </AnimatePresence>
                     </GlassCard>
-                  </motion.div>
-                );
-              })}
+                  </motion.div>);
+
+            })}
             </AnimatePresence>
           </div>
-        )}
+        }
       </motion.div>
-    </div>
-  );
+    </div>);
+
 }
