@@ -382,8 +382,8 @@ export default function CoachDashboardPage() {
             className="fixed left-0 right-0 bottom-0 z-[70]">
             
               <div className="mx-auto max-w-xl">
-                <div className="rounded-t-[2.5rem] border border-border glass shadow-[0_-30px_80px_rgba(0,0,0,0.75)] bg-secondary">
-                  <div className="px-5 pt-4 pb-3 flex items-center justify-between relative bg-secondary">
+                <div className="rounded-t-[2.5rem] border border-border glass shadow-[0_-30px_80px_rgba(0,0,0,0.75)]">
+                  <div className="px-5 pt-4 pb-3 flex items-center justify-between relative">
                     <div className="w-12 h-1.5 rounded-full bg-muted mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
                     <h2 className="text-sm font-black uppercase italic tracking-widest text-muted-foreground">
                       {t("coach.inviteAthlete")}
@@ -392,7 +392,7 @@ export default function CoachDashboardPage() {
                       <X size={18} />
                     </button>
                   </div>
-                  <div className="px-5 pb-6 space-y-4 bg-secondary">
+                  <div className="px-5 pb-6 space-y-4">
                     {/* Remaining slots info */}
                     <div className="text-[10px] font-bold text-muted-foreground text-center">
                       {(() => {
